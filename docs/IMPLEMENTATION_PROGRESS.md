@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T11:21:28Z
+date_utc=2026-06-06T11:28:28Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=a13e9c6
+git_head=e6f5e85
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -281,14 +281,14 @@ O ScoutPraia ainda precisa de:
 
 1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-4. Tela de marcação real com criação/edição/exclusão de eventos.
-5. Analytics completo conforme o MVP.
-6. Relatórios HTML completos e persistidos.
-7. Validação operacional com vídeo real.
-8. Verificação visual do Streamlit.
-9. README operacional completo após a implementação funcional.
-10. Commit das mudanças atuais quando o ciclo for aprovado.
+3. `validation_service.py` com persistência de `CodingAgreement`.
+4. Analytics completo conforme o MVP.
+5. Relatórios HTML completos e persistidos.
+6. Tela de marcação real com criação/edição/exclusão de eventos.
+7. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+8. Validação operacional com vídeo real.
+9. Verificação visual do Streamlit.
+10. README operacional completo após a implementação funcional.
 
 ---
 
@@ -309,10 +309,10 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
 Próximo trabalho técnico recomendado:
 
-1. implementar testes de criação/consulta dos modelos principais
-2. associar elenco disponível ao jogo com `match_roster`
-3. implementar edição/exclusão de adversária/jogo/atleta
-4. implementar tela de marcação funcional
+1. implementar `validation_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.4
+2. persistir `CodingAgreement` com divergências em JSON
+3. testar divergência artificial e regra de aprovação/reprovação
+4. depois avançar para `analytics_service.py`, `report_service.py` e só então páginas Streamlit completas
 
 
 ---
@@ -719,3 +719,47 @@ Limitações, gaps e riscos:
 - A UI de marcação ainda não aciona geração de clipes.
 - Não há rotina de remoção/limpeza de clipes órfãos.
 - Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
+
+---
+
+## Auditoria — Fluxo do MVP para agentes
+
+Status: `AUDITADO`
+
+Escopo:
+
+- ler `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- ler `docs/IMPLEMENTATION_STEPS_AI.md`
+- ler `docs/IMPLEMENTATION_PROGRESS.md`
+- avaliar se o fluxo documental é correto para um agente implementar o MVP
+- auditar estrutura do repositório e restrições de stack
+
+Implementado:
+
+- `docs/AUDIT_MVP_AGENT_FLOW.md` criado com veredito e evidência.
+- bloco `Próxima fase autorizada pelo plano` atualizado para `validation_service.py`, conforme Fase 6.4.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+git ls-files
+rg -n -i "react|fastapi|postgres|postgresql|auth|authentication|jwt|deploy|docker|kubernetes" app.py scoutpraia tests requirements.txt README.md .env.example
+```
+
+Resultado observado:
+
+```text
+date_utc=2026-06-06T11:28:28Z
+git_head=e6f5e85
+forbidden_tracked_files=none
+collected 15 items
+15 passed, 6 warnings
+```
+
+Conclusão:
+
+- O fluxo correto para agentes é seguir `docs/IMPLEMENTATION_STEPS_AI.md` como ordem executável.
+- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` permanece como contrato de produto e critério de escopo.
+- `docs/IMPLEMENTATION_PROGRESS.md` deve continuar registrando prova, pendências e bloqueios.
+- O próximo trabalho técnico autorizado é completar `validation_service.py`.
