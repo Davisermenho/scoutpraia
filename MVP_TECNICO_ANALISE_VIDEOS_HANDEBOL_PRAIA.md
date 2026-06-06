@@ -249,6 +249,10 @@ scoutpraia/
 - `opponent_id`
 - `video_path`
 - `duration_seconds`
+- `video_width`
+- `video_height`
+- `video_fps`
+- `video_codec`
 - `final_score_team`
 - `final_score_opponent`
 - `notes`

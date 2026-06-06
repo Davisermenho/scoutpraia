@@ -4,16 +4,20 @@ __pycache__/
 
 .env
 .env.*
+!.env.example
 
 data/*.db
 data/*.sqlite
 data/*.sqlite3
 
-storage/videos/
-storage/clips/
-storage/reports/
-storage/thumbnails/
-Videos-Jogos/
+storage/videos/*
+!storage/videos/.gitkeep
+storage/clips/*
+!storage/clips/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+storage/thumbnails/*
+!storage/thumbnails/.gitkeep
 bin/
 
 tmp/
