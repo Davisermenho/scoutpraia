@@ -514,3 +514,51 @@ Limites:
 
 - os vídeos continuam ignorados pelo Git por `storage/videos/*`
 - apenas `storage/videos/.gitkeep` deve ser versionado
+
+---
+
+## Auditoria — Validação das provas atuais
+
+Status: `AUDITADO COM GATE REFORÇADO`
+
+Escopo:
+
+- verificar se o script e os testes provam corretamente o que está implementado
+- separar prova técnica real de afirmações ainda não cobertas
+- validar o critério dos testes contra fontes técnicas e metodologia observacional
+- reforçar o gate contra versionamento indevido de mídia, banco, `.env`, `.venv`, `tmp/`, `bin/` e gerados
+- reforçar o gate contra retorno do diretório legado `Videos-Jogos/`
+
+Implementado:
+
+- `docs/AUDIT_EVIDENCE_VALIDATION.md` criado com veredito técnico.
+- `scripts/verify_current_state.sh` agora checa higiene de repositório.
+- `AGENTS.md` passa a exigir leitura do arquivo de auditoria.
+
+Evidência executada:
+
+```bash
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+== Repository hygiene checks ==
+canonical_video_dir=storage/videos
+legacy_video_dir_absent=Videos-Jogos
+forbidden_tracked_files=none
+
+== Tests ==
+collected 10 items
+tests/test_match_service.py .                                            [ 10%]
+tests/test_real_video_integration.py ..                                  [ 30%]
+tests/test_smoke.py .......                                              [100%]
+10 passed
+```
+
+Conclusão:
+
+- As provas atuais sustentam a base técnica inicial: importação, banco, seed de taxonomia, extração/persistência de metadados de vídeo e higiene do repo.
+- As provas atuais não sustentam declarar MVP completo.
+- Permanecem não comprovados: UI completa, marcação real, geração real de clipes, analytics completo, relatórios finais, validação observacional e confiabilidade intra/interobservador.

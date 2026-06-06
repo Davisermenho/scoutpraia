@@ -6,6 +6,29 @@ printf 'date_utc=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 printf 'cwd=%s\n' "$(pwd)"
 printf 'git_branch=%s\n' "$(git branch --show-current 2>/dev/null || echo none)"
 printf 'git_head=%s\n' "$(git rev-parse --short HEAD 2>/dev/null || echo none)"
+
+printf '\n== Repository hygiene checks ==\n'
+test -d storage/videos
+test -f storage/videos/.gitkeep
+if test -d Videos-Jogos; then
+    printf 'legacy_video_dir_present=Videos-Jogos\n'
+    exit 1
+fi
+if git ls-files | rg '^Videos-Jogos/' >/tmp/scoutpraia_legacy_refs.txt; then
+    cat /tmp/scoutpraia_legacy_refs.txt
+    exit 1
+fi
+if git ls-files \
+    | rg '(^|/)(\.env$|\.venv/|tmp/|bin/|data/.*\.(db|sqlite|sqlite3)$|storage/videos/.+|storage/clips/.+|storage/reports/.+|storage/thumbnails/.+)' \
+    | rg -v '^storage/(videos|clips|reports|thumbnails)/\.gitkeep$' \
+    >/tmp/scoutpraia_forbidden_tracked.txt; then
+    cat /tmp/scoutpraia_forbidden_tracked.txt
+    exit 1
+fi
+printf 'canonical_video_dir=storage/videos\n'
+printf 'legacy_video_dir_absent=Videos-Jogos\n'
+printf 'forbidden_tracked_files=none\n'
+
 printf '\n== Required MVP doc checks ==\n'
 player_id_count=$(sed -n '/### `match_roster`/,/### `sets`/p' MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md | grep -c -- '- `player_id`')
 kpi_title_count=$(grep -c '^## 13\.1 KPIs coletivos$' MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md)

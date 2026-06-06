@@ -18,6 +18,7 @@ Antes de implementar qualquer coisa, leia:
 - `docs/taxonomy_dictionary.md`
 - `docs/validation_protocol.md`
 - `docs/rag_workflow.md`
+- `docs/AUDIT_EVIDENCE_VALIDATION.md`
 
 Se algum desses arquivos não existir, registre a ausência em `docs/IMPLEMENTATION_PROGRESS.md` antes de prosseguir.
 
