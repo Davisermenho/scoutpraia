@@ -12,7 +12,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços iniciais de eventos, validação de concordância e geração real de clipe com `ffmpeg` em teste sintético estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo, analytics completo e relatórios finais ainda não foram implementados.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético e analytics com fixture controlada estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo e relatórios finais ainda não foram implementados.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T11:35:10Z
+date_utc=2026-06-06T11:55:06Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=72ec651
+git_head=9512c0c
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,15 +76,16 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 17 items
-tests/test_clip_service.py .                                             [  5%]
-tests/test_event_service.py ..                                           [ 17%]
-tests/test_match_service.py ..                                           [ 29%]
-tests/test_models.py .                                                   [ 35%]
-tests/test_real_video_integration.py ..                                  [ 47%]
-tests/test_smoke.py .......                                              [ 88%]
+collected 19 items
+tests/test_analytics_service.py ..                                       [ 10%]
+tests/test_clip_service.py .                                             [ 15%]
+tests/test_event_service.py ..                                           [ 26%]
+tests/test_match_service.py ..                                           [ 36%]
+tests/test_models.py .                                                   [ 42%]
+tests/test_real_video_integration.py ..                                  [ 52%]
+tests/test_smoke.py .......                                              [ 89%]
 tests/test_validation_service.py ..                                      [100%]
-17 passed, 10 warnings
+19 passed, 10 warnings
 
 == Git whitespace check ==
 sem erros
@@ -215,7 +216,7 @@ Implementado parcialmente:
 - `event_service.py`: criação, listagem por jogo, edição e exclusão de evento com validação contra taxonomia, zona e regra prática de `points_value`
 - `clip_service.py`: cálculo de janela, nome de clipe, execução real de `ffmpeg` e persistência de `Clip`
 - `validation_service.py`: listagem de definições sem base operacional mínima, validação de taxonomia aprovada e persistência de `CodingAgreement` com divergências em JSON
-- `analytics_service.py`: KPIs coletivos mínimos
+- `analytics_service.py`: KPIs coletivos, individuais e por adversária com aviso para taxonomia não aprovada
 - `report_service.py`: renderização Jinja básica
 - `match_service.py`: associação idempotente de atletas ao `match_roster`, listagem e remoção
 
@@ -226,10 +227,10 @@ Evidência:
 - CRUD de eventos e falhas esperadas de validação testados em `tests/test_event_service.py`.
 - Geração real de clipe com `ffmpeg` e persistência de `Clip` testadas em `tests/test_clip_service.py`.
 - Persistência de `CodingAgreement`, divergência artificial e aprovação de taxonomia testadas em `tests/test_validation_service.py`.
+- KPIs coletivos, individuais e por adversária com fixture controlada testados em `tests/test_analytics_service.py`.
 
 Pendências:
 
-- `analytics_service.py` ainda não cobre todos os KPIs do MVP.
 - `report_service.py` ainda não salva relatório nem cria registro `Report`.
 
 ### Fase 7 — Interface Streamlit
@@ -265,15 +266,16 @@ Implementado:
 - `tests/test_match_service.py`
 - `tests/test_models.py`
 - `tests/test_validation_service.py`
-- 17 testes passando
+- `tests/test_analytics_service.py`
+- 19 testes passando
 
 Evidência:
 
-- `python3 -m pytest` retorna `17 passed`.
+- `python3 -m pytest` retorna `19 passed`.
 
 Limite atual:
 
-- A cobertura aumentou para modelos principais, roster, eventos, clipe real sintético e validação de concordância, mas ainda faltam testes de fixture de jogo sintético completo, KPIs completos e relatórios completos.
+- A cobertura aumentou para modelos principais, roster, eventos, clipe real sintético, validação de concordância e KPIs com fixture controlada, mas ainda faltam testes de relatórios completos e fluxo operacional completo.
 
 ---
 
@@ -283,13 +285,12 @@ O ScoutPraia ainda precisa de:
 
 1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. Analytics completo conforme o MVP.
-4. Relatórios HTML completos e persistidos.
-5. Tela de marcação real com criação/edição/exclusão de eventos.
-6. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-7. Validação operacional com vídeo real.
-8. Verificação visual do Streamlit.
-9. README operacional completo após a implementação funcional.
+3. Relatórios HTML completos e persistidos.
+4. Tela de marcação real com criação/edição/exclusão de eventos.
+5. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+6. Validação operacional com vídeo real.
+7. Verificação visual do Streamlit.
+8. README operacional completo após a implementação funcional.
 
 ---
 
@@ -310,9 +311,9 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
 Próximo trabalho técnico recomendado:
 
-1. implementar `analytics_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.5
-2. cobrir KPIs coletivos, individuais e por adversária com fixture controlada
-3. depois avançar para `report_service.py`
+1. implementar `report_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.6
+2. gerar payload coletivo, individual e de adversária
+3. exportar HTML em `storage/reports/` e persistir `Report`
 4. só então completar páginas Streamlit críticas
 
 
@@ -763,7 +764,7 @@ Conclusão:
 - O fluxo correto para agentes é seguir `docs/IMPLEMENTATION_STEPS_AI.md` como ordem executável.
 - `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` permanece como contrato de produto e critério de escopo.
 - `docs/IMPLEMENTATION_PROGRESS.md` deve continuar registrando prova, pendências e bloqueios.
-- O próximo trabalho técnico autorizado é completar `analytics_service.py`.
+- O próximo trabalho técnico autorizado é completar `report_service.py`.
 
 ---
 
@@ -813,4 +814,55 @@ Limitações, gaps e riscos:
 - O contrato atual não relaciona `Event` diretamente a `CodingSession`; a comparação persiste o vínculo entre sessões dentro do `disagreements_json`.
 - A comparação usa listas de eventos fornecidas explicitamente; a UI ainda não gera essas sessões operacionais.
 - A taxonomia segue `draft` no estado padrão; a aprovação testada é controlada em fixture.
+- Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
+
+---
+
+## Ciclo — Analytics service com fixture controlada
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/analytics_service.py` agora calcula KPIs coletivos.
+- `scoutpraia/services/analytics_service.py` agora calcula KPIs individuais por atleta.
+- `scoutpraia/services/analytics_service.py` agora calcula KPIs por adversária.
+- `scoutpraia/services/analytics_service.py` agora retorna aviso quando a taxonomia não está aprovada.
+- `scoutpraia/services/analytics_service.py` agora sinaliza uso de eventos práticos/hipotéticos em KPI crítico quando esses eventos aparecem na amostra.
+- `tests/test_analytics_service.py` cobre fixture controlada com eventos, posses e sets previsíveis.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_analytics_service.py
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_analytics_service.py ..                                       [100%]
+2 passed
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T11:55:06Z
+collected 19 items
+tests/test_analytics_service.py ..                                       [ 10%]
+tests/test_clip_service.py .                                             [ 15%]
+tests/test_event_service.py ..                                           [ 26%]
+tests/test_match_service.py ..                                           [ 36%]
+tests/test_models.py .                                                   [ 42%]
+tests/test_real_video_integration.py ..                                  [ 52%]
+tests/test_smoke.py .......                                              [ 89%]
+tests/test_validation_service.py ..                                      [100%]
+19 passed, 10 warnings
+```
+
+Limitações, gaps e riscos:
+
+- Os KPIs usam fixture controlada; ainda falta validação operacional sobre jogo real completo.
+- O estado padrão da taxonomia continua `draft`, então os avisos críticos seguem aparecendo por desenho.
+- `report_service.py` ainda não consome esses payloads.
 - Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
