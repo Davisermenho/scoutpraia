@@ -3,9 +3,11 @@ from sqlmodel import Session
 
 from scoutpraia.core.database import create_db_and_tables, engine
 from scoutpraia.services.match_service import (
+    add_player_to_match,
     create_match_with_video,
     create_opponent,
     create_player,
+    list_match_roster,
     list_matches,
     list_opponents,
     list_players,
@@ -155,6 +157,70 @@ def _render_matches(session: Session) -> None:
         )
     else:
         st.info("Nenhum jogo cadastrado.")
+
+    _render_match_roster(session, matches)
+
+
+def _render_match_roster(session: Session, matches: list) -> None:
+    st.subheader("Elenco disponível do jogo")
+    players = list_players(session)
+    if not matches or not players:
+        st.info("Cadastre pelo menos um jogo e uma atleta para associar elenco.")
+        return
+
+    match_options = {
+        f"Jogo {match.id} — {match.competition_name or 'sem competição'}": match.id
+        for match in matches
+    }
+    player_options = {
+        f"{player.name} (#{player.shirt_number})"
+        if player.shirt_number is not None
+        else player.name: player.id
+        for player in players
+    }
+
+    selected_match_label = st.selectbox(
+        "Jogo para associar elenco",
+        options=list(match_options.keys()),
+        key="roster_match",
+    )
+    selected_player_labels = st.multiselect(
+        "Atletas disponíveis",
+        options=list(player_options.keys()),
+        key="roster_players",
+    )
+
+    if st.button("Adicionar atletas ao elenco", key="add_roster_players"):
+        match_id = match_options[selected_match_label]
+        for player_label in selected_player_labels:
+            add_player_to_match(
+                session,
+                match_id=match_id,
+                player_id=player_options[player_label],
+            )
+        st.success("Atletas associadas ao jogo.")
+
+    selected_match_id = match_options[selected_match_label]
+    roster = list_match_roster(session, selected_match_id)
+    players_by_id = {player.id: player for player in players}
+    if roster:
+        st.dataframe(
+            [
+                {
+                    "match_id": entry.match_id,
+                    "player_id": entry.player_id,
+                    "name": players_by_id[entry.player_id].name
+                    if entry.player_id in players_by_id
+                    else None,
+                    "available": entry.available,
+                    "starter": entry.starter,
+                }
+                for entry in roster
+            ],
+            use_container_width=True,
+        )
+    else:
+        st.info("Nenhuma atleta associada a este jogo.")
 
 
 def render() -> None:

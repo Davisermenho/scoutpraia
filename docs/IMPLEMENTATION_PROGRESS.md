@@ -51,10 +51,15 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T07:41:37Z
+date_utc=2026-06-06T10:40:30Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=60e4267
+git_head=bb52a3b
+
+== Repository hygiene checks ==
+canonical_video_dir=storage/videos
+legacy_video_dir_absent=Videos-Jogos
+forbidden_tracked_files=none
 
 == Required MVP doc checks ==
 match_roster_player_id_count=1
@@ -71,11 +76,12 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 10 items
-tests/test_match_service.py . [ 10%]
-tests/test_real_video_integration.py .. [ 30%]
-tests/test_smoke.py ....... [100%]
-10 passed
+collected 12 items
+tests/test_match_service.py ..                                           [ 16%]
+tests/test_models.py .                                                   [ 25%]
+tests/test_real_video_integration.py ..                                  [ 41%]
+tests/test_smoke.py .......                                              [100%]
+12 passed, 3 warnings
 
 == Git whitespace check ==
 sem erros
@@ -208,10 +214,12 @@ Implementado parcialmente:
 - `validation_service.py`: cálculo simples de concordância
 - `analytics_service.py`: KPIs coletivos mínimos
 - `report_service.py`: renderização Jinja básica
+- `match_service.py`: associação idempotente de atletas ao `match_roster`, listagem e remoção
 
 Evidência:
 
 - `clip_window` e `probe_video_metadata` testados em `tests/test_smoke.py`.
+- `match_roster` testado em `tests/test_match_service.py`.
 
 Pendências:
 
@@ -227,7 +235,9 @@ Status: `PARCIAL`
 Implementado:
 
 - `app.py` com navegação local simples.
-- página de Jogos com cadastro básico real; Dashboard, Marcação, Relatórios e Adversárias ainda são placeholders.
+- página de Jogos com cadastro básico real.
+- página de Jogos com associação básica de atletas disponíveis ao jogo via `match_roster`.
+- Dashboard, Marcação, Relatórios e Adversárias ainda são placeholders.
 
 Evidência:
 
@@ -236,7 +246,6 @@ Evidência:
 Pendências:
 
 - Ainda não foi feita verificação visual com `streamlit run app.py`.
-- Cadastro básico de jogos foi implementado na página Jogos; ainda falta associar elenco/roster ao jogo.
 - Tela real de marcação ainda não implementada.
 - Relatórios na UI ainda não implementados.
 
@@ -247,15 +256,17 @@ Status: `FUNCIONANDO COMO SMOKE TESTS`
 Implementado:
 
 - `tests/test_smoke.py`
-- 7 testes passando
+- `tests/test_match_service.py`
+- `tests/test_models.py`
+- 12 testes passando
 
 Evidência:
 
-- `python3 -m pytest` retorna `10 passed`.
+- `python3 -m pytest` retorna `12 passed`.
 
 Limite atual:
 
-- Os testes ainda são smoke tests. Faltam testes de fixture de jogo sintético, KPIs completos, clipes reais e relatórios completos.
+- A cobertura aumentou para modelos principais e roster, mas ainda faltam testes de fixture de jogo sintético, KPIs completos, clipes reais e relatórios completos.
 
 ---
 
@@ -263,18 +274,17 @@ Limite atual:
 
 O ScoutPraia ainda precisa de:
 
-1. Testes completos de modelos e serviços.
+1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. associar elenco disponível ao jogo com `match_roster`.
-4. `clip_service.py` com `ffmpeg` real.
-5. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-6. Tela de marcação real com criação/edição/exclusão de eventos.
-7. Analytics completo conforme o MVP.
-8. Relatórios HTML completos e persistidos.
-9. Validação operacional com vídeo real.
-10. Verificação visual do Streamlit.
-11. README operacional completo após a implementação funcional.
-12. Commit das mudanças atuais quando o ciclo for aprovado.
+3. `clip_service.py` com `ffmpeg` real.
+4. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+5. Tela de marcação real com criação/edição/exclusão de eventos.
+6. Analytics completo conforme o MVP.
+7. Relatórios HTML completos e persistidos.
+8. Validação operacional com vídeo real.
+9. Verificação visual do Streamlit.
+10. README operacional completo após a implementação funcional.
+11. Commit das mudanças atuais quando o ciclo for aprovado.
 
 ---
 
@@ -562,3 +572,49 @@ Conclusão:
 - As provas atuais sustentam a base técnica inicial: importação, banco, seed de taxonomia, extração/persistência de metadados de vídeo e higiene do repo.
 - As provas atuais não sustentam declarar MVP completo.
 - Permanecem não comprovados: UI completa, marcação real, geração real de clipes, analytics completo, relatórios finais, validação observacional e confiabilidade intra/interobservador.
+
+---
+
+## Ciclo — Roster de jogo e testes de modelos
+
+Fase atual declarada: `Fase 6 — Serviços internos` com reforço de `Fase 8 — Testes`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/match_service.py` recebeu associação idempotente de atleta ao jogo via `MatchRoster`.
+- `scoutpraia/services/match_service.py` recebeu listagem e remoção de atleta do roster do jogo.
+- `scoutpraia/pages/matches.py` recebeu seção básica para adicionar atletas disponíveis ao elenco do jogo.
+- `tests/test_match_service.py` passou a testar adicionar, atualizar, listar e remover roster.
+- `tests/test_models.py` criado para testar criação e consulta dos modelos principais.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_match_service.py tests/test_models.py
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_match_service.py ..                                           [ 66%]
+tests/test_models.py .                                                   [100%]
+3 passed, 3 warnings
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T10:40:30Z
+collected 12 items
+tests/test_match_service.py ..                                           [ 16%]
+tests/test_models.py .                                                   [ 25%]
+tests/test_real_video_integration.py ..                                  [ 41%]
+tests/test_smoke.py .......                                              [100%]
+12 passed, 3 warnings
+```
+
+Limitações, gaps e riscos:
+
+- A tela de roster é básica e ainda não tem edição visual de titularidade nem remoção pela UI.
+- Os avisos são de depreciação de `datetime.utcnow()` disparados pelos modelos com `default_factory`; não quebram a execução, mas devem ser tratados em ciclo específico.
+- A marcação real de eventos, geração real de clipes, analytics completo e relatórios persistidos continuam `PARCIAL` ou ausentes conforme pendências acima.

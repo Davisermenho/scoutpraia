@@ -3,7 +3,7 @@ from pathlib import Path
 
 from sqlmodel import Session, select
 
-from scoutpraia.models.match import Match
+from scoutpraia.models.match import Match, MatchRoster
 from scoutpraia.models.opponent import Opponent
 from scoutpraia.models.player import Player
 from scoutpraia.services.video_service import probe_video_metadata
@@ -88,3 +88,66 @@ def list_players(session: Session, active_only: bool = True) -> list[Player]:
 
 def list_matches(session: Session) -> list[Match]:
     return list(session.exec(select(Match).order_by(Match.id.desc())).all())
+
+
+def add_player_to_match(
+    session: Session,
+    match_id: int,
+    player_id: int,
+    available: bool = True,
+    starter: bool = False,
+) -> MatchRoster:
+    match = session.get(Match, match_id)
+    if match is None:
+        raise ValueError(f"Jogo não encontrado: {match_id}")
+
+    player = session.get(Player, player_id)
+    if player is None:
+        raise ValueError(f"Atleta não encontrada: {player_id}")
+
+    roster_entry = session.exec(
+        select(MatchRoster).where(
+            MatchRoster.match_id == match_id,
+            MatchRoster.player_id == player_id,
+        )
+    ).first()
+    if roster_entry is None:
+        roster_entry = MatchRoster(
+            match_id=match_id,
+            player_id=player_id,
+            available=available,
+            starter=starter,
+        )
+    else:
+        roster_entry.available = available
+        roster_entry.starter = starter
+
+    session.add(roster_entry)
+    session.commit()
+    session.refresh(roster_entry)
+    return roster_entry
+
+
+def list_match_roster(session: Session, match_id: int) -> list[MatchRoster]:
+    return list(
+        session.exec(
+            select(MatchRoster)
+            .where(MatchRoster.match_id == match_id)
+            .order_by(MatchRoster.id)
+        ).all()
+    )
+
+
+def remove_player_from_match(session: Session, match_id: int, player_id: int) -> bool:
+    roster_entry = session.exec(
+        select(MatchRoster).where(
+            MatchRoster.match_id == match_id,
+            MatchRoster.player_id == player_id,
+        )
+    ).first()
+    if roster_entry is None:
+        return False
+
+    session.delete(roster_entry)
+    session.commit()
+    return True

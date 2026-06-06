@@ -9,9 +9,12 @@ from scoutpraia.models.match import Match
 from scoutpraia.models.opponent import Opponent
 from scoutpraia.models.player import Player
 from scoutpraia.services.match_service import (
+    add_player_to_match,
     create_match_with_video,
     create_opponent,
     create_player,
+    list_match_roster,
+    remove_player_from_match,
 )
 from scoutpraia.services.video_service import resolve_binary
 
@@ -80,3 +83,44 @@ def test_create_match_with_video_persists_metadata(tmp_path: Path) -> None:
     assert persisted_match.video_width == 32
     assert persisted_match.video_height == 18
     assert persisted_match.video_codec == "h264"
+
+
+def test_match_roster_add_list_update_and_remove(tmp_path: Path) -> None:
+    engine = create_test_engine(tmp_path)
+    video_path = create_test_video(tmp_path)
+
+    with Session(engine) as session:
+        opponent = create_opponent(session, name="Uruguai")
+        player = create_player(session, name="Ana", shirt_number=7)
+        match = create_match_with_video(
+            session,
+            video_path=video_path,
+            opponent_id=opponent.id,
+        )
+        match_id = match.id
+        player_id = player.id
+
+        roster_entry = add_player_to_match(
+            session,
+            match_id=match_id,
+            player_id=player_id,
+            available=True,
+            starter=False,
+        )
+        updated_entry = add_player_to_match(
+            session,
+            match_id=match_id,
+            player_id=player_id,
+            available=True,
+            starter=True,
+        )
+        roster = list_match_roster(session, match_id)
+        removed = remove_player_from_match(session, match_id, player_id)
+        empty_roster = list_match_roster(session, match_id)
+
+    assert roster_entry.id == updated_entry.id
+    assert len(roster) == 1
+    assert roster[0].player_id == player_id
+    assert roster[0].starter is True
+    assert removed is True
+    assert empty_roster == []
