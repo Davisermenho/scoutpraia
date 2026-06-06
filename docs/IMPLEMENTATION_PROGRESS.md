@@ -12,7 +12,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços iniciais de eventos e geração real de clipe com `ffmpeg` em teste sintético estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo, analytics completo e relatórios finais ainda não foram implementados.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços iniciais de eventos, validação de concordância e geração real de clipe com `ffmpeg` em teste sintético estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo, analytics completo e relatórios finais ainda não foram implementados.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T11:28:28Z
+date_utc=2026-06-06T11:35:10Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=e6f5e85
+git_head=72ec651
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,14 +76,15 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 15 items
-tests/test_clip_service.py .                                             [  6%]
-tests/test_event_service.py ..                                           [ 20%]
-tests/test_match_service.py ..                                           [ 33%]
-tests/test_models.py .                                                   [ 40%]
-tests/test_real_video_integration.py ..                                  [ 53%]
-tests/test_smoke.py .......                                              [100%]
-15 passed, 6 warnings
+collected 17 items
+tests/test_clip_service.py .                                             [  5%]
+tests/test_event_service.py ..                                           [ 17%]
+tests/test_match_service.py ..                                           [ 29%]
+tests/test_models.py .                                                   [ 35%]
+tests/test_real_video_integration.py ..                                  [ 47%]
+tests/test_smoke.py .......                                              [ 88%]
+tests/test_validation_service.py ..                                      [100%]
+17 passed, 10 warnings
 
 == Git whitespace check ==
 sem erros
@@ -213,7 +214,7 @@ Implementado parcialmente:
 - `video_service.py`: validação de arquivo/extensão e extração real de metadados com `ffprobe`
 - `event_service.py`: criação, listagem por jogo, edição e exclusão de evento com validação contra taxonomia, zona e regra prática de `points_value`
 - `clip_service.py`: cálculo de janela, nome de clipe, execução real de `ffmpeg` e persistência de `Clip`
-- `validation_service.py`: cálculo simples de concordância
+- `validation_service.py`: listagem de definições sem base operacional mínima, validação de taxonomia aprovada e persistência de `CodingAgreement` com divergências em JSON
 - `analytics_service.py`: KPIs coletivos mínimos
 - `report_service.py`: renderização Jinja básica
 - `match_service.py`: associação idempotente de atletas ao `match_roster`, listagem e remoção
@@ -224,12 +225,12 @@ Evidência:
 - `match_roster` testado em `tests/test_match_service.py`.
 - CRUD de eventos e falhas esperadas de validação testados em `tests/test_event_service.py`.
 - Geração real de clipe com `ffmpeg` e persistência de `Clip` testadas em `tests/test_clip_service.py`.
+- Persistência de `CodingAgreement`, divergência artificial e aprovação de taxonomia testadas em `tests/test_validation_service.py`.
 
 Pendências:
 
 - `analytics_service.py` ainda não cobre todos os KPIs do MVP.
 - `report_service.py` ainda não salva relatório nem cria registro `Report`.
-- `validation_service.py` ainda não persiste `CodingAgreement`.
 
 ### Fase 7 — Interface Streamlit
 
@@ -263,15 +264,16 @@ Implementado:
 - `tests/test_event_service.py`
 - `tests/test_match_service.py`
 - `tests/test_models.py`
-- 15 testes passando
+- `tests/test_validation_service.py`
+- 17 testes passando
 
 Evidência:
 
-- `python3 -m pytest` retorna `15 passed`.
+- `python3 -m pytest` retorna `17 passed`.
 
 Limite atual:
 
-- A cobertura aumentou para modelos principais, roster, eventos e clipe real sintético, mas ainda faltam testes de fixture de jogo sintético completo, KPIs completos e relatórios completos.
+- A cobertura aumentou para modelos principais, roster, eventos, clipe real sintético e validação de concordância, mas ainda faltam testes de fixture de jogo sintético completo, KPIs completos e relatórios completos.
 
 ---
 
@@ -281,14 +283,13 @@ O ScoutPraia ainda precisa de:
 
 1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. `validation_service.py` com persistência de `CodingAgreement`.
-4. Analytics completo conforme o MVP.
-5. Relatórios HTML completos e persistidos.
-6. Tela de marcação real com criação/edição/exclusão de eventos.
-7. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-8. Validação operacional com vídeo real.
-9. Verificação visual do Streamlit.
-10. README operacional completo após a implementação funcional.
+3. Analytics completo conforme o MVP.
+4. Relatórios HTML completos e persistidos.
+5. Tela de marcação real com criação/edição/exclusão de eventos.
+6. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+7. Validação operacional com vídeo real.
+8. Verificação visual do Streamlit.
+9. README operacional completo após a implementação funcional.
 
 ---
 
@@ -309,10 +310,10 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
 Próximo trabalho técnico recomendado:
 
-1. implementar `validation_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.4
-2. persistir `CodingAgreement` com divergências em JSON
-3. testar divergência artificial e regra de aprovação/reprovação
-4. depois avançar para `analytics_service.py`, `report_service.py` e só então páginas Streamlit completas
+1. implementar `analytics_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.5
+2. cobrir KPIs coletivos, individuais e por adversária com fixture controlada
+3. depois avançar para `report_service.py`
+4. só então completar páginas Streamlit críticas
 
 
 ---
@@ -762,4 +763,54 @@ Conclusão:
 - O fluxo correto para agentes é seguir `docs/IMPLEMENTATION_STEPS_AI.md` como ordem executável.
 - `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` permanece como contrato de produto e critério de escopo.
 - `docs/IMPLEMENTATION_PROGRESS.md` deve continuar registrando prova, pendências e bloqueios.
-- O próximo trabalho técnico autorizado é completar `validation_service.py`.
+- O próximo trabalho técnico autorizado é completar `analytics_service.py`.
+
+---
+
+## Ciclo — Validation service com persistência de CodingAgreement
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/validation_service.py` agora lista definições sem base operacional mínima.
+- `scoutpraia/services/validation_service.py` agora valida se a taxonomia está aprovada para relatório final.
+- `scoutpraia/services/validation_service.py` agora compara duas sessões por `event_type`, atleta, zona e `points_value`.
+- `scoutpraia/services/validation_service.py` agora calcula concordância percentual simples considerando divergências e ausências.
+- `scoutpraia/services/validation_service.py` agora persiste `CodingAgreement` com divergências em JSON.
+- `tests/test_validation_service.py` cobre divergência artificial, persistência do agreement e aprovação de taxonomia.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_validation_service.py
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_validation_service.py ..                                      [100%]
+2 passed, 4 warnings
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T11:35:10Z
+collected 17 items
+tests/test_clip_service.py .                                             [  5%]
+tests/test_event_service.py ..                                           [ 17%]
+tests/test_match_service.py ..                                           [ 29%]
+tests/test_models.py .                                                   [ 35%]
+tests/test_real_video_integration.py ..                                  [ 47%]
+tests/test_smoke.py .......                                              [ 88%]
+tests/test_validation_service.py ..                                      [100%]
+17 passed, 10 warnings
+```
+
+Limitações, gaps e riscos:
+
+- O contrato atual não relaciona `Event` diretamente a `CodingSession`; a comparação persiste o vínculo entre sessões dentro do `disagreements_json`.
+- A comparação usa listas de eventos fornecidas explicitamente; a UI ainda não gera essas sessões operacionais.
+- A taxonomia segue `draft` no estado padrão; a aprovação testada é controlada em fixture.
+- Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
