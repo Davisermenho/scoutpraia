@@ -2,6 +2,8 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
+from scoutpraia.utils.datetime import utc_now
+
 
 class CodingSession(SQLModel, table=True):
     __tablename__ = "coding_sessions"
@@ -11,7 +13,7 @@ class CodingSession(SQLModel, table=True):
     taxonomy_version_id: int = Field(foreign_key="taxonomy_versions.id")
     coder_name: str
     session_type: str
-    started_at: datetime = Field(default_factory=datetime.utcnow)
+    started_at: datetime = Field(default_factory=utc_now)
     finished_at: datetime | None = None
     notes: str | None = None
 

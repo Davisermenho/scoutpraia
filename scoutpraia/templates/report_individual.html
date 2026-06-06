@@ -4,6 +4,38 @@
   <body>
     <h1>Relatório individual</h1>
     <p>Atleta: {{ player_name }}</p>
-    <p>Taxonomia: {{ taxonomy_version }}</p>
+    <p>Jogo: {{ match.competition_name or ("Jogo " ~ match.id) }}</p>
+    <p>Taxonomia: {{ taxonomy_version }} ({{ taxonomy_status }})</p>
+    <p>Gerado em: {{ generated_at }}</p>
+
+    <h2>Resumo</h2>
+    <ul>
+      <li>Eventos da atleta: {{ summary.player_events_total }}</li>
+      <li>Clipes vinculados: {{ summary.clips_total }}</li>
+    </ul>
+
+    <h2>KPIs</h2>
+    <ul>
+      <li>Tentativas: {{ kpis.shot_attempts }}</li>
+      <li>Gols: {{ kpis.total_goals }}</li>
+      <li>Conversão total: {{ kpis.total_conversion }}</li>
+      <li>Participação direta em gols: {{ kpis.direct_goal_participation }}</li>
+      <li>Erros técnicos: {{ kpis.technical_errors }}</li>
+      <li>Roubos: {{ kpis.steals }}</li>
+      <li>Bloqueios: {{ kpis.blocks }}</li>
+      <li>Defesas: {{ kpis.saves }}</li>
+    </ul>
+
+    <h2>Clipes</h2>
+    <ul>
+      {% for clip in clips %}
+      <li>
+        <a href="{{ clip.relative_path }}">{{ clip.label }}</a>
+        — evento {{ clip.event_id }} — {{ clip.timestamp }}
+      </li>
+      {% else %}
+      <li>Sem clipes vinculados.</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

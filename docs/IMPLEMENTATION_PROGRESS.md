@@ -12,7 +12,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético e analytics com fixture controlada estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo e relatórios finais ainda não foram implementados.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético, analytics com fixture controlada, geração local de relatórios HTML persistidos e fluxo básico de marcação/relatórios na UI Streamlit estão funcionando dentro do escopo testado. Edição/exclusão completa de cadastros, tendências de adversárias, validação observacional e fluxo operacional integral ainda não foram implementados.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T11:55:06Z
+date_utc=2026-06-06T23:10:10Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=9512c0c
+git_head=216fbad
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,16 +76,18 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 19 items
-tests/test_analytics_service.py ..                                       [ 10%]
-tests/test_clip_service.py .                                             [ 15%]
-tests/test_event_service.py ..                                           [ 26%]
-tests/test_match_service.py ..                                           [ 36%]
-tests/test_models.py .                                                   [ 42%]
-tests/test_real_video_integration.py ..                                  [ 52%]
-tests/test_smoke.py .......                                              [ 89%]
+collected 25 items
+tests/test_analytics_service.py ..                                       [  8%]
+tests/test_clip_service.py .                                             [ 12%]
+tests/test_event_service.py ..                                           [ 20%]
+tests/test_match_service.py ..                                           [ 28%]
+tests/test_models.py ..                                                  [ 36%]
+tests/test_real_video_integration.py ..                                  [ 44%]
+tests/test_report_service.py ..                                          [ 52%]
+tests/test_smoke.py .......                                              [ 80%]
+tests/test_streamlit_pages.py ...                                        [ 92%]
 tests/test_validation_service.py ..                                      [100%]
-19 passed, 10 warnings
+25 passed
 
 == Git whitespace check ==
 sem erros
@@ -217,7 +219,7 @@ Implementado parcialmente:
 - `clip_service.py`: cálculo de janela, nome de clipe, execução real de `ffmpeg` e persistência de `Clip`
 - `validation_service.py`: listagem de definições sem base operacional mínima, validação de taxonomia aprovada e persistência de `CodingAgreement` com divergências em JSON
 - `analytics_service.py`: KPIs coletivos, individuais e por adversária com aviso para taxonomia não aprovada
-- `report_service.py`: renderização Jinja básica
+- `report_service.py`: payload coletivo, individual e de adversária, renderização Jinja, exportação HTML e persistência de `Report`
 - `match_service.py`: associação idempotente de atletas ao `match_roster`, listagem e remoção
 
 Evidência:
@@ -228,10 +230,11 @@ Evidência:
 - Geração real de clipe com `ffmpeg` e persistência de `Clip` testadas em `tests/test_clip_service.py`.
 - Persistência de `CodingAgreement`, divergência artificial e aprovação de taxonomia testadas em `tests/test_validation_service.py`.
 - KPIs coletivos, individuais e por adversária com fixture controlada testados em `tests/test_analytics_service.py`.
+- Geração de relatórios HTML, links relativos de clipes e persistência de `Report` testadas em `tests/test_report_service.py`.
 
 Pendências:
 
-- `report_service.py` ainda não salva relatório nem cria registro `Report`.
+- O fluxo de taxonomia aprovada na UI ainda depende de evolução explícita da interface.
 
 ### Fase 7 — Interface Streamlit
 
@@ -242,17 +245,23 @@ Implementado:
 - `app.py` com navegação local simples.
 - página de Jogos com cadastro básico real.
 - página de Jogos com associação básica de atletas disponíveis ao jogo via `match_roster`.
-- Dashboard, Marcação, Relatórios e Adversárias ainda são placeholders.
+- página de Marcação com seleção de jogo/taxonomia, vídeo local, botões rápidos, timestamp manual, escolha de atleta/zona/set/posse, histórico lateral e edição/exclusão do último evento.
+- página de Relatórios com seleção de jogo, prévia de KPIs, geração de relatório coletivo/individual/adversária e ações para download/abrir HTML gerado.
+- `streamlit run app.py --server.headless true --server.port 8510` inicializa sem erro no ambiente atual.
+- Dashboard e Adversárias continuam parciais.
 
 Evidência:
 
-- importação do app e pacote passa indiretamente nos testes.
+- `tests/test_streamlit_pages.py` cobre estado vazio da página de Marcação.
+- `tests/test_streamlit_pages.py` cobre criação/edição/exclusão do último evento via página de Marcação.
+- `tests/test_streamlit_pages.py` cobre geração de relatório coletivo via página de Relatórios.
+- `streamlit run app.py --server.headless true --server.port 8510` subiu e expôs `Local URL: http://localhost:8510`.
 
 Pendências:
 
-- Ainda não foi feita verificação visual com `streamlit run app.py`.
-- Tela real de marcação ainda não implementada.
-- Relatórios na UI ainda não implementados.
+- Dashboard ainda não mostra KPIs operacionais consolidados.
+- Página Adversárias ainda não implementa histórico, tendências e plano de jogo editável.
+- A interface ainda não oferece edição/exclusão de jogos, atletas e adversárias.
 
 ### Fase 8 — Testes
 
@@ -267,15 +276,17 @@ Implementado:
 - `tests/test_models.py`
 - `tests/test_validation_service.py`
 - `tests/test_analytics_service.py`
-- 19 testes passando
+- `tests/test_report_service.py`
+- `tests/test_streamlit_pages.py`
+- 25 testes passando
 
 Evidência:
 
-- `python3 -m pytest` retorna `19 passed`.
+- `python3 -m pytest` retorna `25 passed`.
 
 Limite atual:
 
-- A cobertura aumentou para modelos principais, roster, eventos, clipe real sintético, validação de concordância e KPIs com fixture controlada, mas ainda faltam testes de relatórios completos e fluxo operacional completo.
+- A cobertura aumentou para modelos principais, roster, eventos, clipe real sintético, validação de concordância, KPIs com fixture controlada, relatórios HTML persistidos e fluxo básico das páginas críticas do Streamlit, mas ainda faltam testes do fluxo operacional completo e da página de Adversárias.
 
 ---
 
@@ -285,12 +296,11 @@ O ScoutPraia ainda precisa de:
 
 1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. Relatórios HTML completos e persistidos.
-4. Tela de marcação real com criação/edição/exclusão de eventos.
-5. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-6. Validação operacional com vídeo real.
-7. Verificação visual do Streamlit.
-8. README operacional completo após a implementação funcional.
+3. Evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+4. Implementar página Adversárias com histórico e tendências.
+5. Validação operacional com vídeo real.
+6. Verificação visual do fluxo completo do Streamlit.
+7. README operacional completo após a implementação funcional.
 
 ---
 
@@ -298,10 +308,10 @@ O ScoutPraia ainda precisa de:
 
 Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
-- marcação real de eventos por jogo
+- marcação operacional completa por jogo
 - geração real de clipes com `ffmpeg`
 - KPIs completos
-- relatórios HTML completos
+- fluxo operacional completo de relatórios via interface
 - validação da taxonomia com vídeo
 - testes de fluxo operacional
 
@@ -311,10 +321,10 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
 Próximo trabalho técnico recomendado:
 
-1. implementar `report_service.py` conforme `docs/IMPLEMENTATION_STEPS_AI.md` seção 6.6
-2. gerar payload coletivo, individual e de adversária
-3. exportar HTML em `storage/reports/` e persistir `Report`
-4. só então completar páginas Streamlit críticas
+1. completar o restante da Fase 7 nas páginas Dashboard e Adversárias
+2. adicionar edição/exclusão aos cadastros principais da página Jogos
+3. executar verificação visual do fluxo completo no navegador
+4. iniciar validação operacional com vídeo real
 
 
 ---
@@ -866,3 +876,155 @@ Limitações, gaps e riscos:
 - O estado padrão da taxonomia continua `draft`, então os avisos críticos seguem aparecendo por desenho.
 - `report_service.py` ainda não consome esses payloads.
 - Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
+
+---
+
+## Ciclo — Correção raiz dos timestamps UTC
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/utils/datetime.py` centraliza a geração de timestamp UTC com `datetime.now(timezone.utc)`.
+- `scoutpraia/models/taxonomy.py` substitui `datetime.utcnow()` por `utc_now`.
+- `scoutpraia/models/validation.py` substitui `datetime.utcnow()` por `utc_now`.
+- `scoutpraia/models/report.py` substitui `datetime.utcnow()` por `utc_now`.
+- `tests/test_models.py` agora cobre regressão para garantir ausência de `DeprecationWarning` e presença de `tzinfo` nos campos padrão.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_models.py tests/test_validation_service.py -W error::DeprecationWarning
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_models.py ..                                                  [ 50%]
+tests/test_validation_service.py ..                                      [100%]
+4 passed in 1.54s
+
+git diff --check
+sem erros
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T22:26:43Z
+git_head=216fbad
+collected 20 items
+20 passed
+```
+
+Limitações, gaps e riscos:
+
+- A correção remove o warning de depreciação na origem dos modelos cobertos, mas ainda não implementa migração explícita de dados legados com timestamps sem fuso já persistidos em SQLite.
+- `report_service.py` continua `PARCIAL` e permanece como próxima fase autorizada do plano.
+- A taxonomia padrão continua `draft`; relatórios finais ainda dependem da validação/aprovação já tratada em serviço separado.
+
+---
+
+## Ciclo — Report service com payload, HTML e persistência
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/report_service.py` agora monta payload coletivo.
+- `scoutpraia/services/report_service.py` agora monta payload individual por atleta.
+- `scoutpraia/services/report_service.py` agora monta payload de adversária.
+- `scoutpraia/services/report_service.py` agora renderiza HTML via Jinja, exporta para diretório configurável e persiste `Report` com `payload_json`.
+- `scoutpraia/services/report_service.py` agora rejeita relatório sem taxonomia inequívoca quando o jogo mistura versões.
+- `scoutpraia/templates/report_collective.html`, `scoutpraia/templates/report_individual.html` e `scoutpraia/templates/report_opponent.html` agora exibem versão da taxonomia, KPIs e links relativos para clipes existentes.
+- `README.md` agora declara explicitamente que PDF ainda não foi implementado neste MVP.
+- `tests/test_report_service.py` cobre geração de HTML, persistência de `Report`, versão da taxonomia e links relativos de clipes.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_report_service.py tests/test_models.py tests/test_validation_service.py -W error::DeprecationWarning
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_report_service.py ..                                          [ 33%]
+tests/test_models.py ..                                                  [ 66%]
+tests/test_validation_service.py ..                                      [100%]
+6 passed in 3.44s
+
+git diff --check
+sem erros
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T22:43:38Z
+git_head=216fbad
+collected 22 items
+22 passed
+```
+
+Limitações, gaps e riscos:
+
+- A geração de relatório está comprovada em serviço e teste, mas ainda não está conectada à interface Streamlit.
+- O fluxo de relatório final com taxonomia aprovada depende de quem chamar `require_approved_taxonomy=True`; o estado padrão do seed continua `draft`.
+- Ainda falta verificação visual com `streamlit run app.py` e fluxo manual completo de marcação até relatório.
+
+---
+
+## Ciclo — Páginas críticas de Marcação e Relatórios no Streamlit
+
+Fase atual declarada: `Fase 7 — Interface Streamlit`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/pages/tagging.py` agora oferece seleção de jogo e taxonomia.
+- `scoutpraia/pages/tagging.py` agora exibe vídeo local com `st.video` quando o jogo possui `video_path`.
+- `scoutpraia/pages/tagging.py` agora registra eventos com timestamp manual, botões rápidos, atleta, zona, set e posse.
+- `scoutpraia/pages/tagging.py` agora mostra histórico recente e permite editar/excluir o último evento salvo.
+- `scoutpraia/pages/reports.py` agora mostra prévia de KPIs por jogo.
+- `scoutpraia/pages/reports.py` agora gera relatório coletivo, individual e de adversária chamando `report_service.py`.
+- `scoutpraia/pages/reports.py` agora lista arquivos gerados com ação de download e tentativa de abertura local.
+- `tests/test_streamlit_pages.py` cobre renderização vazia, marcação via página e geração de relatório via página.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py tests/test_event_service.py tests/test_report_service.py tests/test_validation_service.py tests/test_models.py -W error::DeprecationWarning
+scripts/verify_current_state.sh
+streamlit run app.py --server.headless true --server.port 8510
+```
+
+Resultado observado:
+
+```text
+tests/test_streamlit_pages.py ...                                        [ 27%]
+tests/test_event_service.py ..                                           [ 45%]
+tests/test_report_service.py ..                                          [ 63%]
+tests/test_validation_service.py ..                                      [ 81%]
+tests/test_models.py ..                                                  [100%]
+11 passed in 4.93s
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T23:10:10Z
+git_head=216fbad
+collected 25 items
+25 passed
+
+streamlit run app.py --server.headless true --server.port 8510
+Uvicorn server started on 0.0.0.0:8510
+Local URL: http://localhost:8510
+```
+
+Limitações, gaps e riscos:
+
+- O player nativo do Streamlit continua limitado a timestamp manual; não há sincronização fina do tempo de reprodução no HTML player.
+- A página de Relatórios usa o fluxo padrão da taxonomia seed `draft`; exigir taxonomia aprovada na UI ainda depende de evolução explícita de UX/regra.
+- A página Adversárias continua parcial e ainda não há verificação visual do fluxo completo em navegador com interação humana.

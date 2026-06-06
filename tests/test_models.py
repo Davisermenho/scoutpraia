@@ -1,3 +1,5 @@
+import warnings
+
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from scoutpraia.core.database import import_models
@@ -118,3 +120,31 @@ def test_core_models_can_be_created_and_queried(tmp_path) -> None:
     assert persisted_clip.event_id == persisted_event.id
     assert persisted_report.report_type == "collective"
     assert persisted_agreement.agreement_percent == 100.0
+
+
+def test_timestamp_default_factories_use_timezone_aware_utc_without_deprecation() -> None:
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", DeprecationWarning)
+        taxonomy = TaxonomyVersion(name="ScoutPraia v0.1", status="draft")
+        coding_session = CodingSession(
+            match_id=1,
+            coder_name="Analista 1",
+            taxonomy_version_id=1,
+            session_type="primary",
+        )
+        report = Report(
+            match_id=1,
+            report_type="collective",
+            file_path="storage/reports/relatorio.html",
+        )
+
+    deprecations = [
+        warning
+        for warning in caught
+        if issubclass(warning.category, DeprecationWarning)
+    ]
+
+    assert deprecations == []
+    assert taxonomy.created_at.tzinfo is not None
+    assert coding_session.started_at.tzinfo is not None
+    assert report.generated_at.tzinfo is not None

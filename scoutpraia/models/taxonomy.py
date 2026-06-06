@@ -2,6 +2,8 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
+from scoutpraia.utils.datetime import utc_now
+
 
 class TaxonomyVersion(SQLModel, table=True):
     __tablename__ = "taxonomy_versions"
@@ -9,7 +11,7 @@ class TaxonomyVersion(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     status: str = "draft"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     approved_at: datetime | None = None
     notes: str | None = None
 

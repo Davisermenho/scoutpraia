@@ -3,6 +3,48 @@
   <head><meta charset="utf-8"><title>Relatório coletivo</title></head>
   <body>
     <h1>Relatório coletivo</h1>
-    <p>Taxonomia: {{ taxonomy_version }}</p>
+    <p>Jogo: {{ match.competition_name or ("Jogo " ~ match.id) }}</p>
+    <p>Adversária: {{ opponent_name }}</p>
+    <p>Taxonomia: {{ taxonomy_version }} ({{ taxonomy_status }})</p>
+    <p>Gerado em: {{ generated_at }}</p>
+
+    <h2>Resumo</h2>
+    <ul>
+      <li>Eventos da equipe: {{ summary.team_events_total }}</li>
+      <li>Atletas com eventos: {{ summary.players_with_events }}</li>
+      <li>Clipes vinculados: {{ summary.clips_total }}</li>
+    </ul>
+
+    <h2>KPIs</h2>
+    <ul>
+      <li>Pontos totais: {{ kpis.points_total }}</li>
+      <li>Gols totais: {{ kpis.goals_total }}</li>
+      <li>Pontos por posse: {{ kpis.points_per_possession }}</li>
+      <li>Conversão ofensiva: {{ kpis.offensive_conversion_rate }}</li>
+      <li>Erro técnico por posse: {{ kpis.technical_error_rate }}</li>
+      <li>Eficiência 2 pontos: {{ kpis.two_point_efficiency }}</li>
+      <li>Eficiência shoot-out: {{ kpis.shootout_efficiency }}</li>
+    </ul>
+
+    <h2>Avisos críticos</h2>
+    <ul>
+      {% for warning in kpis.critical_warnings %}
+      <li>{{ warning }}</li>
+      {% else %}
+      <li>Sem avisos críticos.</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Clipes</h2>
+    <ul>
+      {% for clip in clips %}
+      <li>
+        <a href="{{ clip.relative_path }}">{{ clip.label }}</a>
+        — evento {{ clip.event_id }} — {{ clip.timestamp }}
+      </li>
+      {% else %}
+      <li>Sem clipes vinculados.</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

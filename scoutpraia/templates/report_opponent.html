@@ -4,6 +4,36 @@
   <body>
     <h1>Relatório de adversária</h1>
     <p>Adversária: {{ opponent_name }}</p>
-    <p>Taxonomia: {{ taxonomy_version }}</p>
+    <p>Jogo: {{ match.competition_name or ("Jogo " ~ match.id) }}</p>
+    <p>Taxonomia: {{ taxonomy_version }} ({{ taxonomy_status }})</p>
+    <p>Gerado em: {{ generated_at }}</p>
+
+    <h2>Resumo</h2>
+    <ul>
+      <li>Eventos da adversária: {{ summary.opponent_events_total }}</li>
+      <li>Clipes vinculados: {{ summary.clips_total }}</li>
+    </ul>
+
+    <h2>KPIs</h2>
+    <ul>
+      <li>Lado preferencial de ataque: {{ kpis.preferred_attack_side }}</li>
+      <li>ID da artilheira frequente: {{ kpis.most_frequent_shooter_player_id }}</li>
+      <li>ID da melhor 2 pontos: {{ kpis.top_two_point_scorer_player_id }}</li>
+      <li>Taxa de erro sob pressão: {{ kpis.pressure_error_rate }}</li>
+      <li>Vulnerabilidade de transição: {{ kpis.transition_vulnerability }}</li>
+      <li>Eficiência de shoot-out: {{ kpis.shootout_efficiency }}</li>
+    </ul>
+
+    <h2>Clipes</h2>
+    <ul>
+      {% for clip in clips %}
+      <li>
+        <a href="{{ clip.relative_path }}">{{ clip.label }}</a>
+        — evento {{ clip.event_id }} — {{ clip.timestamp }}
+      </li>
+      {% else %}
+      <li>Sem clipes vinculados.</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

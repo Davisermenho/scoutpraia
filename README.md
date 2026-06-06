@@ -20,6 +20,7 @@ streamlit run app.py
 - Persistência em SQLite.
 - Processamento de vídeo via FFmpeg/ffprobe.
 - Relatórios HTML com Jinja.
+- Exportação PDF ainda não implementada neste MVP.
 
 ## Não faz parte do MVP
 
