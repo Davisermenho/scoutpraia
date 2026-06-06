@@ -4,8 +4,11 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from streamlit.testing.v1 import AppTest
 
 import scoutpraia.core.database as database
+import scoutpraia.pages.dashboard as dashboard_page
 import scoutpraia.pages.reports as reports_page
 import scoutpraia.pages.tagging as tagging_page
+import scoutpraia.pages.matches as matches_page
+import scoutpraia.pages.opponents as opponents_page
 import scoutpraia.services.report_service as report_service
 from scoutpraia.core.config import Settings
 from scoutpraia.core.database import import_models
@@ -28,6 +31,9 @@ def create_test_engine(tmp_path: Path):
 def configure_page_modules(monkeypatch, tmp_path: Path):
     engine = create_test_engine(tmp_path)
     monkeypatch.setattr(database, "engine", engine)
+    monkeypatch.setattr(dashboard_page, "engine", engine)
+    monkeypatch.setattr(matches_page, "engine", engine)
+    monkeypatch.setattr(opponents_page, "engine", engine)
     monkeypatch.setattr(tagging_page, "engine", engine)
     monkeypatch.setattr(reports_page, "engine", engine)
     monkeypatch.setattr(
@@ -93,6 +99,56 @@ report_service.settings = Settings(
     ffprobe_binary="ffprobe",
 )
 reports_page.render()
+"""
+
+
+def dashboard_page_app_script(db_path: Path, report_dir: Path) -> str:
+    return f"""
+from pathlib import Path
+from sqlmodel import create_engine
+import scoutpraia.core.database as database
+import scoutpraia.pages.dashboard as dashboard_page
+import scoutpraia.services.report_service as report_service
+from scoutpraia.core.config import Settings
+
+engine = create_engine("sqlite:///{db_path}")
+database.engine = engine
+dashboard_page.engine = engine
+report_service.settings = Settings(
+    db_path=Path({str(db_path)!r}),
+    video_dir=Path({str(report_dir.parent / 'videos')!r}),
+    clip_dir=Path({str(report_dir.parent / 'clips')!r}),
+    report_dir=Path({str(report_dir)!r}),
+    thumbnail_dir=Path({str(report_dir.parent / 'thumbs')!r}),
+    ffmpeg_binary="ffmpeg",
+    ffprobe_binary="ffprobe",
+)
+dashboard_page.render()
+"""
+
+
+def opponents_page_app_script(db_path: Path, report_dir: Path) -> str:
+    return f"""
+from pathlib import Path
+from sqlmodel import create_engine
+import scoutpraia.core.database as database
+import scoutpraia.pages.opponents as opponents_page
+import scoutpraia.services.report_service as report_service
+from scoutpraia.core.config import Settings
+
+engine = create_engine("sqlite:///{db_path}")
+database.engine = engine
+opponents_page.engine = engine
+report_service.settings = Settings(
+    db_path=Path({str(db_path)!r}),
+    video_dir=Path({str(report_dir.parent / 'videos')!r}),
+    clip_dir=Path({str(report_dir.parent / 'clips')!r}),
+    report_dir=Path({str(report_dir)!r}),
+    thumbnail_dir=Path({str(report_dir.parent / 'thumbs')!r}),
+    ffmpeg_binary="ffmpeg",
+    ffprobe_binary="ffprobe",
+)
+opponents_page.render()
 """
 
 
@@ -236,6 +292,51 @@ def test_reports_page_generates_collective_report(monkeypatch, tmp_path: Path) -
         reports = session.exec(select(Report).where(Report.match_id == fixture["match_id"])).all()
     assert len(reports) == 1
     assert Path(reports[0].file_path).exists()
+
+
+def test_dashboard_page_renders_recent_summary(monkeypatch, tmp_path: Path) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        seed_ui_fixture(session, tmp_path)
+
+    at = AppTest.from_string(
+        dashboard_page_app_script(tmp_path / "pages.db", tmp_path / "reports")
+    )
+    at.run()
+
+    assert len(at.exception) == 0
+    assert any(header.value == "Dashboard" for header in at.header)
+    assert any(metric.label == "Jogos cadastrados" for metric in at.metric)
+
+
+def test_opponents_page_renders_history_and_trends(monkeypatch, tmp_path: Path) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+        create_event(
+            session,
+            Event(
+                match_id=fixture["match_id"],
+                set_id=fixture["set_id"],
+                possession_id=None,
+                taxonomy_version_id=fixture["taxonomy_id"],
+                event_type="forced_error",
+                player_id=None,
+                team_side="opponent",
+                timestamp_second=20,
+                zone="left_half",
+                points_value=0,
+            ),
+        )
+
+    at = AppTest.from_string(
+        opponents_page_app_script(tmp_path / "pages.db", tmp_path / "reports")
+    )
+    at.run()
+
+    assert len(at.exception) == 0
+    assert any(header.value == "Adversárias" for header in at.header)
+    assert any(subheader.value == "Histórico de jogos" for subheader in at.subheader)
 
 
 def selectbox_by_label(at: AppTest, label: str):

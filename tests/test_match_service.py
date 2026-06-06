@@ -13,8 +13,14 @@ from scoutpraia.services.match_service import (
     create_match_with_video,
     create_opponent,
     create_player,
+    delete_match,
+    delete_opponent,
+    delete_player,
     list_match_roster,
     remove_player_from_match,
+    update_match_with_video,
+    update_opponent,
+    update_player,
 )
 from scoutpraia.services.video_service import resolve_binary
 
@@ -27,6 +33,7 @@ def create_test_engine(tmp_path: Path):
 
 
 def create_test_video(tmp_path: Path) -> Path:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     video_path = tmp_path / "match.mp4"
     subprocess.run(
         [
@@ -124,3 +131,81 @@ def test_match_roster_add_list_update_and_remove(tmp_path: Path) -> None:
     assert roster[0].starter is True
     assert removed is True
     assert empty_roster == []
+
+
+def test_update_and_delete_entities_with_dependency_guards(tmp_path: Path) -> None:
+    engine = create_test_engine(tmp_path)
+    video_path = create_test_video(tmp_path)
+    second_video_path = create_test_video(tmp_path / "edited")
+
+    with Session(engine) as session:
+        removable_opponent = create_opponent(session, name="Chile")
+        removable_player = create_player(session, name="Bruna", shirt_number=15)
+        assert delete_opponent(session, removable_opponent.id) is True
+        assert delete_player(session, removable_player.id) is True
+
+        opponent = create_opponent(session, name="Argentina", category="adulto")
+        player = create_player(session, name="Maria", shirt_number=9)
+        match = create_match_with_video(
+            session,
+            video_path=video_path,
+            match_date=date(2026, 6, 6),
+            opponent_id=opponent.id,
+            competition_name="Amistoso",
+            phase="fase única",
+        )
+        add_player_to_match(session, match.id, player.id)
+
+        updated_opponent = update_opponent(
+            session,
+            opponent.id,
+            name="Argentina A",
+            category="sub-20",
+            notes="plano de jogo",
+        )
+        updated_player = update_player(
+            session,
+            player.id,
+            name="Maria Silva",
+            shirt_number=11,
+            primary_role="especialista",
+            active=False,
+        )
+        updated_match = update_match_with_video(
+            session,
+            match.id,
+            video_path=second_video_path,
+            match_date=date(2026, 6, 7),
+            opponent_id=opponent.id,
+            competition_name="Circuito",
+            phase="semi",
+            notes="jogo editado",
+            final_score_team=2,
+            final_score_opponent=1,
+        )
+
+        opponent_delete_error = ""
+        player_delete_error = ""
+        match_delete_error = ""
+        try:
+            delete_opponent(session, opponent.id)
+        except ValueError as exc:
+            opponent_delete_error = str(exc)
+        try:
+            delete_player(session, player.id)
+        except ValueError as exc:
+            player_delete_error = str(exc)
+        try:
+            delete_match(session, match.id)
+        except ValueError as exc:
+            match_delete_error = str(exc)
+
+    assert updated_opponent.name == "Argentina A"
+    assert updated_player.name == "Maria Silva"
+    assert updated_player.active is False
+    assert updated_match.competition_name == "Circuito"
+    assert updated_match.final_score_team == 2
+    assert updated_match.video_width == 32
+    assert "jogos vinculados" in opponent_delete_error
+    assert "vínculos operacionais" in player_delete_error
+    assert "vínculos operacionais" in match_delete_error

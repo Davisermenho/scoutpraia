@@ -7,10 +7,17 @@ from scoutpraia.services.match_service import (
     create_match_with_video,
     create_opponent,
     create_player,
+    delete_match,
+    delete_opponent,
+    delete_player,
     list_match_roster,
     list_matches,
     list_opponents,
     list_players,
+    remove_player_from_match,
+    update_match_with_video,
+    update_opponent,
+    update_player,
 )
 
 
@@ -44,6 +51,45 @@ def _render_opponents(session: Session) -> None:
         )
     else:
         st.info("Nenhuma adversária cadastrada.")
+
+    if opponents:
+        selected_label = st.selectbox(
+            "Editar adversária",
+            options=[f"{opponent.name} (id {opponent.id})" for opponent in opponents],
+            key="edit_opponent_select",
+        )
+        selected_opponent = next(
+            opponent
+            for opponent in opponents
+            if f"{opponent.name} (id {opponent.id})" == selected_label
+        )
+        with st.form("update_opponent_form"):
+            name = st.text_input("Nome da adversária", value=selected_opponent.name)
+            category = st.text_input(
+                "Categoria da adversária", value=selected_opponent.category or ""
+            )
+            notes = st.text_area(
+                "Observações da adversária", value=selected_opponent.notes or ""
+            )
+            submitted = st.form_submit_button("Atualizar adversária")
+            if submitted:
+                try:
+                    update_opponent(
+                        session,
+                        selected_opponent.id,
+                        name=name,
+                        category=category,
+                        notes=notes,
+                    )
+                    st.success("Adversária atualizada.")
+                except ValueError as exc:
+                    st.error(str(exc))
+        if st.button("Excluir adversária", key="delete_opponent_button", type="secondary"):
+            try:
+                if delete_opponent(session, selected_opponent.id):
+                    st.success("Adversária excluída.")
+            except ValueError as exc:
+                st.error(str(exc))
 
 
 def _render_players(session: Session) -> None:
@@ -85,6 +131,59 @@ def _render_players(session: Session) -> None:
         )
     else:
         st.info("Nenhuma atleta cadastrada.")
+
+    if players:
+        selected_label = st.selectbox(
+            "Editar atleta",
+            options=[
+                f"{player.name} (id {player.id})"
+                for player in players
+            ],
+            key="edit_player_select",
+        )
+        selected_player = next(
+            player
+            for player in players
+            if f"{player.name} (id {player.id})" == selected_label
+        )
+        with st.form("update_player_form"):
+            name = st.text_input("Nome da atleta", value=selected_player.name)
+            shirt_number = st.number_input(
+                "Número da atleta",
+                min_value=0,
+                max_value=999,
+                value=selected_player.shirt_number or 0,
+            )
+            primary_role = st.text_input(
+                "Função principal da atleta",
+                value=selected_player.primary_role or "",
+            )
+            secondary_role = st.text_input(
+                "Função secundária da atleta",
+                value=selected_player.secondary_role or "",
+            )
+            active = st.checkbox("Ativa", value=selected_player.active)
+            submitted = st.form_submit_button("Atualizar atleta")
+            if submitted:
+                try:
+                    update_player(
+                        session,
+                        selected_player.id,
+                        name=name,
+                        shirt_number=int(shirt_number) if shirt_number else None,
+                        primary_role=primary_role,
+                        secondary_role=secondary_role,
+                        active=active,
+                    )
+                    st.success("Atleta atualizada.")
+                except ValueError as exc:
+                    st.error(str(exc))
+        if st.button("Excluir atleta", key="delete_player_button", type="secondary"):
+            try:
+                if delete_player(session, selected_player.id):
+                    st.success("Atleta excluída.")
+            except ValueError as exc:
+                st.error(str(exc))
 
 
 def _render_matches(session: Session) -> None:
@@ -158,6 +257,83 @@ def _render_matches(session: Session) -> None:
     else:
         st.info("Nenhum jogo cadastrado.")
 
+    if matches and opponent_options:
+        match_options = {
+            f"Jogo {match.id} — {match.competition_name or 'sem competição'}": match
+            for match in matches
+        }
+        selected_match_label = st.selectbox(
+            "Editar jogo",
+            options=list(match_options.keys()),
+            key="edit_match_select",
+        )
+        selected_match = match_options[selected_match_label]
+        reverse_opponent_options = {
+            value: key for key, value in opponent_options.items()
+        }
+        with st.form("update_match_form"):
+            match_date = st.date_input(
+                "Data do jogo (edição)",
+                value=selected_match.match_date,
+            )
+            competition_name = st.text_input(
+                "Competição (edição)",
+                value=selected_match.competition_name or "",
+            )
+            phase = st.text_input("Fase (edição)", value=selected_match.phase or "")
+            selected_opponent = st.selectbox(
+                "Adversária (edição)",
+                options=list(opponent_options.keys()),
+                index=_option_index(
+                    list(opponent_options.keys()),
+                    reverse_opponent_options.get(selected_match.opponent_id, ""),
+                ),
+            )
+            video_path = st.text_input(
+                "Caminho local do vídeo (edição)",
+                value=selected_match.video_path or "",
+            )
+            notes = st.text_area(
+                "Contexto/observações (edição)",
+                value=selected_match.notes or "",
+            )
+            final_score_team = st.number_input(
+                "Placar equipe",
+                min_value=0,
+                max_value=99,
+                value=selected_match.final_score_team or 0,
+            )
+            final_score_opponent = st.number_input(
+                "Placar adversária",
+                min_value=0,
+                max_value=99,
+                value=selected_match.final_score_opponent or 0,
+            )
+            submitted = st.form_submit_button("Atualizar jogo e reler metadados")
+            if submitted:
+                try:
+                    update_match_with_video(
+                        session,
+                        selected_match.id,
+                        video_path=video_path,
+                        match_date=match_date,
+                        opponent_id=opponent_options[selected_opponent],
+                        competition_name=competition_name,
+                        phase=phase,
+                        notes=notes,
+                        final_score_team=int(final_score_team),
+                        final_score_opponent=int(final_score_opponent),
+                    )
+                    st.success("Jogo atualizado.")
+                except (FileNotFoundError, ValueError) as exc:
+                    st.error(str(exc))
+        if st.button("Excluir jogo", key="delete_match_button", type="secondary"):
+            try:
+                if delete_match(session, selected_match.id):
+                    st.success("Jogo excluído.")
+            except ValueError as exc:
+                st.error(str(exc))
+
     _render_match_roster(session, matches)
 
 
@@ -219,6 +395,29 @@ def _render_match_roster(session: Session, matches: list) -> None:
             ],
             use_container_width=True,
         )
+        removable_player_label = st.selectbox(
+            "Remover atleta do elenco",
+            options=[
+                (
+                    f"{players_by_id[entry.player_id].name} (#{players_by_id[entry.player_id].shirt_number})"
+                    if entry.player_id in players_by_id
+                    and players_by_id[entry.player_id].shirt_number is not None
+                    else players_by_id[entry.player_id].name
+                )
+                for entry in roster
+                if entry.player_id in players_by_id
+            ],
+            key="remove_roster_player_select",
+        )
+        removable_player_id = player_options[removable_player_label]
+        if st.button("Remover atleta do elenco", key="remove_roster_player_button"):
+            removed = remove_player_from_match(
+                session,
+                match_id=selected_match_id,
+                player_id=removable_player_id,
+            )
+            if removed:
+                st.success("Atleta removida do elenco.")
     else:
         st.info("Nenhuma atleta associada a este jogo.")
 
@@ -235,3 +434,9 @@ def render() -> None:
             _render_opponents(session)
         with tab_players:
             _render_players(session)
+
+
+def _option_index(options: list[str], target: str) -> int:
+    if target in options:
+        return options.index(target)
+    return 0
