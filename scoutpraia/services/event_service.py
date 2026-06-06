@@ -1,11 +1,60 @@
 from sqlmodel import Session, select
 
 from scoutpraia.models.event import Event
+from scoutpraia.models.match import Match, Possession, SetSegment
+from scoutpraia.models.player import Player
 from scoutpraia.models.taxonomy import EventDefinition
 from scoutpraia.utils.zones import ZONES
 
 
+SCORING_EVENTS = {
+    "goal_scored",
+    "goal_conceded",
+    "two_point_goal",
+    "inflight_goal",
+    "shootout_goal",
+}
+TWO_POINT_ONLY_EVENTS = {"two_point_goal"}
+EVENT_UPDATE_FIELDS = {
+    "set_id",
+    "possession_id",
+    "taxonomy_version_id",
+    "event_type",
+    "event_subtype",
+    "player_id",
+    "secondary_player_id",
+    "team_side",
+    "timestamp_second",
+    "outcome",
+    "zone",
+    "points_value",
+    "notes",
+}
+
+
 def validate_event(session: Session, event: Event) -> None:
+    if session.get(Match, event.match_id) is None:
+        raise ValueError(f"Jogo não encontrado: {event.match_id}")
+
+    if event.set_id is not None:
+        set_segment = session.get(SetSegment, event.set_id)
+        if set_segment is None or set_segment.match_id != event.match_id:
+            raise ValueError(f"Set inválido para o jogo: {event.set_id}")
+
+    if event.possession_id is not None:
+        possession = session.get(Possession, event.possession_id)
+        if possession is None or possession.match_id != event.match_id:
+            raise ValueError(f"Posse inválida para o jogo: {event.possession_id}")
+
+    if event.player_id is not None and session.get(Player, event.player_id) is None:
+        raise ValueError(f"Atleta não encontrada: {event.player_id}")
+
+    if (
+        event.secondary_player_id is not None
+        and session.get(Player, event.secondary_player_id) is None
+    ):
+        raise ValueError(f"Atleta secundária não encontrada: {event.secondary_player_id}")
+
     definition = session.exec(
         select(EventDefinition).where(
             EventDefinition.taxonomy_version_id == event.taxonomy_version_id,
@@ -17,6 +66,23 @@ def validate_event(session: Session, event: Event) -> None:
         raise ValueError(f"Evento fora da taxonomia ativa: {event.event_type}")
     if event.zone is not None and event.zone not in ZONES:
         raise ValueError(f"Zona inválida: {event.zone}")
+    if event.timestamp_second < 0:
+        raise ValueError("Timestamp do evento não pode ser negativo.")
+    validate_points_value(event)
+
+
+def validate_points_value(event: Event) -> None:
+    if event.points_value not in {0, 1, 2}:
+        raise ValueError("points_value deve ser 0, 1 ou 2.")
+
+    if event.event_type in TWO_POINT_ONLY_EVENTS and event.points_value != 2:
+        raise ValueError(f"{event.event_type} exige points_value igual a 2.")
+
+    if event.event_type in SCORING_EVENTS and event.points_value == 0:
+        raise ValueError(f"{event.event_type} exige points_value maior que 0.")
+
+    if event.event_type not in SCORING_EVENTS and event.points_value != 0:
+        raise ValueError(f"{event.event_type} não deve registrar points_value.")
 
 
 def create_event(session: Session, event: Event) -> Event:
@@ -25,3 +91,43 @@ def create_event(session: Session, event: Event) -> Event:
     session.commit()
     session.refresh(event)
     return event
+
+
+def list_events_by_match(session: Session, match_id: int) -> list[Event]:
+    return list(
+        session.exec(
+            select(Event)
+            .where(Event.match_id == match_id)
+            .order_by(Event.timestamp_second, Event.id)
+        ).all()
+    )
+
+
+def update_event(session: Session, event_id: int, **changes: object) -> Event:
+    event = session.get(Event, event_id)
+    if event is None:
+        raise ValueError(f"Evento não encontrado: {event_id}")
+
+    invalid_fields = set(changes) - EVENT_UPDATE_FIELDS
+    if invalid_fields:
+        invalid_list = ", ".join(sorted(invalid_fields))
+        raise ValueError(f"Campos de evento inválidos: {invalid_list}")
+
+    for field_name, value in changes.items():
+        setattr(event, field_name, value)
+
+    validate_event(session, event)
+    session.add(event)
+    session.commit()
+    session.refresh(event)
+    return event
+
+
+def delete_event(session: Session, event_id: int) -> bool:
+    event = session.get(Event, event_id)
+    if event is None:
+        return False
+
+    session.delete(event)
+    session.commit()
+    return True

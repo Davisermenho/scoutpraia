@@ -12,7 +12,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia e smoke tests estão funcionando. Marcação real, upload/cadastro de jogos completo, geração real de clipes, analytics completo e relatórios finais ainda não foram implementados.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços iniciais de eventos e geração real de clipe com `ffmpeg` em teste sintético estão funcionando dentro do escopo testado. Marcação real na UI, upload/cadastro de jogos completo, analytics completo e relatórios finais ainda não foram implementados.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T10:40:30Z
+date_utc=2026-06-06T11:21:28Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=bb52a3b
+git_head=a13e9c6
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,12 +76,14 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 12 items
-tests/test_match_service.py ..                                           [ 16%]
-tests/test_models.py .                                                   [ 25%]
-tests/test_real_video_integration.py ..                                  [ 41%]
+collected 15 items
+tests/test_clip_service.py .                                             [  6%]
+tests/test_event_service.py ..                                           [ 20%]
+tests/test_match_service.py ..                                           [ 33%]
+tests/test_models.py .                                                   [ 40%]
+tests/test_real_video_integration.py ..                                  [ 53%]
 tests/test_smoke.py .......                                              [100%]
-12 passed, 3 warnings
+15 passed, 6 warnings
 
 == Git whitespace check ==
 sem erros
@@ -209,8 +211,8 @@ Status: `PARCIAL`
 Implementado parcialmente:
 
 - `video_service.py`: validação de arquivo/extensão e extração real de metadados com `ffprobe`
-- `event_service.py`: criação de evento com validação contra taxonomia e zona
-- `clip_service.py`: cálculo de janela e nome de clipe
+- `event_service.py`: criação, listagem por jogo, edição e exclusão de evento com validação contra taxonomia, zona e regra prática de `points_value`
+- `clip_service.py`: cálculo de janela, nome de clipe, execução real de `ffmpeg` e persistência de `Clip`
 - `validation_service.py`: cálculo simples de concordância
 - `analytics_service.py`: KPIs coletivos mínimos
 - `report_service.py`: renderização Jinja básica
@@ -220,10 +222,11 @@ Evidência:
 
 - `clip_window` e `probe_video_metadata` testados em `tests/test_smoke.py`.
 - `match_roster` testado em `tests/test_match_service.py`.
+- CRUD de eventos e falhas esperadas de validação testados em `tests/test_event_service.py`.
+- Geração real de clipe com `ffmpeg` e persistência de `Clip` testadas em `tests/test_clip_service.py`.
 
 Pendências:
 
-- `clip_service.py` ainda não executa `ffmpeg` nem cria registro `Clip`.
 - `analytics_service.py` ainda não cobre todos os KPIs do MVP.
 - `report_service.py` ainda não salva relatório nem cria registro `Report`.
 - `validation_service.py` ainda não persiste `CodingAgreement`.
@@ -256,17 +259,19 @@ Status: `FUNCIONANDO COMO SMOKE TESTS`
 Implementado:
 
 - `tests/test_smoke.py`
+- `tests/test_clip_service.py`
+- `tests/test_event_service.py`
 - `tests/test_match_service.py`
 - `tests/test_models.py`
-- 12 testes passando
+- 15 testes passando
 
 Evidência:
 
-- `python3 -m pytest` retorna `12 passed`.
+- `python3 -m pytest` retorna `15 passed`.
 
 Limite atual:
 
-- A cobertura aumentou para modelos principais e roster, mas ainda faltam testes de fixture de jogo sintético, KPIs completos, clipes reais e relatórios completos.
+- A cobertura aumentou para modelos principais, roster, eventos e clipe real sintético, mas ainda faltam testes de fixture de jogo sintético completo, KPIs completos e relatórios completos.
 
 ---
 
@@ -276,15 +281,14 @@ O ScoutPraia ainda precisa de:
 
 1. Mais testes completos de serviços.
 2. Seed de dados de exemplo ou fixture sintética de jogo.
-3. `clip_service.py` com `ffmpeg` real.
-4. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
-5. Tela de marcação real com criação/edição/exclusão de eventos.
-6. Analytics completo conforme o MVP.
-7. Relatórios HTML completos e persistidos.
-8. Validação operacional com vídeo real.
-9. Verificação visual do Streamlit.
-10. README operacional completo após a implementação funcional.
-11. Commit das mudanças atuais quando o ciclo for aprovado.
+3. evoluir cadastro de atletas, adversárias e jogos com edição/exclusão.
+4. Tela de marcação real com criação/edição/exclusão de eventos.
+5. Analytics completo conforme o MVP.
+6. Relatórios HTML completos e persistidos.
+7. Validação operacional com vídeo real.
+8. Verificação visual do Streamlit.
+9. README operacional completo após a implementação funcional.
+10. Commit das mudanças atuais quando o ciclo for aprovado.
 
 ---
 
@@ -618,3 +622,100 @@ Limitações, gaps e riscos:
 - A tela de roster é básica e ainda não tem edição visual de titularidade nem remoção pela UI.
 - Os avisos são de depreciação de `datetime.utcnow()` disparados pelos modelos com `default_factory`; não quebram a execução, mas devem ser tratados em ciclo específico.
 - A marcação real de eventos, geração real de clipes, analytics completo e relatórios persistidos continuam `PARCIAL` ou ausentes conforme pendências acima.
+
+---
+
+## Ciclo — Serviço de eventos com CRUD e validação
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/event_service.py` agora lista eventos por jogo.
+- `scoutpraia/services/event_service.py` agora edita eventos existentes com campos permitidos.
+- `scoutpraia/services/event_service.py` agora exclui eventos existentes.
+- `scoutpraia/services/event_service.py` valida existência de jogo, set, posse e atletas referenciadas.
+- `scoutpraia/services/event_service.py` valida `points_value` de forma conservadora conforme dicionário: `two_point_goal` exige `2`, eventos de gol exigem valor maior que `0` e eventos não pontuadores exigem `0`.
+- `tests/test_event_service.py` cobre criação, listagem, edição, exclusão e falhas por taxonomia, zona e pontos inválidos.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_event_service.py
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_event_service.py ..                                           [100%]
+2 passed, 2 warnings
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T10:46:57Z
+collected 14 items
+tests/test_event_service.py ..                                           [ 14%]
+tests/test_match_service.py ..                                           [ 28%]
+tests/test_models.py .                                                   [ 35%]
+tests/test_real_video_integration.py ..                                  [ 50%]
+tests/test_smoke.py .......                                              [100%]
+14 passed, 5 warnings
+```
+
+Limitações, gaps e riscos:
+
+- A validação de `points_value` é prática e conservadora; ela não torna a taxonomia `approved`.
+- A tela de marcação ainda não usa esse serviço.
+- Os warnings de `datetime.utcnow()` continuam presentes e registrados como pendência técnica.
+
+---
+
+## Ciclo — Geração real de clipes com FFmpeg
+
+Fase atual declarada: `Fase 6 — Serviços internos`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado:
+
+- `scoutpraia/services/clip_service.py` agora busca evento, jogo, set e atleta para montar o contexto do clipe.
+- `scoutpraia/services/clip_service.py` agora valida o vídeo de origem associado ao jogo.
+- `scoutpraia/services/clip_service.py` agora gera nome previsível com jogo, set, timestamp, tipo de evento e atleta.
+- `scoutpraia/services/clip_service.py` agora executa `ffmpeg` real com janela calculada pelo tipo de evento.
+- `scoutpraia/services/clip_service.py` agora captura erro do `ffmpeg` em `ClipGenerationError`.
+- `scoutpraia/services/clip_service.py` agora salva registro `Clip` com caminho, janela, evento e atleta.
+- `tests/test_clip_service.py` gera MP4 sintético real, cria evento, gera clipe real, lê metadados com `ffprobe` e confirma persistência em SQLite temporário.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_clip_service.py
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_clip_service.py .                                             [100%]
+1 passed, 1 warning
+
+scripts/verify_current_state.sh
+date_utc=2026-06-06T11:21:28Z
+collected 15 items
+tests/test_clip_service.py .                                             [  6%]
+tests/test_event_service.py ..                                           [ 20%]
+tests/test_match_service.py ..                                           [ 33%]
+tests/test_models.py .                                                   [ 40%]
+tests/test_real_video_integration.py ..                                  [ 53%]
+tests/test_smoke.py .......                                              [100%]
+15 passed, 6 warnings
+```
+
+Limitações, gaps e riscos:
+
+- A prova usa vídeo sintético gerado por `ffmpeg`; ainda falta validação operacional de clipes em jogo real completo.
+- A UI de marcação ainda não aciona geração de clipes.
+- Não há rotina de remoção/limpeza de clipes órfãos.
+- Os warnings de `datetime.utcnow()` continuam presentes e devem ser tratados em ciclo específico.
