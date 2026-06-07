@@ -79,13 +79,19 @@ Rodar:
 
 ```bash
 scripts/verify_current_state.sh
-streamlit run app.py --server.headless true --server.port 8516
+scripts/run_scout.sh --port 8516
 ```
 
 Abrir no navegador local:
 
 ```text
 http://localhost:8516
+```
+
+Se preferir não abrir o navegador automaticamente:
+
+```bash
+scripts/run_scout.sh --port 8516 --no-browser
 ```
 
 Registrar antes de começar:

@@ -13,6 +13,21 @@ python -m scoutpraia.core.database
 streamlit run app.py
 ```
 
+## Execução rápida
+
+Para subir a aplicação local e abrir a URL padrão automaticamente:
+
+```bash
+scripts/run_scout.sh
+```
+
+Opções úteis:
+
+```bash
+scripts/run_scout.sh --port 8517
+scripts/run_scout.sh --no-browser
+```
+
 ## Escopo do MVP
 
 - Monólito local em Python.

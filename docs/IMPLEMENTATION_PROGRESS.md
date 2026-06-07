@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T02:52:46Z
+date_utc=2026-06-07T04:05:10Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=d2e2437
+git_head=a8f0db7
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -1316,3 +1316,46 @@ Limitações, gaps e riscos:
 
 - O protocolo humano melhora repetibilidade, mas não substitui futura aprovação formal da taxonomia.
 - O protocolo ainda depende de execução manual disciplinada; ele não é um teste automatizado.
+
+---
+
+## Ciclo — Script mínimo para subir o Scout e abrir a URL local
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Criação de `scripts/run_scout.sh` para:
+  - subir `streamlit run app.py`
+  - esperar a URL local responder
+  - abrir o navegador automaticamente com `python3 -m webbrowser`
+  - aceitar `--port` e `--no-browser`
+- Atualização do `README.md` com o novo fluxo de execução rápida.
+- Atualização de `docs/validation_protocol.md` para usar o script no protocolo humano.
+
+Comandos executados:
+
+```bash
+bash -n scripts/run_scout.sh
+scripts/run_scout.sh --no-browser --port 8520
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+`scripts/run_scout.sh` passou na validação sintática.
+O script subiu o Streamlit, aguardou `http://localhost:8520` responder e manteve o processo vivo.
+O modo `--no-browser` funcionou sem depender de aplicação gráfica externa.
+
+Gate final:
+28 passed
+```
+
+Limitações, gaps e riscos:
+
+- O script melhora muito o uso local, mas não substitui o protocolo humano de validação.
+- A abertura automática do navegador depende do comportamento do `webbrowser` do Python no ambiente do operador.
