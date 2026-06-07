@@ -51,7 +51,7 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T05:29:51Z
+date_utc=2026-06-07T05:41:31Z
 cwd=/home/davis/SCOUT
 git_branch=main
 git_head=8a8a3cb
@@ -89,7 +89,7 @@ tests/test_streamlit_pages.py .....                                      [ 84%]
 tests/test_ui_labels.py ...                                              [ 93%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 32 passed in 3.83s ==============================
+============================== 32 passed in 2.97s ==============================
 
 == Git whitespace check ==
 sem erros
@@ -1498,3 +1498,39 @@ Limitações, gaps e riscos:
 
 - O lançador usa caminho absoluto `/home/davis/SCOUT`; se o repositório for movido de lugar, o `Exec` e o `Path` precisam ser ajustados.
 - O uso de `Terminal=true` é intencional para manter o processo do Streamlit controlável; não é um lançamento totalmente silencioso.
+
+---
+
+## Ciclo — Guia de preenchimento da página `Marcação`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Criação de `docs/guia_preenchimento_marcacao.md` com:
+  - explicação de `set`
+  - explicação de `posse`
+  - preenchimento campo a campo da página `Marcação`
+  - regra de uso do `Timestamp manual (s)` em segundos corridos
+  - orientação sobre botões rápidos, histórico e edição
+  - três exemplos operacionais de jogadas
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Gate final:
+32 passed
+```
+
+Limitações, gaps e riscos:
+
+- O guia é operacional e usa exemplos práticos de preenchimento; ele não substitui validação observacional formal da taxonomia.
+- Os exemplos do guia ensinam o uso correto da tela, mas não devem ser tratados como regra oficial isolada sem confronto com `docs/taxonomy_dictionary.md`.
