@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T02:33:17Z
+date_utc=2026-06-07T02:47:51Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=3e2dcf5
+git_head=a770805
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -1200,3 +1200,72 @@ Limitações, gaps e riscos:
 
 - O clique nativo `agent-browser click` no botão Streamlit `Gerar coletivo` não disparou o handler nesta sessão; a prova visual foi obtida com `agent-browser eval(...btn.click())`, que acionou o mesmo botão no DOM do navegador e atualizou a UI com sucesso.
 - A prova de UI ficou forte para a página `Relatórios`, mas isso não substitui um ensaio humano longo de marcação com vídeo real.
+
+---
+
+## Ciclo — Ensaio manual mais longo com vídeo real e geração final pela interface
+
+Fase atual declarada: `Fase 7 — Interface Streamlit`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Execução de um ensaio mais longo na página `Marcação` com o vídeo real do jogo `Ensaio Operacional Real`.
+- Inclusão de 6 eventos adicionais pela própria interface Streamlit, além do evento real inicial já existente.
+- Geração final de relatório coletivo, individual e de adversária pela página `Relatórios`.
+- Conferência do estado final por UI e por consulta direta ao banco local.
+
+Comandos executados:
+
+```bash
+streamlit run app.py --server.headless true --server.port 8516
+agent-browser open http://localhost:8516
+agent-browser click @e22
+agent-browser fill @e11 8450
+agent-browser fill @e21 "ensaio-manual-1 technical_error"
+agent-browser click @e60
+agent-browser fill @e11 8465
+agent-browser fill @e21 "ensaio-manual-2 team shot_attempt"
+agent-browser click @e60
+agent-browser fill @e11 8490
+agent-browser fill @e21 "ensaio-manual-3 team shot_attempt"
+agent-browser click @e60
+agent-browser click @e73
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar coletivo')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar individual')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar adversária')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+python3 - <<'PY'
+# consulta final do banco: eventos e relatórios do jogo 1
+PY
+```
+
+Resultado observado:
+
+```text
+Histórico recente na UI após o ensaio:
+- evento 1: 8412.0 goal_scored team player_id=1
+- eventos 2 a 7: novos registros salvos pela interface
+
+Consulta final ao banco:
+MATCH 1 Ensaio Operacional Real
+EVENT_COUNT 7
+REPORT_COUNT 9
+
+Últimos relatórios gerados pela interface:
+- collective: match-1_collective_2026-06-07t02-46-28-739133utc.html
+- individual: match-1_individual_atleta-real-e2e_2026-06-07t02-46-30-267222utc.html
+- opponent: match-1_opponent_adversaria-real-e2e_2026-06-07t02-46-31-769128utc.html
+
+Prova visual da página Relatórios:
+FILES_BEFORE=7
+FILES_AFTER=10
+9 relatório(s) gerado(s) para este jogo.
+arquivo presente para os três relatórios recém-gerados.
+```
+
+Limitações, gaps e riscos:
+
+- O ensaio ficou mais longo em quantidade de eventos, mas a automação do navegador não conseguiu variar corretamente todos os timestamps no `number_input`; os eventos 2 a 7 ficaram persistidos com `8450.0`.
+- A tentativa de usar botões rápidos para alterar o tipo do evento não se refletiu no `selectbox` da UI nesta sessão; os novos eventos foram persistidos como `shot_attempt`, apesar das notas registrarem a intenção operacional.
+- Isso prova que o fluxo principal de salvar eventos e gerar relatórios via UI funciona, mas também evidencia uma limitação real da automação usada sobre widgets Streamlit complexos.
