@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T02:47:51Z
+date_utc=2026-06-07T02:52:46Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=a770805
+git_head=d2e2437
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -1269,3 +1269,50 @@ Limitações, gaps e riscos:
 - O ensaio ficou mais longo em quantidade de eventos, mas a automação do navegador não conseguiu variar corretamente todos os timestamps no `number_input`; os eventos 2 a 7 ficaram persistidos com `8450.0`.
 - A tentativa de usar botões rápidos para alterar o tipo do evento não se refletiu no `selectbox` da UI nesta sessão; os novos eventos foram persistidos como `shot_attempt`, apesar das notas registrarem a intenção operacional.
 - Isso prova que o fluxo principal de salvar eventos e gerar relatórios via UI funciona, mas também evidencia uma limitação real da automação usada sobre widgets Streamlit complexos.
+
+---
+
+## Ciclo — Protocolo operacional repetível para validação humana
+
+Fase atual declarada: `Fase 9 — Validação operacional com vídeo real`.
+
+Status: `FUNCIONANDO COMO DOCUMENTO DE PROCESSO`
+
+Implementado / executado:
+
+- Expansão de `docs/validation_protocol.md` com um protocolo humano repetível para ensaio operacional do MVP.
+- Inclusão de:
+  - pré-requisitos
+  - preparação obrigatória
+  - amostra operacional mínima
+  - roteiro por etapa
+  - evidência mínima obrigatória
+  - critérios de aceite e reprovação
+  - modelo textual de registro final
+
+Comandos executados:
+
+```bash
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+`docs/validation_protocol.md` agora define um roteiro operacional humano repetível para:
+- abrir a aplicação
+- validar cadastro e vídeo real
+- marcar uma amostra mínima
+- editar evento
+- gerar três relatórios pela interface
+- registrar evidência final
+
+Gate final:
+28 passed
+```
+
+Limitações, gaps e riscos:
+
+- O protocolo humano melhora repetibilidade, mas não substitui futura aprovação formal da taxonomia.
+- O protocolo ainda depende de execução manual disciplinada; ele não é um teste automatizado.
