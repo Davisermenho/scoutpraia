@@ -17,6 +17,12 @@ from scoutpraia.services.event_service import (
     update_event,
 )
 from scoutpraia.services.match_service import list_match_roster, list_matches, list_players
+from scoutpraia.ui_labels import (
+    column_label,
+    event_type_label,
+    team_side_label,
+    zone_label,
+)
 from scoutpraia.utils.zones import ZONES
 
 
@@ -170,7 +176,7 @@ def _render_quick_event_buttons(event_types: list[str]) -> None:
     for index, event_type in enumerate(quick_types):
         with button_columns[index % 3]:
             if st.button(
-                event_type.replace("_", " ").title(),
+                event_type_label(event_type),
                 key=f"quick_event_{event_type}",
                 width="stretch",
             ):
@@ -217,6 +223,7 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                     options=["team", "opponent"],
                     horizontal=True,
                     key="new_possession_team_side",
+                    format_func=team_side_label,
                 )
                 selected_set_label = st.selectbox(
                     "Set da posse",
@@ -299,12 +306,14 @@ def _render_event_form(
             "Evento",
             options=event_types,
             index=event_types.index(st.session_state["tagging_event_type"]),
+            format_func=event_type_label,
         )
         team_side = st.radio(
             "Lado",
             options=["team", "opponent"],
             horizontal=True,
             index=0 if st.session_state.get("tagging_team_side") == "team" else 1,
+            format_func=team_side_label,
         )
         player_label = st.selectbox(
             "Atleta",
@@ -318,6 +327,7 @@ def _render_event_form(
         zone_label = st.selectbox(
             "Zona",
             options=["Sem zona"] + sorted(ZONES),
+            format_func=_zone_option_label,
         )
         possession_label = st.selectbox(
             "Posse",
@@ -325,7 +335,7 @@ def _render_event_form(
         )
         points_value = st.selectbox("Pontos", options=[0, 1, 2], index=0)
         event_subtype = st.text_input("Subtipo")
-        outcome = st.text_input("Outcome")
+        outcome = st.text_input("Desfecho")
         notes = st.text_area("Notas")
         submitted = st.form_submit_button("Salvar evento")
 
@@ -372,15 +382,15 @@ def _render_event_history(session: Session, match_id: int, limit: int) -> None:
     st.dataframe(
         [
             {
-                "id": event.id,
-                "timestamp": round(event.timestamp_second, 1),
-                "event_type": event.event_type,
-                "player": players_by_id[event.player_id].name
+                column_label("id"): event.id,
+                column_label("timestamp"): round(event.timestamp_second, 1),
+                column_label("event_type"): event_type_label(event.event_type),
+                column_label("player"): players_by_id[event.player_id].name
                 if event.player_id in players_by_id
                 else None,
-                "team_side": event.team_side,
-                "zone": event.zone,
-                "points_value": event.points_value,
+                column_label("team_side"): team_side_label(event.team_side),
+                column_label("zone"): _zone_option_label(event.zone),
+                column_label("points_value"): event.points_value,
             }
             for event in events[-limit:]
         ],
@@ -417,12 +427,14 @@ def _render_last_event_editor(
             "Evento do último registro",
             options=event_types,
             index=event_types.index(last_event.event_type),
+            format_func=event_type_label,
         )
         team_side = st.radio(
             "Lado do último evento",
             options=["team", "opponent"],
             horizontal=True,
             index=0 if last_event.team_side == "team" else 1,
+            format_func=team_side_label,
         )
         player_label = st.selectbox(
             "Atleta do último evento",
@@ -439,6 +451,7 @@ def _render_last_event_editor(
                 ["Sem zona"] + sorted(ZONES),
                 last_event.zone or "Sem zona",
             ),
+            format_func=_zone_option_label,
         )
         set_label = st.selectbox(
             "Set do último evento",
@@ -454,7 +467,7 @@ def _render_last_event_editor(
             index=[0, 1, 2].index(int(last_event.points_value)),
         )
         event_subtype = st.text_input("Subtipo do último evento", value=last_event.event_subtype or "")
-        outcome = st.text_input("Outcome do último evento", value=last_event.outcome or "")
+        outcome = st.text_input("Desfecho do último evento", value=last_event.outcome or "")
         notes = st.text_area("Notas do último evento", value=last_event.notes or "")
         update_submitted = st.form_submit_button("Atualizar último evento")
         if update_submitted:
@@ -539,7 +552,7 @@ def _possession_options(
     options: dict[str, int | None] = {"Sem posse": None}
     for possession in possessions:
         options[
-            f"Posse {possession.id} — {possession.team_side}"
+            f"Posse {possession.id} — {team_side_label(possession.team_side)}"
         ] = possession.id
     return options
 
@@ -553,6 +566,12 @@ def _option_index(options: list[str], target: str) -> int:
 def _sync_selected_event_type(event_types: list[str]) -> None:
     if st.session_state["tagging_event_type"] not in event_types:
         st.session_state["tagging_event_type"] = event_types[0]
+
+
+def _zone_option_label(value: str | None) -> str:
+    if value in {None, "Sem zona"}:
+        return "Sem zona"
+    return zone_label(value)
 
 
 def _match_label(match: Match) -> str:

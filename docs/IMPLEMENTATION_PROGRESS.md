@@ -8,7 +8,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 ## Estado atual
 
-Última atualização: `2026-06-06`
+Última atualização: `2026-06-07`
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T04:05:10Z
+date_utc=2026-06-07T05:02:49Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=a8f0db7
+git_head=7306e8f
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,18 +76,20 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 28 items
-tests/test_analytics_service.py ..                                       [  8%]
-tests/test_clip_service.py .                                             [ 12%]
-tests/test_event_service.py ..                                           [ 20%]
-tests/test_match_service.py ...                                          [ 28%]
-tests/test_models.py ..                                                  [ 36%]
-tests/test_real_video_integration.py ..                                  [ 44%]
-tests/test_report_service.py ..                                          [ 52%]
-tests/test_smoke.py .......                                              [ 80%]
-tests/test_streamlit_pages.py .....                                      [ 92%]
+collected 31 items
+tests/test_analytics_service.py ..                                       [  6%]
+tests/test_clip_service.py .                                             [  9%]
+tests/test_event_service.py ..                                           [ 16%]
+tests/test_match_service.py ...                                          [ 25%]
+tests/test_models.py ..                                                  [ 32%]
+tests/test_real_video_integration.py ..                                  [ 38%]
+tests/test_report_service.py ..                                          [ 45%]
+tests/test_smoke.py .......                                              [ 67%]
+tests/test_streamlit_pages.py .....                                      [ 83%]
+tests/test_ui_labels.py ...                                              [ 93%]
 tests/test_validation_service.py ..                                      [100%]
-28 passed
+
+============================== 31 passed in 2.93s ==============================
 
 == Git whitespace check ==
 sem erros
@@ -1359,3 +1361,63 @@ Limitações, gaps e riscos:
 
 - O script melhora muito o uso local, mas não substitui o protocolo humano de validação.
 - A abertura automática do navegador depende do comportamento do `webbrowser` do Python no ambiente do operador.
+
+---
+
+## Ciclo — Dicionário central de rótulos e tradução da UI operacional
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Criação de `scoutpraia/ui_labels.py` como camada central de apresentação para traduzir:
+  - tipos de evento
+  - lados (`team` / `opponent`)
+  - zonas
+  - KPIs
+  - tipos de relatório
+  - cabeçalhos de tabela
+- Atualização de `scoutpraia/pages/tagging.py` para exibir rótulos operacionais em português em:
+  - botões rápidos
+  - seleção de evento
+  - seleção de lado
+  - seleção de zona
+  - seleção de posse
+  - histórico recente
+  - editor do último evento
+- Atualização de `scoutpraia/pages/reports.py` para traduzir:
+  - nomes de KPIs na prévia
+  - métricas aninhadas por set
+  - tipos de relatório na listagem de arquivos gerados
+- Atualização de `scoutpraia/pages/opponents.py` para traduzir:
+  - métricas de tendências
+  - valor do lado preferencial
+- Criação de `tests/test_ui_labels.py` para validar a camada central de rótulos.
+- Ajuste de `tests/test_streamlit_pages.py` para cobrir o novo rótulo visível do botão rápido e o rótulo traduzido de posse.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_ui_labels.py tests/test_streamlit_pages.py -q
+python3 -m pytest tests/test_report_service.py tests/test_ui_labels.py tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Os testes focados da UI e da camada de rótulos passaram:
+- 8 passed
+- 10 passed
+
+Gate final:
+31 passed
+```
+
+Limitações, gaps e riscos:
+
+- A tradução foi aplicada na camada de apresentação; os identificadores internos continuam em inglês/snake_case por decisão técnica para preservar banco, serviços e testes.
+- Campos livres como `event_subtype` e `outcome` continuam dependentes da disciplina de preenchimento do operador; a melhoria aqui foi de rótulo, não de padronização semântica.
+- A taxonomia segue em `draft`; traduzir os nomes reduz ambiguidade operacional, mas não substitui validação observacional formal.

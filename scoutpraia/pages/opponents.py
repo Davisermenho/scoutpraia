@@ -15,6 +15,7 @@ from scoutpraia.services.match_service import (
     update_opponent,
 )
 from scoutpraia.services.taxonomy_service import EVENT_DEFINITIONS
+from scoutpraia.ui_labels import direction_label, display_value_label, kpi_label
 
 
 def render() -> None:
@@ -66,7 +67,10 @@ def render() -> None:
             st.info("Ainda não há eventos suficientes para tendências desta adversária.")
         else:
             cols = st.columns(3)
-            cols[0].metric("Lado preferencial", trends["preferred_attack_side"] or "n/d")
+            cols[0].metric(
+                "Lado preferencial",
+                direction_label(trends["preferred_attack_side"]),
+            )
             cols[1].metric(
                 "Erro sob pressão",
                 trends["pressure_error_rate"]
@@ -82,7 +86,7 @@ def render() -> None:
             st.dataframe(
                 pd.DataFrame(
                     [
-                        {"métrica": key, "valor": _display_text(value)}
+                        {"métrica": kpi_label(key), "valor": _display_text(value)}
                         for key, value in trends.items()
                         if key != "critical_warnings"
                     ]
@@ -197,7 +201,7 @@ def _display_value(value: object) -> object:
         return "n/d"
     if isinstance(value, dict):
         return str(value)
-    return value
+    return display_value_label(value)
 
 
 def _display_text(value: object) -> str:

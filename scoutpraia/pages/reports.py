@@ -19,6 +19,7 @@ from scoutpraia.services.report_service import (
     generate_individual_report,
     generate_opponent_report,
 )
+from scoutpraia.ui_labels import column_label, display_value_label, kpi_label, report_type_label
 
 
 def render() -> None:
@@ -146,12 +147,13 @@ def _render_existing_reports(session: Session, match_id: int) -> None:
 
     for report in reports:
         path = Path(report.file_path)
-        st.markdown(f"**{report.report_type}** — `{report.file_path}`")
+        report_label = report_type_label(report.report_type)
+        st.markdown(f"**{report_label}** — `{report.file_path}`")
         cols = st.columns([1, 1, 2])
         with cols[0]:
             if path.exists():
                 st.download_button(
-                    label=f"Download {report.report_type}",
+                    label=f"Download {report_label}",
                     data=path.read_text(encoding="utf-8"),
                     file_name=path.name,
                     mime="text/html",
@@ -203,7 +205,7 @@ def _display_value(value: object) -> object:
         return json.dumps(value, ensure_ascii=False, sort_keys=True)
     if isinstance(value, (list, tuple, set)):
         return json.dumps(list(value), ensure_ascii=False)
-    return value
+    return display_value_label(value)
 
 
 def _kpi_preview_rows(kpis: dict[str, object]) -> list[dict[str, object]]:
@@ -211,7 +213,12 @@ def _kpi_preview_rows(kpis: dict[str, object]) -> list[dict[str, object]]:
     for key, value in kpis.items():
         if key == "critical_warnings" or isinstance(value, dict):
             continue
-        rows.append({"metric": key, "value": _display_text(value)})
+        rows.append(
+            {
+                column_label("metric"): kpi_label(key),
+                column_label("value"): _display_text(value),
+            }
+        )
     return rows
 
 
@@ -223,13 +230,18 @@ def _render_collective_nested_kpis(kpis: dict[str, object]) -> None:
     rows = []
     for set_number, values in set_performance.items():
         if not isinstance(values, dict):
-            rows.append({"set": str(set_number), "value": _display_text(values)})
+            rows.append(
+                {
+                    column_label("set"): str(set_number),
+                    column_label("value"): _display_text(values),
+                }
+            )
             continue
         rows.append(
             {
-                "set": str(set_number),
+                column_label("set"): str(set_number),
                 **{
-                    metric: _display_text(metric_value)
+                    kpi_label(metric): _display_text(metric_value)
                     for metric, metric_value in values.items()
                 },
             }

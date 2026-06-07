@@ -242,6 +242,8 @@ def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path:
     at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
     at.run()
 
+    assert any(button.label == "Tentativa de finalização" for button in at.button)
+
     selectbox_by_label(at, "Set").set_value(f"Set 1 (id {fixture['set_id']})")
     number_input_by_label(at, "Timestamp manual (s)").set_value(12.5)
     selectbox_by_label(at, "Evento").set_value("goal_scored")
@@ -249,7 +251,7 @@ def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path:
     selectbox_by_label(at, "Atleta").set_value("Maria (#9)")
     selectbox_by_label(at, "Atleta secundária").set_value("Ana (#7)")
     selectbox_by_label(at, "Zona").set_value("left_wing")
-    selectbox_by_label(at, "Posse").set_value(f"Posse {fixture['possession_id']} — team")
+    selectbox_by_label(at, "Posse").set_value(f"Posse {fixture['possession_id']} — Equipe")
     selectbox_by_label(at, "Pontos").set_value(1)
     button_by_label(at, "Salvar evento").click()
     at.run()
