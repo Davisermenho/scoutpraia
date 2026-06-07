@@ -123,7 +123,20 @@ def render() -> None:
 def _init_state() -> None:
     st.session_state.setdefault("tagging_event_type", "shot_attempt")
     st.session_state.setdefault("tagging_timestamp_second", 0.0)
+    st.session_state.setdefault(
+        "tagging_timestamp_input",
+        format_seconds_for_input(st.session_state["tagging_timestamp_second"]),
+    )
     st.session_state.setdefault("tagging_team_side", "team")
+    st.session_state.setdefault("tagging_set", None)
+    st.session_state.setdefault("tagging_player", None)
+    st.session_state.setdefault("tagging_secondary_player", None)
+    st.session_state.setdefault("tagging_zone", None)
+    st.session_state.setdefault("tagging_possession", None)
+    st.session_state.setdefault("tagging_points", 0)
+    st.session_state.setdefault("tagging_event_subtype", "")
+    st.session_state.setdefault("tagging_outcome", "")
+    st.session_state.setdefault("tagging_notes", "")
     st.session_state.setdefault("edit_event_id", None)
 
 
@@ -198,18 +211,26 @@ def _render_management_tools(session: Session, match_id: int) -> None:
     with st.expander("Sets e posses", expanded=False):
         left_col, right_col = st.columns(2)
         with left_col:
+            next_set_number = _next_set_number(session, match_id)
+            st.session_state.setdefault("new_set_number", next_set_number)
             with st.form("create_set_form"):
                 st.markdown("**Novo set**")
-                set_number = st.number_input("Número do set", min_value=1, value=1)
+                set_number = st.number_input(
+                    "Número do set",
+                    min_value=1,
+                    key="new_set_number",
+                )
                 start_input = st.text_input(
                     "Início do set",
                     value=format_seconds_for_input(0.0),
+                    key="new_set_start",
                     help=TIME_INPUT_HELP,
                 )
                 _render_time_input_preview(start_input)
                 end_input = st.text_input(
                     "Fim do set",
                     value=format_seconds_for_input(0.0),
+                    key="new_set_end",
                     help=TIME_INPUT_HELP,
                 )
                 _render_time_input_preview(end_input)
@@ -227,6 +248,9 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         session.add(set_segment)
                         session.commit()
                         session.refresh(set_segment)
+                        st.session_state["new_set_number"] = int(set_segment.set_number) + 1
+                        st.session_state["new_set_start"] = format_seconds_for_input(0.0)
+                        st.session_state["new_set_end"] = format_seconds_for_input(0.0)
                         st.success(f"Set {set_segment.set_number} salvo.")
                     except ValueError as exc:
                         st.error(str(exc))
@@ -298,6 +322,7 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                             st.error(str(exc))
         with right_col:
             set_options = _set_options(session, match_id)
+            _sync_management_form_state(set_options)
             with st.form("create_possession_form"):
                 st.markdown("**Nova posse**")
                 possession_team_side = st.radio(
@@ -359,6 +384,7 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         session.add(possession)
                         session.commit()
                         session.refresh(possession)
+                        st.session_state["new_possession_set"] = selected_set_label
                         st.success(f"Posse {possession.id} salva.")
                     except ValueError as exc:
                         st.error(str(exc))
@@ -475,6 +501,7 @@ def _render_event_form(
     event_types: list[str],
 ) -> None:
     st.subheader("Registrar evento")
+    _sync_event_form_state(session, match.id)
     players = _players_for_match(session, match.id)
     player_options = _player_options(players)
     set_options = _set_options(session, match.id)
@@ -486,48 +513,67 @@ def _render_event_form(
     selected_set_id = set_options[selected_set_label]
 
     possession_options = _possession_options(session, match.id, selected_set_id)
+    if st.session_state.get("tagging_possession") not in possession_options:
+        st.session_state["tagging_possession"] = _default_possession_label(possession_options)
+
+    st.caption("Ajuste rápido do timestamp")
+    time_buttons = st.columns(4)
+    quick_time_buttons = [
+        ("-1s", -1.0),
+        ("-0.5s", -0.5),
+        ("+0.5s", 0.5),
+        ("+1s", 1.0),
+    ]
+    for column, (label, delta) in zip(time_buttons, quick_time_buttons, strict=True):
+        with column:
+            if st.button(label, key=f"shift_timestamp_{label}"):
+                _shift_tagging_timestamp(delta)
+
     with st.form("create_event_form"):
         timestamp_input = st.text_input(
             "Timestamp do vídeo",
-            value=format_seconds_for_input(st.session_state.get("tagging_timestamp_second", 0.0)),
+            key="tagging_timestamp_input",
             help=TIME_INPUT_HELP,
         )
         _render_time_input_preview(timestamp_input)
         event_type = st.selectbox(
             "Evento",
             options=event_types,
-            index=event_types.index(st.session_state["tagging_event_type"]),
+            key="tagging_event_type",
             format_func=event_type_label,
         )
         team_side = st.radio(
             "Lado",
             options=["team", "opponent"],
             horizontal=True,
-            index=0 if st.session_state.get("tagging_team_side") == "team" else 1,
+            key="tagging_team_side",
             format_func=team_side_label,
         )
         player_label = st.selectbox(
             "Atleta",
             options=list(player_options.keys()),
+            key="tagging_player",
         )
         secondary_player_label = st.selectbox(
             "Atleta secundária",
             options=list(player_options.keys()),
-            key="secondary_player_label",
+            key="tagging_secondary_player",
         )
         zone_label = st.selectbox(
             "Zona",
             options=["Sem zona"] + sorted(ZONES),
+            key="tagging_zone",
             format_func=_zone_option_label,
         )
         possession_label = st.selectbox(
             "Posse",
             options=list(possession_options.keys()),
+            key="tagging_possession",
         )
-        points_value = st.selectbox("Pontos", options=[0, 1, 2], index=0)
-        event_subtype = st.text_input("Subtipo")
-        outcome = st.text_input("Desfecho")
-        notes = st.text_area("Notas")
+        points_value = st.selectbox("Pontos", options=[0, 1, 2], key="tagging_points")
+        event_subtype = st.text_input("Subtipo", key="tagging_event_subtype")
+        outcome = st.text_input("Desfecho", key="tagging_outcome")
+        notes = st.text_area("Notas", key="tagging_notes")
         submitted = st.form_submit_button("Salvar evento")
 
         if submitted:
@@ -552,9 +598,7 @@ def _render_event_form(
                         notes=notes or None,
                     ),
                 )
-                st.session_state["tagging_event_type"] = created.event_type
                 st.session_state["tagging_timestamp_second"] = float(created.timestamp_second)
-                st.session_state["tagging_team_side"] = created.team_side
                 st.success(f"Evento {created.id} salvo.")
             except ValueError as exc:
                 st.error(str(exc))
@@ -861,6 +905,50 @@ def _sync_selected_event_type(event_types: list[str]) -> None:
         st.session_state["tagging_event_type"] = event_types[0]
 
 
+def _sync_management_form_state(set_options: dict[str, int | None]) -> None:
+    if st.session_state.get("new_possession_set") not in set_options:
+        st.session_state["new_possession_set"] = _default_set_label(set_options)
+
+
+def _sync_event_form_state(session: Session, match_id: int) -> None:
+    players = _players_for_match(session, match_id)
+    player_options = _player_options(players)
+    set_options = _set_options(session, match_id)
+    if st.session_state.get("tagging_set") not in set_options:
+        st.session_state["tagging_set"] = _default_set_label(set_options)
+
+    if st.session_state.get("tagging_player") not in player_options:
+        st.session_state["tagging_player"] = "Sem atleta"
+    if st.session_state.get("tagging_secondary_player") not in player_options:
+        st.session_state["tagging_secondary_player"] = "Sem atleta"
+
+    zone_options = ["Sem zona"] + sorted(ZONES)
+    if st.session_state.get("tagging_zone") not in zone_options:
+        st.session_state["tagging_zone"] = "Sem zona"
+    if st.session_state.get("tagging_points") not in {0, 1, 2}:
+        st.session_state["tagging_points"] = 0
+
+    selected_set_id = set_options[st.session_state["tagging_set"]]
+    possession_options = _possession_options(session, match_id, selected_set_id)
+    if st.session_state.get("tagging_possession") not in possession_options:
+        st.session_state["tagging_possession"] = _default_possession_label(possession_options)
+
+    if not st.session_state.get("tagging_timestamp_input"):
+        st.session_state["tagging_timestamp_input"] = format_seconds_for_input(
+            st.session_state["tagging_timestamp_second"]
+        )
+
+
+def _shift_tagging_timestamp(delta: float) -> None:
+    try:
+        current_value = timecode_to_seconds(st.session_state.get("tagging_timestamp_input", "0"))
+    except ValueError:
+        current_value = float(st.session_state.get("tagging_timestamp_second", 0.0))
+    shifted = max(0.0, current_value + delta)
+    st.session_state["tagging_timestamp_second"] = shifted
+    st.session_state["tagging_timestamp_input"] = format_seconds_for_input(shifted)
+
+
 def _zone_option_label(value: str | None) -> str:
     if value in {None, "Sem zona"}:
         return "Sem zona"
@@ -876,6 +964,31 @@ def _event_editor_label(event: Event, players_by_id: dict[int | None, Player] | 
         f"Evento {event_id} — {format_seconds_for_input(event.timestamp_second)} — "
         f"{event_type_label(event.event_type)}{player_label}"
     )
+
+
+def _default_set_label(set_options: dict[str, int | None]) -> str:
+    labels = list(set_options.keys())
+    if len(labels) > 1:
+        return labels[-1]
+    return "Sem set"
+
+
+def _default_possession_label(possession_options: dict[str, int | None]) -> str:
+    labels = list(possession_options.keys())
+    if len(labels) > 1:
+        return labels[-1]
+    return "Sem posse"
+
+
+def _next_set_number(session: Session, match_id: int) -> int:
+    sets = list(
+        session.exec(
+            select(SetSegment)
+            .where(SetSegment.match_id == match_id)
+            .order_by(SetSegment.set_number, SetSegment.id)
+        ).all()
+    )
+    return max((set_segment.set_number for set_segment in sets), default=0) + 1
 
 
 def _set_editor_label(set_segment: SetSegment | None) -> str:

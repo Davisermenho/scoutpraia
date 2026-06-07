@@ -191,6 +191,11 @@ Importante:
 
 - o player do Streamlit no MVP **não captura o tempo automaticamente**
 - mas a UI agora converte `MM:SS`, `HH:MM:SS` ou segundos internamente
+- a tela também oferece ajuste rápido:
+  - `-1s`
+  - `-0.5s`
+  - `+0.5s`
+  - `+1s`
 
 ### 4.3 Campo `Evento`
 
@@ -335,6 +340,19 @@ Depois disso você ainda precisa:
 2. revisar `Lado`
 3. preencher atleta, zona, posse e pontos quando aplicável
 4. clicar em `Salvar evento`
+
+Observação ergonômica:
+
+- a tela preserva a seleção corrente de `Set`, `Atleta`, `Atleta secundária`, `Zona`, `Posse` e `Pontos`
+- isso evita repetir o mesmo preenchimento a cada jogada da mesma sequência
+
+### Defaults úteis da tela
+
+Ao abrir a página `Marcação` com jogo já cadastrado:
+
+- `Set` tende a abrir no set mais recente disponível
+- `Posse` tende a abrir na posse mais recente do set selecionado
+- `Número do set` em `Novo set` abre no próximo número esperado
 
 ---
 

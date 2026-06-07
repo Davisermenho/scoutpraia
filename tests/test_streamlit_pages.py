@@ -486,6 +486,54 @@ def test_tagging_page_filters_and_navigates_event_editor(
     assert preserved_team_event is not None
 
 
+def test_tagging_page_applies_event_form_defaults_and_quick_timestamp_controls(
+    monkeypatch, tmp_path: Path
+) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    assert number_input_by_label(at, "Número do set").value == 2
+    assert selectbox_by_label(at, "Set").value == f"Set 1 (id {fixture['set_id']})"
+    assert selectbox_by_label(at, "Posse").value == f"Posse {fixture['possession_id']} — Equipe"
+
+    button_by_label(at, "+1s").click()
+    at.run()
+
+    selectbox_by_label(at, "Evento").set_value("goal_scored")
+    radio_by_label(at, "Lado").set_value("team")
+    selectbox_by_label(at, "Atleta").set_value("Maria (#9)")
+    selectbox_by_label(at, "Atleta secundária").set_value("Ana (#7)")
+    selectbox_by_label(at, "Zona").set_value("left_wing")
+    selectbox_by_label(at, "Pontos").set_value(1)
+    text_input_by_label(at, "Subtipo").set_value("spin")
+    text_input_by_label(at, "Desfecho").set_value("gol")
+    text_area_by_label(at, "Notas").set_value("teste-ergonomia")
+    button_by_label(at, "Salvar evento").click()
+    at.run()
+
+    assert any("Evento 2 salvo." in item.value for item in at.success)
+    with Session(engine) as session:
+        created_event = session.get(Event, 2)
+    assert created_event is not None
+    assert created_event.set_id == fixture["set_id"]
+    assert created_event.possession_id == fixture["possession_id"]
+    assert created_event.timestamp_second == 1.0
+    assert created_event.event_subtype == "spin"
+    assert created_event.outcome == "gol"
+    assert created_event.notes == "teste-ergonomia"
+
+    assert text_input_by_label(at, "Timestamp do vídeo").value == "00:01"
+    assert selectbox_by_label(at, "Set").value == f"Set 1 (id {fixture['set_id']})"
+    assert selectbox_by_label(at, "Atleta").value == "Maria (#9)"
+    assert text_input_by_label(at, "Subtipo").value == "spin"
+    assert text_input_by_label(at, "Desfecho").value == "gol"
+    assert text_area_by_label(at, "Notas").value == "teste-ergonomia"
+
+
 def test_reports_page_generates_reports_via_ui(monkeypatch, tmp_path: Path) -> None:
     engine = configure_page_modules(monkeypatch, tmp_path)
     with Session(engine) as session:

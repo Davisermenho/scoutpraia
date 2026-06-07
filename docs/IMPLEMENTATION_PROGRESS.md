@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T07:54:45Z
+date_utc=2026-06-07T08:10:36Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=6ed39c4
+git_head=00a2c96
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,30 +76,27 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 37 items
+collected 38 items
 tests/test_analytics_service.py ..                                       [  5%]
-tests/test_clip_service.py .                                             [  8%]
+tests/test_clip_service.py .                                             [  7%]
 tests/test_event_service.py ..                                           [ 13%]
-tests/test_match_service.py .....                                        [ 27%]
-tests/test_models.py ..                                                  [ 32%]
-tests/test_real_video_integration.py ..                                  [ 37%]
-tests/test_report_service.py ..                                          [ 43%]
-tests/test_smoke.py ........                                             [ 64%]
-tests/test_streamlit_pages.py ........                                   [ 86%]
+tests/test_match_service.py .....                                        [ 26%]
+tests/test_models.py ..                                                  [ 31%]
+tests/test_real_video_integration.py ..                                  [ 36%]
+tests/test_report_service.py ..                                          [ 42%]
+tests/test_smoke.py ........                                             [ 63%]
+tests/test_streamlit_pages.py .........                                  [ 86%]
 tests/test_ui_labels.py ...                                              [ 94%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 37 passed in 5.35s ==============================
+============================== 38 passed in 7.77s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
  M docs/IMPLEMENTATION_PROGRESS.md
- M docs/IMPLEMENTATION_STEPS_AI.md
  M docs/guia_preenchimento_marcacao.md
- M docs/validation_protocol.md
  M scoutpraia/pages/tagging.py
  M tests/test_streamlit_pages.py
-?? docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
 ```
 
 Interpretação: a base técnica atual está validada para seguir para a próxima fase. Isso **não** prova que o MVP completo está pronto.
@@ -1880,3 +1877,57 @@ Limitações, gaps e riscos:
 
 - O histórico de ciclos anteriores em `docs/IMPLEMENTATION_PROGRESS.md` permanece como registro temporal e ainda cita estados parciais de etapas antigas.
 - O alias `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` continua pendente de versionamento para manter o contrato documental consistente em clones futuros.
+
+---
+
+## Ciclo — Ergonomia fina da página `Marcação`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de ajuste rápido do tempo na criação de evento:
+  - `-1s`
+  - `-0.5s`
+  - `+0.5s`
+  - `+1s`
+- O formulário de evento agora abre com defaults mais úteis:
+  - `Set` mais recente disponível
+  - `Posse` mais recente do set selecionado
+  - `Número do set` em `Novo set` com próximo valor esperado
+- O formulário preserva a seleção operacional corrente de:
+  - `Set`
+  - `Atleta`
+  - `Atleta secundária`
+  - `Zona`
+  - `Posse`
+  - `Pontos`
+- Atualização de `tests/test_streamlit_pages.py` para provar:
+  - ajuste rápido de timestamp
+  - uso de defaults de `set` e `posse`
+  - persistência útil do formulário após salvar evento
+- Atualização de `docs/guia_preenchimento_marcacao.md` para refletir os atalhos de tempo e os defaults da tela.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 9 passed in 4.90s
+
+Gate final:
+- 38 passed in 7.77s
+```
+
+Limitações, gaps e riscos:
+
+- O player continua sem captura automática do tempo real; a ergonomia melhora o ajuste manual, mas não substitui integração fina com o player HTML.
+- A preservação de campos textuais (`Subtipo`, `Desfecho`, `Notas`) foi mantida para não apagar contexto digitado inadvertidamente.
