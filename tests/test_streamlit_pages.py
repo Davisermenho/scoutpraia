@@ -238,6 +238,16 @@ def test_tagging_page_create_update_and_delete_selected_event(monkeypatch, tmp_p
     engine = configure_page_modules(monkeypatch, tmp_path)
     with Session(engine) as session:
         fixture = seed_ui_fixture(session, tmp_path)
+        extra_possession = Possession(
+            match_id=fixture["match_id"],
+            set_id=fixture["set_id"],
+            team_side="opponent",
+            start_second=15,
+            end_second=19,
+        )
+        session.add(extra_possession)
+        session.commit()
+        session.refresh(extra_possession)
 
     at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
     at.run()
@@ -261,11 +271,21 @@ def test_tagging_page_create_update_and_delete_selected_event(monkeypatch, tmp_p
 
     selectbox_by_label(at, "Evento para editar ou excluir").set_value(1)
     selectbox_by_label(at, "Evento do registro").set_value("technical_error")
+    selectbox_by_label(at, "Atleta secundária do evento").set_value("Ana (#7)")
+    selectbox_by_label(at, "Posse do evento").set_value(
+        f"Posse {extra_possession.id} — Adversária"
+    )
     selectbox_by_label(at, "Pontos do evento").set_value(0)
     button_by_label(at, "Atualizar evento selecionado").click()
     at.run()
 
     assert any("atualizado" in item.value for item in at.success)
+    with Session(engine) as session:
+        updated_event = session.get(Event, 1)
+    assert updated_event is not None
+    assert updated_event.event_type == "technical_error"
+    assert updated_event.secondary_player_id == fixture["helper_id"]
+    assert updated_event.possession_id == extra_possession.id
 
     button_by_label(at, "Excluir evento selecionado").click()
     at.run()
@@ -275,6 +295,104 @@ def test_tagging_page_create_update_and_delete_selected_event(monkeypatch, tmp_p
         events = session.exec(select(Event).where(Event.match_id == fixture["match_id"])).all()
     assert len(events) == 1
     assert events[0].event_type == "goal_scored"
+
+
+def test_tagging_page_update_and_delete_selected_set(monkeypatch, tmp_path: Path) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+        removable_set = SetSegment(
+            match_id=fixture["match_id"],
+            set_number=2,
+            start_second=20,
+            end_second=40,
+        )
+        session.add(removable_set)
+        session.commit()
+        session.refresh(removable_set)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    selectbox_by_label(at, "Set para editar ou excluir").set_value(removable_set.id)
+    number_input_by_label(at, "Número do set selecionado").set_value(3)
+    text_input_by_label(at, "Início do set selecionado").set_value("00:01")
+    text_input_by_label(at, "Fim do set selecionado").set_value("00:19")
+    button_by_label(at, "Atualizar set selecionado").click()
+    at.run()
+
+    assert any("Set 3 atualizado." in item.value for item in at.success)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+    selectbox_by_label(at, "Set para editar ou excluir").set_value(removable_set.id)
+    button_by_label(at, "Excluir set selecionado").click()
+    at.run()
+
+    assert any(f"Set {removable_set.id} excluído." in item.value for item in at.success)
+
+    with Session(engine) as session:
+        protected = session.get(SetSegment, fixture["set_id"])
+        deleted = session.get(SetSegment, removable_set.id)
+    assert protected is not None
+    assert protected.set_number == 1
+    assert deleted is None
+
+
+def test_tagging_page_update_and_delete_selected_possession(
+    monkeypatch, tmp_path: Path
+) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+        removable_possession = Possession(
+            match_id=fixture["match_id"],
+            set_id=fixture["set_id"],
+            team_side="team",
+            start_second=20,
+            end_second=28,
+            result="entrada",
+            points_scored=0,
+            points_conceded=0,
+        )
+        session.add(removable_possession)
+        session.commit()
+        session.refresh(removable_possession)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    selectbox_by_label(at, "Posse para editar ou excluir").set_value(removable_possession.id)
+    radio_by_label(at, "Equipe da posse selecionada").set_value("opponent")
+    selectbox_by_label(at, "Set da posse selecionada").set_value(f"Set 1 (id {fixture['set_id']})")
+    text_input_by_label(at, "Início da posse selecionada").set_value("00:21")
+    text_input_by_label(at, "Fim da posse selecionada").set_value("00:30")
+    text_input_by_label(at, "Resultado da posse selecionada").set_value("saída editada")
+    number_input_by_label(at, "Pontos feitos da posse").set_value(2)
+    number_input_by_label(at, "Pontos sofridos da posse").set_value(1)
+    button_by_label(at, "Atualizar posse selecionada").click()
+    at.run()
+
+    assert any(
+        f"Posse {removable_possession.id} atualizada." in item.value for item in at.success
+    )
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+    selectbox_by_label(at, "Posse para editar ou excluir").set_value(removable_possession.id)
+    button_by_label(at, "Excluir posse selecionada").click()
+    at.run()
+
+    assert any(
+        f"Posse {removable_possession.id} excluída." in item.value for item in at.success
+    )
+
+    with Session(engine) as session:
+        protected = session.get(Possession, fixture["possession_id"])
+        deleted = session.get(Possession, removable_possession.id)
+    assert protected is not None
+    assert protected.id == fixture["possession_id"]
+    assert deleted is None
 
 
 def test_reports_page_generates_reports_via_ui(monkeypatch, tmp_path: Path) -> None:

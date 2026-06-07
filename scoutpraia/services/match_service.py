@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 
 from scoutpraia.models.clip import Clip
 from scoutpraia.models.event import Event
-from scoutpraia.models.match import Match, MatchRoster
+from scoutpraia.models.match import Match, MatchRoster, Possession, SetSegment
 from scoutpraia.models.opponent import Opponent
 from scoutpraia.models.player import Player
 from scoutpraia.models.report import Report
@@ -212,6 +212,121 @@ def delete_match(session: Session, match_id: int) -> bool:
             f"Jogo {match_id} possui vínculos operacionais e não pode ser excluído."
         )
     session.delete(match)
+    session.commit()
+    return True
+
+
+def update_set_segment(
+    session: Session,
+    set_id: int,
+    *,
+    set_number: int,
+    start_second: float | None = None,
+    end_second: float | None = None,
+    score_team: int | None = None,
+    score_opponent: int | None = None,
+) -> SetSegment:
+    set_segment = session.get(SetSegment, set_id)
+    if set_segment is None:
+        raise ValueError(f"Set não encontrado: {set_id}")
+    if set_number < 1:
+        raise ValueError("Número do set deve ser maior ou igual a 1.")
+    if (
+        start_second is not None
+        and end_second is not None
+        and end_second < start_second
+    ):
+        raise ValueError("Fim do set não pode ser menor que o início do set.")
+
+    set_segment.set_number = int(set_number)
+    set_segment.start_second = start_second
+    set_segment.end_second = end_second
+    set_segment.score_team = score_team
+    set_segment.score_opponent = score_opponent
+    session.add(set_segment)
+    session.commit()
+    session.refresh(set_segment)
+    return set_segment
+
+
+def delete_set_segment(session: Session, set_id: int) -> bool:
+    set_segment = session.get(SetSegment, set_id)
+    if set_segment is None:
+        return False
+
+    dependencies = [
+        session.exec(select(Possession).where(Possession.set_id == set_id)).first(),
+        session.exec(select(Event).where(Event.set_id == set_id)).first(),
+    ]
+    if any(item is not None for item in dependencies):
+        raise ValueError(
+            f"Set {set_id} possui vínculos operacionais e não pode ser excluído."
+        )
+
+    session.delete(set_segment)
+    session.commit()
+    return True
+
+
+def update_possession(
+    session: Session,
+    possession_id: int,
+    *,
+    set_id: int | None = None,
+    team_side: str,
+    start_second: float | None = None,
+    end_second: float | None = None,
+    result: str | None = None,
+    points_scored: int = 0,
+    points_conceded: int = 0,
+) -> Possession:
+    possession = session.get(Possession, possession_id)
+    if possession is None:
+        raise ValueError(f"Posse não encontrada: {possession_id}")
+    if team_side not in {"team", "opponent"}:
+        raise ValueError("Lado da posse deve ser 'team' ou 'opponent'.")
+    if (
+        start_second is not None
+        and end_second is not None
+        and end_second < start_second
+    ):
+        raise ValueError("Fim da posse não pode ser menor que o início da posse.")
+    if points_scored < 0 or points_scored > 2:
+        raise ValueError("Pontos feitos da posse devem ficar entre 0 e 2.")
+    if points_conceded < 0 or points_conceded > 2:
+        raise ValueError("Pontos sofridos da posse devem ficar entre 0 e 2.")
+    if set_id is not None:
+        set_segment = session.get(SetSegment, set_id)
+        if set_segment is None or set_segment.match_id != possession.match_id:
+            raise ValueError("Set da posse não pertence ao jogo selecionado.")
+
+    possession.set_id = set_id
+    possession.team_side = team_side
+    possession.start_second = start_second
+    possession.end_second = end_second
+    possession.result = result or None
+    possession.points_scored = int(points_scored)
+    possession.points_conceded = int(points_conceded)
+    session.add(possession)
+    session.commit()
+    session.refresh(possession)
+    return possession
+
+
+def delete_possession(session: Session, possession_id: int) -> bool:
+    possession = session.get(Possession, possession_id)
+    if possession is None:
+        return False
+
+    dependency = session.exec(
+        select(Event).where(Event.possession_id == possession_id)
+    ).first()
+    if dependency is not None:
+        raise ValueError(
+            f"Posse {possession_id} possui vínculos operacionais e não pode ser excluída."
+        )
+
+    session.delete(possession)
     session.commit()
     return True
 

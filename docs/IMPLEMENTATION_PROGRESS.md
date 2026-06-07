@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T06:23:36Z
+date_utc=2026-06-07T07:33:05Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=8a8a3cb
+git_head=f8f8eb3
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,23 +76,28 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 32 items
-tests/test_analytics_service.py ..                                       [  6%]
-tests/test_clip_service.py .                                             [  9%]
-tests/test_event_service.py ..                                           [ 15%]
-tests/test_match_service.py ...                                          [ 25%]
-tests/test_models.py ..                                                  [ 31%]
-tests/test_real_video_integration.py ..                                  [ 37%]
-tests/test_report_service.py ..                                          [ 43%]
-tests/test_smoke.py ........                                             [ 68%]
-tests/test_streamlit_pages.py .....                                      [ 84%]
-tests/test_ui_labels.py ...                                              [ 93%]
+collected 36 items
+tests/test_analytics_service.py ..                                       [  5%]
+tests/test_clip_service.py .                                             [  8%]
+tests/test_event_service.py ..                                           [ 13%]
+tests/test_match_service.py .....                                        [ 27%]
+tests/test_models.py ..                                                  [ 33%]
+tests/test_real_video_integration.py ..                                  [ 38%]
+tests/test_report_service.py ..                                          [ 44%]
+tests/test_smoke.py ........                                             [ 66%]
+tests/test_streamlit_pages.py .......                                    [ 86%]
+tests/test_ui_labels.py ...                                              [ 94%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 32 passed in 3.13s ==============================
+============================== 36 passed in 3.55s ==============================
 
 == Git whitespace check ==
-sem erros
+== Working tree summary ==
+ M docs/IMPLEMENTATION_PROGRESS.md
+ M scoutpraia/pages/tagging.py
+ M scoutpraia/services/match_service.py
+ M tests/test_match_service.py
+ M tests/test_streamlit_pages.py
 ```
 
 Interpretação: a base técnica atual está validada para seguir para a próxima fase. Isso **não** prova que o MVP completo está pronto.
@@ -212,7 +217,7 @@ Limite atual:
 
 ### Fase 6 — Serviços internos iniciais
 
-Status: `PARCIAL`
+Status: `FUNCIONANDO COM EVIDÊNCIA`
 
 Implementado parcialmente:
 
@@ -241,7 +246,7 @@ Pendências:
 
 ### Fase 7 — Interface Streamlit
 
-Status: `PARCIAL`
+Status: `FUNCIONANDO COM EVIDÊNCIA`
 
 Implementado:
 
@@ -1629,3 +1634,151 @@ Limitações, gaps e riscos:
 
 - A UI agora resolve a limitação de atuar só no último evento, mas sets e posses continuam sem edição/exclusão pela interface.
 - O editor continua sem campos explícitos para editar `secondary_player_id` e `possession_id`; a mudança desta etapa focou seleção e ação sobre qualquer evento.
+
+---
+
+## Ciclo — Serviços e UI para edição/exclusão de `set`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de `update_set_segment()` e `delete_set_segment()` em `scoutpraia/services/match_service.py`.
+- Regra de exclusão segura:
+  - set não pode ser excluído se houver `possession` ou `event` vinculados.
+- Inclusão de seletor `Set para editar ou excluir` na página `Marcação`.
+- Inclusão de formulário `Editar set selecionado` na área `Sets e posses`.
+- Inclusão de botão `Excluir set selecionado` na mesma área.
+- Rótulo do seletor de set passou a mostrar:
+  - número do set
+  - id
+  - início e fim formatados
+- Atualização de `tests/test_match_service.py` para cobrir:
+  - edição de set
+  - exclusão de set sem dependência
+  - bloqueio de exclusão com dependência
+- Atualização de `tests/test_streamlit_pages.py` para cobrir:
+  - seleção de set existente
+  - atualização do set selecionado
+  - exclusão de set selecionado sem dependências
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_match_service.py tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 10 passed
+
+Gate final:
+34 passed
+```
+
+Limitações, gaps e riscos:
+
+- A etapa atual resolve apenas `set`.
+- `posse` ainda não possui edição/exclusão pela UI.
+- O editor de evento ainda não expõe `secondary_player_id` e `possession_id`.
+
+---
+
+## Ciclo — Serviços e UI para edição/exclusão de `posse`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de `update_possession()` e `delete_possession()` em `scoutpraia/services/match_service.py`.
+- Regra de exclusão segura:
+  - posse não pode ser excluída se houver `event` vinculado via `possession_id`.
+- Inclusão de seletor `Posse para editar ou excluir` na página `Marcação`.
+- Inclusão de formulário `Editar posse selecionada` na área `Sets e posses`.
+- Inclusão de botão `Excluir posse selecionada` na mesma área.
+- Rótulo do seletor de posse passou a mostrar:
+  - id
+  - lado
+  - set vinculado
+  - início e fim formatados
+- Atualização de `tests/test_match_service.py` para cobrir:
+  - edição de posse
+  - exclusão de posse sem dependência
+  - bloqueio de exclusão com dependência
+- Atualização de `tests/test_streamlit_pages.py` para cobrir:
+  - seleção de posse existente
+  - atualização da posse selecionada
+  - exclusão da posse selecionada sem dependências
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_match_service.py tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 12 passed in 5.00s
+
+Gate final:
+- 36 passed in 4.99s
+```
+
+Limitações, gaps e riscos:
+
+- Esta etapa fecha apenas seleção, edição e exclusão de `posse`.
+- O editor de evento continua sem campos explícitos para `secondary_player_id` e `possession_id`.
+- A UI ainda não oferece edição/exclusão de sets e posses fora da página `Marcação`.
+
+---
+
+## Ciclo — Campos explícitos no editor de evento
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de `Atleta secundária do evento` no editor da página `Marcação`.
+- Inclusão de `Posse do evento` no editor da página `Marcação`.
+- Atualização do `update_event()` via UI para persistir:
+  - `secondary_player_id`
+  - `possession_id`
+- Atualização de `tests/test_streamlit_pages.py` para provar:
+  - seleção de um evento existente
+  - troca explícita da atleta secundária
+  - troca explícita da posse vinculada
+  - persistência da alteração antes da exclusão
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py tests/test_event_service.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 9 passed in 4.40s
+
+Gate final:
+- 36 passed in 3.80s
+```
+
+Limitações, gaps e riscos:
+
+- O editor agora expõe `secondary_player_id` e `possession_id`, mas a UX ainda depende de seleção manual em listas.
+- A cobertura atual é local e automatizada; a prova humana com vídeo real continua sendo responsabilidade do protocolo operacional.

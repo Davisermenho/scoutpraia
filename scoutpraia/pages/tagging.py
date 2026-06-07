@@ -16,7 +16,15 @@ from scoutpraia.services.event_service import (
     list_events_by_match,
     update_event,
 )
-from scoutpraia.services.match_service import list_match_roster, list_matches, list_players
+from scoutpraia.services.match_service import (
+    delete_possession,
+    delete_set_segment,
+    list_match_roster,
+    list_matches,
+    list_players,
+    update_possession,
+    update_set_segment,
+)
 from scoutpraia.ui_labels import (
     column_label,
     event_type_label,
@@ -221,6 +229,72 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         st.success(f"Set {set_segment.set_number} salvo.")
                     except ValueError as exc:
                         st.error(str(exc))
+            set_options = _set_options(session, match_id)
+            editable_set_ids = [
+                set_id for set_id in set_options.values() if set_id is not None
+            ]
+            if editable_set_ids:
+                selected_set_id = st.selectbox(
+                    "Set para editar ou excluir",
+                    options=editable_set_ids,
+                    index=len(editable_set_ids) - 1,
+                    format_func=lambda set_id: _set_editor_label(
+                        session.get(SetSegment, set_id)
+                    ),
+                    key="edit_set_id",
+                )
+                selected_set = session.get(SetSegment, selected_set_id)
+                if selected_set is not None:
+                    with st.form("edit_set_form"):
+                        st.markdown("**Editar set selecionado**")
+                        set_number = st.number_input(
+                            "Número do set selecionado",
+                            min_value=1,
+                            value=int(selected_set.set_number),
+                        )
+                        start_input = st.text_input(
+                            "Início do set selecionado",
+                            value=format_seconds_for_input(selected_set.start_second),
+                            help=TIME_INPUT_HELP,
+                        )
+                        _render_time_input_preview(start_input)
+                        end_input = st.text_input(
+                            "Fim do set selecionado",
+                            value=format_seconds_for_input(selected_set.end_second),
+                            help=TIME_INPUT_HELP,
+                        )
+                        _render_time_input_preview(end_input)
+                        submitted = st.form_submit_button("Atualizar set selecionado")
+                        if submitted:
+                            try:
+                                start_second = _parse_time_input(
+                                    start_input, "Início do set selecionado"
+                                )
+                                end_second = _parse_time_input(
+                                    end_input, "Fim do set selecionado"
+                                )
+                                updated = update_set_segment(
+                                    session,
+                                    selected_set.id,
+                                    set_number=int(set_number),
+                                    start_second=start_second,
+                                    end_second=end_second,
+                                )
+                                st.success(f"Set {updated.set_number} atualizado.")
+                            except ValueError as exc:
+                                st.error(str(exc))
+
+                    if st.button(
+                        "Excluir set selecionado",
+                        key="delete_selected_set",
+                        type="secondary",
+                    ):
+                        try:
+                            deleted = delete_set_segment(session, selected_set.id)
+                            if deleted:
+                                st.success(f"Set {selected_set.id} excluído.")
+                        except ValueError as exc:
+                            st.error(str(exc))
         with right_col:
             set_options = _set_options(session, match_id)
             with st.form("create_possession_form"):
@@ -287,6 +361,110 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         st.success(f"Posse {possession.id} salva.")
                     except ValueError as exc:
                         st.error(str(exc))
+            possession_options = _possession_options(session, match_id, None)
+            editable_possession_ids = [
+                possession_id
+                for possession_id in possession_options.values()
+                if possession_id is not None
+            ]
+            if editable_possession_ids:
+                selected_possession_id = st.selectbox(
+                    "Posse para editar ou excluir",
+                    options=editable_possession_ids,
+                    index=len(editable_possession_ids) - 1,
+                    format_func=lambda possession_id: _possession_editor_label(
+                        session, session.get(Possession, possession_id)
+                    ),
+                    key="edit_possession_id",
+                )
+                selected_possession = session.get(Possession, selected_possession_id)
+                if selected_possession is not None:
+                    selected_set_labels = list(set_options.keys())
+                    selected_set_label = next(
+                        (
+                            label
+                            for label, set_id in set_options.items()
+                            if set_id == selected_possession.set_id
+                        ),
+                        "Sem set",
+                    )
+                    with st.form("edit_possession_form"):
+                        st.markdown("**Editar posse selecionada**")
+                        possession_team_side = st.radio(
+                            "Equipe da posse selecionada",
+                            options=["team", "opponent"],
+                            horizontal=True,
+                            index=0 if selected_possession.team_side == "team" else 1,
+                            format_func=team_side_label,
+                        )
+                        selected_set_label = st.selectbox(
+                            "Set da posse selecionada",
+                            options=selected_set_labels,
+                            index=_option_index(selected_set_labels, selected_set_label),
+                        )
+                        start_input = st.text_input(
+                            "Início da posse selecionada",
+                            value=format_seconds_for_input(selected_possession.start_second),
+                            help=TIME_INPUT_HELP,
+                        )
+                        _render_time_input_preview(start_input)
+                        end_input = st.text_input(
+                            "Fim da posse selecionada",
+                            value=format_seconds_for_input(selected_possession.end_second),
+                            help=TIME_INPUT_HELP,
+                        )
+                        _render_time_input_preview(end_input)
+                        result = st.text_input(
+                            "Resultado da posse selecionada",
+                            value=selected_possession.result or "",
+                        )
+                        points_scored = st.number_input(
+                            "Pontos feitos da posse",
+                            min_value=0,
+                            max_value=2,
+                            value=int(selected_possession.points_scored),
+                        )
+                        points_conceded = st.number_input(
+                            "Pontos sofridos da posse",
+                            min_value=0,
+                            max_value=2,
+                            value=int(selected_possession.points_conceded),
+                        )
+                        submitted = st.form_submit_button("Atualizar posse selecionada")
+                        if submitted:
+                            try:
+                                start_second = _parse_time_input(
+                                    start_input, "Início da posse selecionada"
+                                )
+                                end_second = _parse_time_input(
+                                    end_input, "Fim da posse selecionada"
+                                )
+                                updated = update_possession(
+                                    session,
+                                    selected_possession.id,
+                                    set_id=set_options[selected_set_label],
+                                    team_side=possession_team_side,
+                                    start_second=start_second,
+                                    end_second=end_second,
+                                    result=result,
+                                    points_scored=int(points_scored),
+                                    points_conceded=int(points_conceded),
+                                )
+                                st.success(f"Posse {updated.id} atualizada.")
+                            except ValueError as exc:
+                                st.error(str(exc))
+
+                    if st.button(
+                        "Excluir posse selecionada",
+                        key="delete_selected_possession",
+                        type="secondary",
+                    ):
+                        try:
+                            deleted = delete_possession(session, selected_possession.id)
+                            if deleted:
+                                st.success(f"Posse {selected_possession.id} excluída.")
+                        except ValueError as exc:
+                            st.error(str(exc))
 
 
 def _render_event_form(
@@ -426,6 +604,10 @@ def _render_event_editor(
     inverse_player_options = {value: label for label, value in player_options.items()}
     set_options = _set_options(session, match_id)
     inverse_set_options = {value: label for label, value in set_options.items()}
+    possession_options = _possession_options(session, match_id, None)
+    inverse_possession_options = {
+        value: label for label, value in possession_options.items()
+    }
     event_label_by_id = {
         event.id: _event_editor_label(event)
         for event in events
@@ -474,6 +656,17 @@ def _render_event_editor(
                 inverse_player_options.get(selected_event.player_id, "Sem atleta"),
             ),
         )
+        secondary_player_label = st.selectbox(
+            "Atleta secundária do evento",
+            options=list(player_options.keys()),
+            index=_option_index(
+                list(player_options.keys()),
+                inverse_player_options.get(
+                    selected_event.secondary_player_id,
+                    "Sem atleta",
+                ),
+            ),
+        )
         zone_label = st.selectbox(
             "Zona do evento",
             options=["Sem zona"] + sorted(ZONES),
@@ -489,6 +682,17 @@ def _render_event_editor(
             index=_option_index(
                 list(set_options.keys()),
                 inverse_set_options.get(selected_event.set_id, "Sem set"),
+            ),
+        )
+        possession_label = st.selectbox(
+            "Posse do evento",
+            options=list(possession_options.keys()),
+            index=_option_index(
+                list(possession_options.keys()),
+                inverse_possession_options.get(
+                    selected_event.possession_id,
+                    "Sem posse",
+                ),
             ),
         )
         points_value = st.selectbox(
@@ -507,9 +711,11 @@ def _render_event_editor(
                     session,
                     selected_event.id,
                     set_id=set_options[set_label],
+                    possession_id=possession_options[possession_label],
                     taxonomy_version_id=taxonomy_id,
                     event_type=event_type,
                     player_id=player_options[player_label],
+                    secondary_player_id=player_options[secondary_player_label],
                     team_side=team_side,
                     timestamp_second=float(timestamp_second),
                     zone=None if zone_label == "Sem zona" else zone_label,
@@ -610,6 +816,33 @@ def _event_editor_label(event: Event) -> str:
     return (
         f"Evento {event_id} — {format_seconds_for_input(event.timestamp_second)} — "
         f"{event_type_label(event.event_type)}"
+    )
+
+
+def _set_editor_label(set_segment: SetSegment | None) -> str:
+    if set_segment is None or set_segment.id is None:
+        return "Set indisponível"
+    start_label = format_seconds_for_input(set_segment.start_second)
+    end_label = format_seconds_for_input(set_segment.end_second)
+    return (
+        f"Set {set_segment.set_number} (id {set_segment.id}) — "
+        f"{start_label or '--'} até {end_label or '--'}"
+    )
+
+
+def _possession_editor_label(session: Session, possession: Possession | None) -> str:
+    if possession is None or possession.id is None:
+        return "Posse indisponível"
+    set_label = "Sem set"
+    if possession.set_id is not None:
+        set_segment = session.get(SetSegment, possession.set_id)
+        if set_segment is not None and set_segment.id is not None:
+            set_label = f"Set {set_segment.set_number} (id {set_segment.id})"
+    start_label = format_seconds_for_input(possession.start_second)
+    end_label = format_seconds_for_input(possession.end_second)
+    return (
+        f"Posse {possession.id} — {team_side_label(possession.team_side)} — "
+        f"{set_label} — {start_label or '--'} até {end_label or '--'}"
     )
 
 
