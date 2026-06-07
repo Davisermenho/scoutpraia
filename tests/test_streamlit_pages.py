@@ -395,6 +395,97 @@ def test_tagging_page_update_and_delete_selected_possession(
     assert deleted is None
 
 
+def test_tagging_page_filters_and_navigates_event_editor(
+    monkeypatch, tmp_path: Path
+) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+        second_set = SetSegment(match_id=fixture["match_id"], set_number=2)
+        session.add(second_set)
+        session.commit()
+        session.refresh(second_set)
+        second_set_id = second_set.id
+
+        opponent_possession = Possession(
+            match_id=fixture["match_id"],
+            set_id=second_set.id,
+            team_side="opponent",
+        )
+        session.add(opponent_possession)
+        session.commit()
+        session.refresh(opponent_possession)
+
+        team_event = create_event(
+            session,
+            Event(
+                match_id=fixture["match_id"],
+                set_id=fixture["set_id"],
+                possession_id=fixture["possession_id"],
+                taxonomy_version_id=fixture["taxonomy_id"],
+                event_type="technical_error",
+                player_id=fixture["helper_id"],
+                team_side="team",
+                timestamp_second=20,
+                points_value=0,
+                notes="evento-time",
+            ),
+        )
+        opponent_event = create_event(
+            session,
+            Event(
+                match_id=fixture["match_id"],
+                set_id=second_set.id,
+                possession_id=opponent_possession.id,
+                taxonomy_version_id=fixture["taxonomy_id"],
+                event_type="shot_attempt",
+                player_id=fixture["helper_id"],
+                team_side="opponent",
+                timestamp_second=30,
+                points_value=0,
+                notes="evento-adversaria",
+            ),
+        )
+        team_event_id = team_event.id
+        opponent_event_id = opponent_event.id
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    selectbox_by_label(at, "Filtrar por lado").set_value("Equipe")
+    button_by_label(at, "Evento anterior").click()
+    at.run()
+
+    text_area_by_label(at, "Notas do evento").set_value("navegado-para-evento-1")
+    button_by_label(at, "Atualizar evento selecionado").click()
+    at.run()
+
+    with Session(engine) as session:
+        first_event = session.get(Event, 1)
+        second_event = session.get(Event, team_event_id)
+    assert first_event is not None
+    assert second_event is not None
+    assert first_event.notes == "navegado-para-evento-1"
+    assert second_event.notes == "evento-time"
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+    selectbox_by_label(at, "Filtrar por set").set_value(f"Set 2 (id {second_set_id})")
+    selectbox_by_label(at, "Filtrar por lado").set_value("Adversária")
+    text_input_by_label(at, "Buscar evento").set_value("evento-adversaria")
+    at.run()
+
+    button_by_label(at, "Excluir evento selecionado").click()
+    at.run()
+
+    assert any(f"Evento {opponent_event_id} excluído." in item.value for item in at.success)
+    with Session(engine) as session:
+        deleted_event = session.get(Event, opponent_event_id)
+        preserved_team_event = session.get(Event, team_event_id)
+    assert deleted_event is None
+    assert preserved_team_event is not None
+
+
 def test_reports_page_generates_reports_via_ui(monkeypatch, tmp_path: Path) -> None:
     engine = configure_page_modules(monkeypatch, tmp_path)
     with Session(engine) as session:
@@ -496,6 +587,13 @@ def text_input_by_label(at: AppTest, label: str):
         if element.label == label:
             return element
     raise AssertionError(f"Text input não encontrado: {label}")
+
+
+def text_area_by_label(at: AppTest, label: str):
+    for element in at.text_area:
+        if element.label == label:
+            return element
+    raise AssertionError(f"Text area não encontrado: {label}")
 
 
 def button_by_label(at: AppTest, label: str):

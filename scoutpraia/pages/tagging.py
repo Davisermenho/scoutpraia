@@ -124,6 +124,7 @@ def _init_state() -> None:
     st.session_state.setdefault("tagging_event_type", "shot_attempt")
     st.session_state.setdefault("tagging_timestamp_second", 0.0)
     st.session_state.setdefault("tagging_team_side", "team")
+    st.session_state.setdefault("edit_event_id", None)
 
 
 def _select_match(matches: list[Match]) -> Match | None:
@@ -608,24 +609,79 @@ def _render_event_editor(
     inverse_possession_options = {
         value: label for label, value in possession_options.items()
     }
+
+    st.subheader("Localizar evento")
+    filter_col_a, filter_col_b = st.columns(2)
+    with filter_col_a:
+        filter_set_label = st.selectbox(
+            "Filtrar por set",
+            options=list(set_options.keys()),
+            key="edit_event_filter_set",
+        )
+        filter_team_side = st.selectbox(
+            "Filtrar por lado",
+            options=["Todos", "Equipe", "Adversária"],
+            key="edit_event_filter_side",
+        )
+    with filter_col_b:
+        filter_event_type = st.selectbox(
+            "Filtrar por tipo de evento",
+            options=["Todos"] + event_types,
+            format_func=lambda value: "Todos" if value == "Todos" else event_type_label(value),
+            key="edit_event_filter_type",
+        )
+        filter_search = st.text_input(
+            "Buscar evento",
+            key="edit_event_filter_search",
+            help="Busca por id, nome do evento, atleta ou notas.",
+        )
+
+    filtered_events = _filter_events_for_editor(
+        events=events,
+        players=players,
+        filter_set_id=set_options[filter_set_label],
+        filter_team_side=filter_team_side,
+        filter_event_type=filter_event_type,
+        filter_search=filter_search,
+    )
     event_label_by_id = {
-        event.id: _event_editor_label(event)
-        for event in events
+        event.id: _event_editor_label(event, players_by_id={player.id: player for player in players})
+        for event in filtered_events
         if event.id is not None
     }
-    event_ids = [event.id for event in events if event.id is not None]
+    event_ids = [event.id for event in filtered_events if event.id is not None]
     if not event_ids:
+        st.info("Nenhum evento corresponde aos filtros atuais.")
         return
+    if st.session_state.get("edit_event_id") not in event_ids:
+        st.session_state["edit_event_id"] = event_ids[-1]
+
+    current_event_index = event_ids.index(st.session_state["edit_event_id"])
+    nav_prev_col, nav_next_col = st.columns(2)
+    with nav_prev_col:
+        if st.button(
+            "Evento anterior",
+            key="edit_event_prev",
+            disabled=current_event_index == 0,
+        ):
+            st.session_state["edit_event_id"] = event_ids[current_event_index - 1]
+    with nav_next_col:
+        if st.button(
+            "Próximo evento",
+            key="edit_event_next",
+            disabled=current_event_index == len(event_ids) - 1,
+        ):
+            st.session_state["edit_event_id"] = event_ids[current_event_index + 1]
+
+    current_event_index = event_ids.index(st.session_state["edit_event_id"])
+    st.caption(f"Evento filtrado {current_event_index + 1} de {len(event_ids)}.")
     selected_event_id = st.selectbox(
         "Evento para editar ou excluir",
         options=event_ids,
-        index=len(event_ids) - 1,
         format_func=lambda event_id: event_label_by_id[event_id],
         key="edit_event_id",
     )
-    selected_event = next(
-        event for event in events if event.id == selected_event_id
-    )
+    selected_event = next(event for event in filtered_events if event.id == selected_event_id)
     st.subheader("Editar ou excluir evento selecionado")
 
     with st.form("edit_last_event_form"):
@@ -811,11 +867,14 @@ def _zone_option_label(value: str | None) -> str:
     return zone_label(value)
 
 
-def _event_editor_label(event: Event) -> str:
+def _event_editor_label(event: Event, players_by_id: dict[int | None, Player] | None = None) -> str:
     event_id = event.id if event.id is not None else "?"
+    player_label = ""
+    if players_by_id is not None and event.player_id in players_by_id:
+        player_label = f" — {players_by_id[event.player_id].name}"
     return (
         f"Evento {event_id} — {format_seconds_for_input(event.timestamp_second)} — "
-        f"{event_type_label(event.event_type)}"
+        f"{event_type_label(event.event_type)}{player_label}"
     )
 
 
@@ -844,6 +903,46 @@ def _possession_editor_label(session: Session, possession: Possession | None) ->
         f"Posse {possession.id} — {team_side_label(possession.team_side)} — "
         f"{set_label} — {start_label or '--'} até {end_label or '--'}"
     )
+
+
+def _filter_events_for_editor(
+    *,
+    events: list[Event],
+    players: list[Player],
+    filter_set_id: int | None,
+    filter_team_side: str,
+    filter_event_type: str,
+    filter_search: str,
+) -> list[Event]:
+    players_by_id = {player.id: player for player in players}
+    normalized_search = filter_search.strip().lower()
+    filtered: list[Event] = []
+    for event in events:
+        if filter_set_id is not None and event.set_id != filter_set_id:
+            continue
+        if filter_team_side == "Equipe" and event.team_side != "team":
+            continue
+        if filter_team_side == "Adversária" and event.team_side != "opponent":
+            continue
+        if filter_event_type != "Todos" and event.event_type != filter_event_type:
+            continue
+        if normalized_search:
+            player_name = ""
+            if event.player_id in players_by_id:
+                player_name = players_by_id[event.player_id].name.lower()
+            haystack = " ".join(
+                [
+                    str(event.id or ""),
+                    event.event_type.lower(),
+                    event_type_label(event.event_type).lower(),
+                    player_name,
+                    (event.notes or "").lower(),
+                ]
+            )
+            if normalized_search not in haystack:
+                continue
+        filtered.append(event)
+    return filtered
 
 
 def _parse_time_input(raw_value: str, field_label: str) -> float:

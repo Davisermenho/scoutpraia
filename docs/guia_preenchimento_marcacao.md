@@ -20,7 +20,7 @@ Na prática, o fluxo correto é:
 4. criar a `posse`, quando necessário
 5. registrar os `eventos` da jogada
 6. revisar o `Histórico recente`
-7. corrigir o último evento, se necessário
+7. localizar e corrigir qualquer evento salvo, se necessário
 
 Regra prática:
 
@@ -351,15 +351,34 @@ Verifique:
 - zona
 - pontos
 
-Se o último evento ficou errado:
+Se qualquer evento ficou errado:
 
-1. vá em `Editar ou excluir último evento`
-2. ajuste os campos
-3. clique em `Atualizar último evento`
+1. vá em `Localizar evento`
+2. use, se necessário:
+   - `Filtrar por set`
+   - `Filtrar por lado`
+   - `Filtrar por tipo de evento`
+   - `Buscar evento`
+3. use `Evento anterior` e `Próximo evento` quando houver mais de um resultado
+4. selecione o item em `Evento para editar ou excluir`
+5. ajuste os campos
+6. clique em `Atualizar evento selecionado`
 
 Se o evento precisa ser removido:
 
-- clique em `Excluir último evento`
+- selecione o item correto e clique em `Excluir evento selecionado`
+
+Se o problema estiver no `set`:
+
+1. use `Set para editar ou excluir`
+2. ajuste os campos do set selecionado
+3. clique em `Atualizar set selecionado`
+
+Se o problema estiver na `posse`:
+
+1. use `Posse para editar ou excluir`
+2. ajuste os campos da posse selecionada
+3. clique em `Atualizar posse selecionada`
 
 ---
 
@@ -530,20 +549,19 @@ Se estiver em dúvida:
 
 - prefira registrar o essencial corretamente
 - use `Notas` para marcar incerteza
-- revise o último evento logo depois
+- revise o evento salvo logo depois
 
 ---
 
 ## 9. Erros comuns
 
-### Erro 1 — Digitar tempo em `mm:ss`
+### Erro 1 — Achar que `MM:SS` é inválido
 
-Errado:
+Correto:
 
 - `02:31`
-
-Certo:
-
+- `00:17.5`
+- `01:02:25`
 - `151`
 
 ### Erro 2 — Clicar no botão rápido e achar que já salvou
@@ -589,7 +607,7 @@ Se você estiver começando agora, use este roteiro:
 3. registrar uma `Tentativa de finalização`
 4. registrar `Gol marcado` ou `Finalização para fora`
 5. conferir o `Histórico recente`
-6. corrigir o último evento, se necessário
+6. localizar e corrigir o evento necessário, se houver erro
 7. repetir o processo
 
 Depois da marcação:

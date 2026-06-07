@@ -148,10 +148,17 @@ Se possível, preferir uma amostra mais rica:
    - lado `team/opponent`
    - tipo de evento
    - zona, quando aplicável
+   - seleção de set e posse, quando aplicável
 6. A cada evento salvo, conferir:
    - mensagem de sucesso
    - atualização do histórico recente
-7. Ao final, editar pelo menos 1 evento e confirmar que a alteração aparece.
+7. Ao final, validar:
+   - edição de pelo menos 1 evento via bloco `Localizar evento`
+   - uso de pelo menos 1 filtro do editor (`set`, `lado`, `tipo` ou busca)
+   - exclusão de pelo menos 1 evento selecionado, se isso não comprometer a amostra
+8. Se o ensaio usar sets e posses explícitos, validar também:
+   - edição de pelo menos 1 set ou posse
+   - bloqueio esperado de exclusão quando houver vínculo operacional
 
 #### Etapa 4 — Relatórios pela interface
 
@@ -202,6 +209,7 @@ O ensaio é `APROVADO` quando:
 - o operador consegue salvar a amostra mínima de eventos
 - o histórico da página reflete os eventos salvos
 - pelo menos 1 edição de evento funciona
+- os filtros do editor localizam o evento correto
 - os 3 relatórios são gerados pela interface
 - os arquivos aparecem em `storage/reports/`
 - o operador consegue abrir ou baixar o HTML gerado

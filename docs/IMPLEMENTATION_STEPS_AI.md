@@ -488,11 +488,16 @@ Implementar tela crítica:
 - timestamp manual visível/editável.
 - botões grandes para eventos.
 - seleção rápida de atleta.
+- seleção de atleta secundária quando aplicável.
 - seleção de zona.
 - seleção de set.
 - seleção de posse quando necessário.
 - feed lateral de eventos salvos.
-- editar/excluir último evento.
+- editar/excluir qualquer evento salvo.
+- editar/excluir set.
+- editar/excluir posse.
+- filtros para localizar evento por set, lado, tipo e busca textual.
+- navegação rápida entre eventos filtrados.
 
 Limitação reconhecida:
 
@@ -501,8 +506,10 @@ Limitação reconhecida:
 Gate:
 
 - usuário consegue marcar pelo menos 20 eventos sem recarregar o app manualmente.
-- último evento salvo aparece no histórico.
-- edição e exclusão funcionam.
+- eventos salvos aparecem no histórico.
+- edição e exclusão de evento funcionam sobre qualquer item selecionado.
+- edição e exclusão de `set` e `posse` funcionam.
+- filtros e navegação do editor permitem localizar o evento correto sem excluir registros intermediários.
 
 ### 7.5 Página Relatórios
 

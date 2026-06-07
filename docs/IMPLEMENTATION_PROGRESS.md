@@ -12,7 +12,7 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético, analytics com fixture controlada, geração local de relatórios HTML persistidos e o núcleo da UI Streamlit para Dashboard, Jogos, Marcação, Relatórios e Adversárias estão funcionando dentro do escopo testado. Validação observacional, verificação visual humana do fluxo completo e operação com vídeo real ainda não foram implementadas integralmente.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético, analytics com fixture controlada, geração local de relatórios HTML persistidos e o núcleo da UI Streamlit para Dashboard, Jogos, Marcação, Relatórios e Adversárias estão funcionando dentro do escopo testado. A página `Marcação` já cobre edição/exclusão de `set`, `posse` e qualquer `evento` salvo, com filtros e navegação rápida no editor. Validação observacional, verificação visual humana do fluxo completo e operação com vídeo real ainda não foram implementadas integralmente.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T07:33:05Z
+date_utc=2026-06-07T07:54:45Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=f8f8eb3
+git_head=6ed39c4
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,28 +76,30 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 36 items
+collected 37 items
 tests/test_analytics_service.py ..                                       [  5%]
 tests/test_clip_service.py .                                             [  8%]
 tests/test_event_service.py ..                                           [ 13%]
 tests/test_match_service.py .....                                        [ 27%]
-tests/test_models.py ..                                                  [ 33%]
-tests/test_real_video_integration.py ..                                  [ 38%]
-tests/test_report_service.py ..                                          [ 44%]
-tests/test_smoke.py ........                                             [ 66%]
-tests/test_streamlit_pages.py .......                                    [ 86%]
+tests/test_models.py ..                                                  [ 32%]
+tests/test_real_video_integration.py ..                                  [ 37%]
+tests/test_report_service.py ..                                          [ 43%]
+tests/test_smoke.py ........                                             [ 64%]
+tests/test_streamlit_pages.py ........                                   [ 86%]
 tests/test_ui_labels.py ...                                              [ 94%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 36 passed in 3.55s ==============================
+============================== 37 passed in 5.35s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
  M docs/IMPLEMENTATION_PROGRESS.md
+ M docs/IMPLEMENTATION_STEPS_AI.md
+ M docs/guia_preenchimento_marcacao.md
+ M docs/validation_protocol.md
  M scoutpraia/pages/tagging.py
- M scoutpraia/services/match_service.py
- M tests/test_match_service.py
  M tests/test_streamlit_pages.py
+?? docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
 ```
 
 Interpretação: a base técnica atual está validada para seguir para a próxima fase. Isso **não** prova que o MVP completo está pronto.
@@ -254,7 +256,7 @@ Implementado:
 - página de Jogos com cadastro básico real.
 - página de Jogos com edição/exclusão segura de jogos, adversárias e atletas.
 - página de Jogos com associação e remoção de atletas no `match_roster`.
-- página de Marcação com seleção de jogo/taxonomia, vídeo local, botões rápidos, timestamp manual, escolha de atleta/zona/set/posse, histórico lateral e edição/exclusão do último evento.
+- página de Marcação com seleção de jogo/taxonomia, vídeo local, botões rápidos, timestamp manual, escolha de atleta/zona/set/posse, histórico lateral, edição/exclusão de `set` e `posse`, e editor de qualquer evento salvo com filtros/navegação.
 - página de Relatórios com seleção de jogo, prévia de KPIs, geração de relatório coletivo/individual/adversária e ações para download/abrir HTML gerado.
 - Dashboard com métricas operacionais, jogos recentes, atalhos e resumo de KPIs recentes.
 - página Adversárias com cadastro, edição/exclusão, histórico de jogos, tendências calculadas e plano manual editável.
@@ -263,7 +265,9 @@ Implementado:
 Evidência:
 
 - `tests/test_streamlit_pages.py` cobre estado vazio da página de Marcação.
-- `tests/test_streamlit_pages.py` cobre criação/edição/exclusão do último evento via página de Marcação.
+- `tests/test_streamlit_pages.py` cobre criação, edição e exclusão de qualquer evento selecionado via página de Marcação.
+- `tests/test_streamlit_pages.py` cobre edição/exclusão de `set` e `posse` via página de Marcação.
+- `tests/test_streamlit_pages.py` cobre filtros e navegação rápida do editor de eventos.
 - `tests/test_streamlit_pages.py` cobre geração de relatório coletivo via página de Relatórios.
 - `tests/test_streamlit_pages.py` cobre renderização do Dashboard com métricas.
 - `tests/test_streamlit_pages.py` cobre renderização da página Adversárias com histórico e tendências.
@@ -999,7 +1003,7 @@ Implementado:
 - `scoutpraia/pages/tagging.py` agora oferece seleção de jogo e taxonomia.
 - `scoutpraia/pages/tagging.py` agora exibe vídeo local com `st.video` quando o jogo possui `video_path`.
 - `scoutpraia/pages/tagging.py` agora registra eventos com timestamp manual, botões rápidos, atleta, zona, set e posse.
-- `scoutpraia/pages/tagging.py` agora mostra histórico recente e permite editar/excluir o último evento salvo.
+- `scoutpraia/pages/tagging.py` agora mostra histórico recente e permite localizar, editar e excluir qualquer evento salvo.
 - `scoutpraia/pages/reports.py` agora mostra prévia de KPIs por jogo.
 - `scoutpraia/pages/reports.py` agora gera relatório coletivo, individual e de adversária chamando `report_service.py`.
 - `scoutpraia/pages/reports.py` agora lista arquivos gerados com ação de download e tentativa de abertura local.
@@ -1391,7 +1395,7 @@ Implementado / executado:
   - seleção de zona
   - seleção de posse
   - histórico recente
-  - editor do último evento
+  - editor de qualquer evento salvo
 - Atualização de `scoutpraia/pages/reports.py` para traduzir:
   - nomes de KPIs na prévia
   - métricas aninhadas por set
@@ -1782,3 +1786,97 @@ Limitações, gaps e riscos:
 
 - O editor agora expõe `secondary_player_id` e `possession_id`, mas a UX ainda depende de seleção manual em listas.
 - A cobertura atual é local e automatizada; a prova humana com vídeo real continua sendo responsabilidade do protocolo operacional.
+
+---
+
+## Ciclo — Filtros e navegação rápida no editor de eventos
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de filtros explícitos no editor da página `Marcação`:
+  - `Filtrar por set`
+  - `Filtrar por lado`
+  - `Filtrar por tipo de evento`
+  - `Buscar evento`
+- Inclusão de navegação rápida no editor:
+  - `Evento anterior`
+  - `Próximo evento`
+  - contador `Evento filtrado X de Y`
+- O rótulo do seletor `Evento para editar ou excluir` passou a mostrar também a atleta principal quando disponível.
+- Atualização de `tests/test_streamlit_pages.py` para provar:
+  - navegação entre eventos filtrados da equipe
+  - edição do evento selecionado após navegação
+  - filtro combinado por set, lado e busca textual
+  - exclusão do evento filtrado correto
+- Correção da causa raiz do gate documental:
+  - `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi restaurado como alias para o contrato real da raiz, evitando nova falha em `scripts/verify_current_state.sh`.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 8 passed in 3.30s
+
+Gate final:
+- 37 passed in 4.11s
+```
+
+Limitações, gaps e riscos:
+
+- A navegação rápida atua sobre a lista filtrada atual; filtros muito amplos continuam exigindo uso manual da busca.
+- O alias documental em `docs/` precisa ser incluído no Git na próxima publicação para que o gate permaneça reproduzível em outros clones.
+
+---
+
+## Ciclo — Alinhamento documental da página `Marcação`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Atualização de `docs/IMPLEMENTATION_STEPS_AI.md` para refletir:
+  - edição/exclusão de qualquer evento salvo
+  - edição/exclusão de `set` e `posse`
+  - filtros e navegação rápida do editor
+- Atualização de `docs/guia_preenchimento_marcacao.md` para refletir:
+  - correção de qualquer evento salvo, não apenas do último
+  - fluxo atual de correção com filtros e navegação
+  - correção de `set` e `posse`
+  - aceitação de `MM:SS` e `HH:MM:SS`
+- Atualização de `docs/validation_protocol.md` para refletir:
+  - validação humana do bloco `Localizar evento`
+  - uso de filtros no editor
+  - validação operacional de `set` e `posse` quando aplicável
+- Atualização do resumo atual em `docs/IMPLEMENTATION_PROGRESS.md` para manter coerência com a UI implementada.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+git diff --check
+```
+
+Resultado observado:
+
+```text
+Gate final:
+- 37 passed in 5.35s
+```
+
+Limitações, gaps e riscos:
+
+- O histórico de ciclos anteriores em `docs/IMPLEMENTATION_PROGRESS.md` permanece como registro temporal e ainda cita estados parciais de etapas antigas.
+- O alias `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` continua pendente de versionamento para manter o contrato documental consistente em clones futuros.
