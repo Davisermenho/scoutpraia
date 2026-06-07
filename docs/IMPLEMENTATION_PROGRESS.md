@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T08:10:36Z
+date_utc=2026-06-07T19:57:08Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=00a2c96
+git_head=d397b1e
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,20 +76,20 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 38 items
+collected 39 items
 tests/test_analytics_service.py ..                                       [  5%]
 tests/test_clip_service.py .                                             [  7%]
 tests/test_event_service.py ..                                           [ 13%]
-tests/test_match_service.py .....                                        [ 26%]
-tests/test_models.py ..                                                  [ 31%]
-tests/test_real_video_integration.py ..                                  [ 36%]
-tests/test_report_service.py ..                                          [ 42%]
-tests/test_smoke.py ........                                             [ 63%]
-tests/test_streamlit_pages.py .........                                  [ 86%]
+tests/test_match_service.py .....                                        [ 25%]
+tests/test_models.py ..                                                  [ 30%]
+tests/test_real_video_integration.py ..                                  [ 35%]
+tests/test_report_service.py ..                                          [ 41%]
+tests/test_smoke.py .........                                            [ 64%]
+tests/test_streamlit_pages.py .........                                  [ 87%]
 tests/test_ui_labels.py ...                                              [ 94%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 38 passed in 7.77s ==============================
+============================== 39 passed in 5.83s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
@@ -1931,3 +1931,43 @@ Limitações, gaps e riscos:
 
 - O player continua sem captura automática do tempo real; a ergonomia melhora o ajuste manual, mas não substitui integração fina com o player HTML.
 - A preservação de campos textuais (`Subtipo`, `Desfecho`, `Notas`) foi mantida para não apagar contexto digitado inadvertidamente.
+
+---
+
+## Ciclo — Robustez de importação dos modelos SQLModel
+
+Fase atual declarada: `Fase 6 — Serviços internos iniciais`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Endurecimento de `scoutpraia/core/database.py` para importar apenas módulos de modelo cujas tabelas ainda não estão registradas em `SQLModel.metadata`.
+- O plano de importação agora é explícito por módulo e por conjunto de tabelas.
+- Isso evita redefinição de tabelas já carregadas parcialmente por outro caminho de importação no mesmo processo.
+- Atualização de `tests/test_smoke.py` com prova específica:
+  - metadado pré-carregado
+  - reset controlado de `_MODELS_IMPORTED`
+  - nova chamada de `import_models()` sem `InvalidRequestError`
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_smoke.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Teste focal:
+- 9 passed in 0.34s
+
+Gate final:
+- 39 passed in 5.83s
+```
+
+Limitações, gaps e riscos:
+
+- Eu não reproduzi a exceção original no meu ambiente, então a correção foi feita na condição estrutural que permite o problema: importação redundante com `metadata` parcialmente populado.
+- Se existir outro caminho de importação fora do pacote `scoutpraia.*`, ele continua sendo um risco de arquitetura e deve ser evitado.

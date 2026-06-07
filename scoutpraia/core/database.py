@@ -1,4 +1,6 @@
 from collections.abc import Generator
+from importlib import import_module
+
 from sqlalchemy import text
 
 from sqlmodel import Session, SQLModel, create_engine
@@ -10,6 +12,18 @@ from scoutpraia.core.paths import ensure_storage_dirs
 DATABASE_URL = f"sqlite:///{settings.db_path}"
 engine = create_engine(DATABASE_URL, echo=False)
 _MODELS_IMPORTED = False
+
+MODEL_IMPORT_PLAN = (
+    ("scoutpraia.models.clip", {"clips"}),
+    ("scoutpraia.models.event", {"events"}),
+    ("scoutpraia.models.match", {"matches", "match_roster", "sets", "possessions"}),
+    ("scoutpraia.models.opponent", {"opponents"}),
+    ("scoutpraia.models.player", {"players"}),
+    ("scoutpraia.models.report", {"reports"}),
+    ("scoutpraia.models.taxonomy", {"taxonomy_versions", "event_definitions"}),
+    ("scoutpraia.models.team", {"teams"}),
+    ("scoutpraia.models.validation", {"coding_sessions", "coding_agreements"}),
+)
 
 
 LIGHTWEIGHT_SQLITE_COLUMNS = {
@@ -26,15 +40,12 @@ def import_models() -> None:
     global _MODELS_IMPORTED
     if _MODELS_IMPORTED:
         return
-    from scoutpraia.models import clip as _clip
-    from scoutpraia.models import event as _event
-    from scoutpraia.models import match as _match
-    from scoutpraia.models import opponent as _opponent
-    from scoutpraia.models import player as _player
-    from scoutpraia.models import report as _report
-    from scoutpraia.models import taxonomy as _taxonomy
-    from scoutpraia.models import team as _team
-    from scoutpraia.models import validation as _validation
+    existing_tables = set(SQLModel.metadata.tables)
+    for module_name, table_names in MODEL_IMPORT_PLAN:
+        if table_names.issubset(existing_tables):
+            continue
+        import_module(module_name)
+        existing_tables = set(SQLModel.metadata.tables)
     _MODELS_IMPORTED = True
 
 

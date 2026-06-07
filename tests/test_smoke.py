@@ -1,6 +1,8 @@
 from pathlib import Path
 import subprocess
 
+from sqlmodel import SQLModel
+
 from scoutpraia.core.database import create_db_and_tables, import_models
 from scoutpraia.core.paths import safe_join, safe_slug
 from scoutpraia.services.clip_service import clip_window
@@ -30,6 +32,18 @@ def test_database_initializes() -> None:
 def test_import_models_is_idempotent() -> None:
     import_models()
     import_models()
+
+
+def test_import_models_is_safe_with_preloaded_metadata(monkeypatch) -> None:
+    import scoutpraia.core.database as database
+    from scoutpraia.models.clip import Clip
+
+    assert Clip.__tablename__ in SQLModel.metadata.tables
+    monkeypatch.setattr(database, "_MODELS_IMPORTED", False)
+
+    database.import_models()
+
+    assert "clips" in SQLModel.metadata.tables
 
 
 def test_taxonomy_seed_is_idempotent() -> None:
