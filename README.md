@@ -28,6 +28,12 @@ scripts/run_scout.sh --port 8517
 scripts/run_scout.sh --no-browser
 ```
 
+Lançador gráfico de 1 clique:
+
+- arquivo pronto: `ScoutPraia.desktop`
+- executa `scripts/run_scout.sh` a partir de `/home/davis/SCOUT`
+- mantém um terminal visível para facilitar diagnóstico e encerramento da sessão
+
 ## Escopo do MVP
 
 - Monólito local em Python.

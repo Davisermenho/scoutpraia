@@ -9,6 +9,7 @@ from scoutpraia.core.paths import ensure_storage_dirs
 
 DATABASE_URL = f"sqlite:///{settings.db_path}"
 engine = create_engine(DATABASE_URL, echo=False)
+_MODELS_IMPORTED = False
 
 
 LIGHTWEIGHT_SQLITE_COLUMNS = {
@@ -22,6 +23,9 @@ LIGHTWEIGHT_SQLITE_COLUMNS = {
 
 
 def import_models() -> None:
+    global _MODELS_IMPORTED
+    if _MODELS_IMPORTED:
+        return
     from scoutpraia.models import clip as _clip
     from scoutpraia.models import event as _event
     from scoutpraia.models import match as _match
@@ -31,6 +35,7 @@ def import_models() -> None:
     from scoutpraia.models import taxonomy as _taxonomy
     from scoutpraia.models import team as _team
     from scoutpraia.models import validation as _validation
+    _MODELS_IMPORTED = True
 
 
 def create_db_and_tables() -> None:

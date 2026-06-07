@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ScoutPraia
+Comment=MVP local para análise de vídeos de handebol de praia
+Path=/home/davis/SCOUT
+Exec=bash -lc 'cd /home/davis/SCOUT && ./scripts/run_scout.sh'
+Icon=utilities-terminal
+Terminal=true
+StartupNotify=true
+Categories=Utility;Sports;Video;

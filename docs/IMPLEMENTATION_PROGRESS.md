@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T05:02:49Z
+date_utc=2026-06-07T05:29:51Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=7306e8f
+git_head=8a8a3cb
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,20 +76,20 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 31 items
+collected 32 items
 tests/test_analytics_service.py ..                                       [  6%]
 tests/test_clip_service.py .                                             [  9%]
-tests/test_event_service.py ..                                           [ 16%]
+tests/test_event_service.py ..                                           [ 15%]
 tests/test_match_service.py ...                                          [ 25%]
-tests/test_models.py ..                                                  [ 32%]
-tests/test_real_video_integration.py ..                                  [ 38%]
-tests/test_report_service.py ..                                          [ 45%]
-tests/test_smoke.py .......                                              [ 67%]
-tests/test_streamlit_pages.py .....                                      [ 83%]
+tests/test_models.py ..                                                  [ 31%]
+tests/test_real_video_integration.py ..                                  [ 37%]
+tests/test_report_service.py ..                                          [ 43%]
+tests/test_smoke.py ........                                             [ 68%]
+tests/test_streamlit_pages.py .....                                      [ 84%]
 tests/test_ui_labels.py ...                                              [ 93%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 31 passed in 2.93s ==============================
+============================== 32 passed in 3.83s ==============================
 
 == Git whitespace check ==
 sem erros
@@ -1421,3 +1421,80 @@ Limitações, gaps e riscos:
 - A tradução foi aplicada na camada de apresentação; os identificadores internos continuam em inglês/snake_case por decisão técnica para preservar banco, serviços e testes.
 - Campos livres como `event_subtype` e `outcome` continuam dependentes da disciplina de preenchimento do operador; a melhoria aqui foi de rótulo, não de padronização semântica.
 - A taxonomia segue em `draft`; traduzir os nomes reduz ambiguidade operacional, mas não substitui validação observacional formal.
+
+---
+
+## Ciclo — Correção de duplicação da tabela `clips` no bootstrap do banco
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Correção em `scoutpraia/core/database.py` para tornar `import_models()` idempotente com guarda de processo (`_MODELS_IMPORTED`).
+- A mudança evita novo registro do modelo `Clip` e, por consequência, evita o erro:
+  - `sqlalchemy.exc.InvalidRequestError: Table 'clips' is already defined for this MetaData instance`
+- Criação de regressão automatizada em `tests/test_smoke.py` cobrindo dupla chamada de `import_models()`.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_smoke.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Teste focal:
+- 8 passed
+
+Gate final:
+32 passed
+```
+
+Limitações, gaps e riscos:
+
+- A correção atua no registro duplicado de modelos no mesmo processo; ela não altera o schema nem faz migração estrutural.
+- O problema foi tratado na causa operacional observada no bootstrap; se surgir novo caminho de importação fora de `import_models()`, ele deve ser auditado separadamente.
+
+---
+
+## Ciclo — Lançador gráfico `ScoutPraia.desktop` para 1 clique
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Criação de `ScoutPraia.desktop` na raiz do repositório como lançador gráfico para 1 clique.
+- O lançador:
+  - entra em `/home/davis/SCOUT`
+  - executa `scripts/run_scout.sh`
+  - mantém `Terminal=true` para permitir diagnóstico e encerramento manual da sessão
+- Atualização do `README.md` com a orientação de uso do lançador.
+- Permissão de execução aplicada em `ScoutPraia.desktop`.
+
+Comandos executados:
+
+```bash
+chmod +x ScoutPraia.desktop
+desktop-file-validate ScoutPraia.desktop
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+`desktop-file-validate` não está disponível neste ambiente.
+
+Gate final:
+32 passed
+```
+
+Limitações, gaps e riscos:
+
+- O lançador usa caminho absoluto `/home/davis/SCOUT`; se o repositório for movido de lugar, o `Exec` e o `Path` precisam ser ajustados.
+- O uso de `Terminal=true` é intencional para manter o processo do Streamlit controlável; não é um lançamento totalmente silencioso.

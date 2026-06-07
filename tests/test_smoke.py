@@ -1,7 +1,7 @@
 from pathlib import Path
 import subprocess
 
-from scoutpraia.core.database import create_db_and_tables
+from scoutpraia.core.database import create_db_and_tables, import_models
 from scoutpraia.core.paths import safe_join, safe_slug
 from scoutpraia.services.clip_service import clip_window
 from scoutpraia.services.taxonomy_service import EVENT_DEFINITIONS, seed_taxonomy
@@ -21,6 +21,11 @@ def test_package_imports() -> None:
 def test_database_initializes() -> None:
     create_db_and_tables()
     assert Path("data/scoutpraia.db").exists()
+
+
+def test_import_models_is_idempotent() -> None:
+    import_models()
+    import_models()
 
 
 def test_taxonomy_seed_is_idempotent() -> None:
