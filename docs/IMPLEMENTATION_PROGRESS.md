@@ -51,7 +51,7 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T05:41:31Z
+date_utc=2026-06-07T06:23:36Z
 cwd=/home/davis/SCOUT
 git_branch=main
 git_head=8a8a3cb
@@ -89,7 +89,7 @@ tests/test_streamlit_pages.py .....                                      [ 84%]
 tests/test_ui_labels.py ...                                              [ 93%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 32 passed in 2.97s ==============================
+============================== 32 passed in 3.13s ==============================
 
 == Git whitespace check ==
 sem erros
@@ -1534,3 +1534,98 @@ Limitações, gaps e riscos:
 
 - O guia é operacional e usa exemplos práticos de preenchimento; ele não substitui validação observacional formal da taxonomia.
 - Os exemplos do guia ensinam o uso correto da tela, mas não devem ser tratados como regra oficial isolada sem confronto com `docs/taxonomy_dictionary.md`.
+
+---
+
+## Ciclo — Entrada de tempo em `MM:SS` na página `Marcação`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Atualização de `scoutpraia/utils/timecode.py` para aceitar:
+  - segundos simples
+  - `MM:SS`
+  - `HH:MM:SS`
+  - frações com ponto ou vírgula
+- Atualização de `scoutpraia/pages/tagging.py` para trocar os campos numéricos de tempo por entrada textual amigável em:
+  - `Início do set`
+  - `Fim do set`
+  - `Início da posse`
+  - `Fim da posse`
+  - `Timestamp do vídeo`
+  - `Timestamp do último evento`
+- Inclusão de preview visual da conversão para segundos internos.
+- Correção colateral: valor `0` segundo deixa de ser tratado como `None` em criação de set e posse.
+- Atualização de `tests/test_smoke.py` e `tests/test_streamlit_pages.py`.
+- Atualização de `docs/guia_preenchimento_marcacao.md` para refletir o novo fluxo sem conta manual.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_smoke.py tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Testes focados:
+- 13 passed
+
+Gate final:
+32 passed
+```
+
+Limitações, gaps e riscos:
+
+- O player continua sem captura automática do tempo atual; a melhoria remove a conta manual, mas o operador ainda precisa ler o tempo no vídeo e digitá-lo.
+- A conversão aceita formatos de relógio e segundos, mas entradas totalmente livres continuam inválidas por desenho.
+
+---
+
+## Ciclo — Edição e exclusão de qualquer evento na página `Marcação`
+
+Fase atual declarada: `Fase 7 — Ergonomia operacional local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Substituição do editor de `último evento` por seleção explícita de qualquer evento salvo do jogo em `scoutpraia/pages/tagging.py`.
+- Inclusão de seletor `Evento para editar ou excluir` com identificação por:
+  - id do evento
+  - tempo formatado
+  - nome do evento
+- Atualização do formulário para editar o evento selecionado, não apenas o mais recente.
+- Atualização do botão de exclusão para remover o evento selecionado.
+- Atualização de `tests/test_streamlit_pages.py` para provar:
+  - criação de um evento novo
+  - seleção do evento `1`
+  - edição desse evento
+  - exclusão desse evento
+  - preservação do evento mais recente
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Teste focal:
+- 5 passed
+
+Gate final:
+32 passed
+```
+
+Limitações, gaps e riscos:
+
+- A UI agora resolve a limitação de atuar só no último evento, mas sets e posses continuam sem edição/exclusão pela interface.
+- O editor continua sem campos explícitos para editar `secondary_player_id` e `possession_id`; a mudança desta etapa focou seleção e ação sobre qualquer evento.

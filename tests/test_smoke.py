@@ -6,7 +6,11 @@ from scoutpraia.core.paths import safe_join, safe_slug
 from scoutpraia.services.clip_service import clip_window
 from scoutpraia.services.taxonomy_service import EVENT_DEFINITIONS, seed_taxonomy
 from scoutpraia.services.video_service import probe_video_metadata, resolve_binary
-from scoutpraia.utils.timecode import seconds_to_timecode, timecode_to_seconds
+from scoutpraia.utils.timecode import (
+    format_seconds_for_input,
+    seconds_to_timecode,
+    timecode_to_seconds,
+)
 from sqlmodel import Session, select
 from scoutpraia.core.database import engine
 from scoutpraia.models.taxonomy import EventDefinition
@@ -53,6 +57,11 @@ def test_paths_are_safe() -> None:
 def test_timecode_helpers() -> None:
     assert seconds_to_timecode(75) == "00:01:15"
     assert timecode_to_seconds("01:15") == 75
+    assert timecode_to_seconds("02:25.4") == 145.4
+    assert timecode_to_seconds("145,4") == 145.4
+    assert timecode_to_seconds("01:02:25") == 3745
+    assert format_seconds_for_input(145) == "02:25"
+    assert format_seconds_for_input(145.4) == "02:25.4"
 
 
 def test_clip_window_protects_negative_start() -> None:

@@ -23,6 +23,7 @@ from scoutpraia.ui_labels import (
     team_side_label,
     zone_label,
 )
+from scoutpraia.utils.timecode import format_seconds_for_input, timecode_to_seconds
 from scoutpraia.utils.zones import ZONES
 
 
@@ -40,6 +41,7 @@ QUICK_EVENT_TYPES = [
     "goal_conceded",
     "shootout_goal",
 ]
+TIME_INPUT_HELP = "Aceita segundos, MM:SS ou HH:MM:SS. Exemplos: 145, 02:25, 01:02:25, 02:25.4."
 
 
 def render() -> None:
@@ -102,7 +104,7 @@ def render() -> None:
             )
         with side_col:
             _render_event_history(session, match.id, limit=20)
-            _render_last_event_editor(
+            _render_event_editor(
                 session=session,
                 match_id=match.id,
                 taxonomy_id=taxonomy.id,
@@ -190,30 +192,35 @@ def _render_management_tools(session: Session, match_id: int) -> None:
             with st.form("create_set_form"):
                 st.markdown("**Novo set**")
                 set_number = st.number_input("Número do set", min_value=1, value=1)
-                start_second = st.number_input(
-                    "Início do set (s)",
-                    min_value=0.0,
-                    value=0.0,
-                    step=0.1,
+                start_input = st.text_input(
+                    "Início do set",
+                    value=format_seconds_for_input(0.0),
+                    help=TIME_INPUT_HELP,
                 )
-                end_second = st.number_input(
-                    "Fim do set (s)",
-                    min_value=0.0,
-                    value=0.0,
-                    step=0.1,
+                _render_time_input_preview(start_input)
+                end_input = st.text_input(
+                    "Fim do set",
+                    value=format_seconds_for_input(0.0),
+                    help=TIME_INPUT_HELP,
                 )
+                _render_time_input_preview(end_input)
                 submitted = st.form_submit_button("Salvar set")
                 if submitted:
-                    set_segment = SetSegment(
-                        match_id=match_id,
-                        set_number=int(set_number),
-                        start_second=start_second or None,
-                        end_second=end_second or None,
-                    )
-                    session.add(set_segment)
-                    session.commit()
-                    session.refresh(set_segment)
-                    st.success(f"Set {set_segment.set_number} salvo.")
+                    try:
+                        start_second = _parse_time_input(start_input, "Início do set")
+                        end_second = _parse_time_input(end_input, "Fim do set")
+                        set_segment = SetSegment(
+                            match_id=match_id,
+                            set_number=int(set_number),
+                            start_second=start_second,
+                            end_second=end_second,
+                        )
+                        session.add(set_segment)
+                        session.commit()
+                        session.refresh(set_segment)
+                        st.success(f"Set {set_segment.set_number} salvo.")
+                    except ValueError as exc:
+                        st.error(str(exc))
         with right_col:
             set_options = _set_options(session, match_id)
             with st.form("create_possession_form"):
@@ -230,20 +237,20 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                     options=list(set_options.keys()),
                     key="new_possession_set",
                 )
-                start_second = st.number_input(
-                    "Início da posse (s)",
-                    min_value=0.0,
-                    value=0.0,
-                    step=0.1,
+                start_input = st.text_input(
+                    "Início da posse",
+                    value=format_seconds_for_input(0.0),
                     key="new_possession_start",
+                    help=TIME_INPUT_HELP,
                 )
-                end_second = st.number_input(
-                    "Fim da posse (s)",
-                    min_value=0.0,
-                    value=0.0,
-                    step=0.1,
+                _render_time_input_preview(start_input)
+                end_input = st.text_input(
+                    "Fim da posse",
+                    value=format_seconds_for_input(0.0),
                     key="new_possession_end",
+                    help=TIME_INPUT_HELP,
                 )
+                _render_time_input_preview(end_input)
                 result = st.text_input("Resultado da posse", key="new_possession_result")
                 points_scored = st.number_input(
                     "Pontos feitos",
@@ -261,20 +268,25 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                 )
                 submitted = st.form_submit_button("Salvar posse")
                 if submitted:
-                    possession = Possession(
-                        match_id=match_id,
-                        set_id=set_options[selected_set_label],
-                        team_side=possession_team_side,
-                        start_second=start_second or None,
-                        end_second=end_second or None,
-                        result=result or None,
-                        points_scored=int(points_scored),
-                        points_conceded=int(points_conceded),
-                    )
-                    session.add(possession)
-                    session.commit()
-                    session.refresh(possession)
-                    st.success(f"Posse {possession.id} salva.")
+                    try:
+                        start_second = _parse_time_input(start_input, "Início da posse")
+                        end_second = _parse_time_input(end_input, "Fim da posse")
+                        possession = Possession(
+                            match_id=match_id,
+                            set_id=set_options[selected_set_label],
+                            team_side=possession_team_side,
+                            start_second=start_second,
+                            end_second=end_second,
+                            result=result or None,
+                            points_scored=int(points_scored),
+                            points_conceded=int(points_conceded),
+                        )
+                        session.add(possession)
+                        session.commit()
+                        session.refresh(possession)
+                        st.success(f"Posse {possession.id} salva.")
+                    except ValueError as exc:
+                        st.error(str(exc))
 
 
 def _render_event_form(
@@ -296,12 +308,12 @@ def _render_event_form(
 
     possession_options = _possession_options(session, match.id, selected_set_id)
     with st.form("create_event_form"):
-        timestamp_second = st.number_input(
-            "Timestamp manual (s)",
-            min_value=0.0,
-            value=float(st.session_state.get("tagging_timestamp_second", 0.0)),
-            step=0.1,
+        timestamp_input = st.text_input(
+            "Timestamp do vídeo",
+            value=format_seconds_for_input(st.session_state.get("tagging_timestamp_second", 0.0)),
+            help=TIME_INPUT_HELP,
         )
+        _render_time_input_preview(timestamp_input)
         event_type = st.selectbox(
             "Evento",
             options=event_types,
@@ -341,6 +353,7 @@ def _render_event_form(
 
         if submitted:
             try:
+                timestamp_second = _parse_time_input(timestamp_input, "Timestamp do vídeo")
                 created = create_event(
                     session,
                     Event(
@@ -398,7 +411,7 @@ def _render_event_history(session: Session, match_id: int, limit: int) -> None:
     )
 
 
-def _render_last_event_editor(
+def _render_event_editor(
     session: Session,
     match_id: int,
     taxonomy_id: int,
@@ -413,68 +426,86 @@ def _render_last_event_editor(
     inverse_player_options = {value: label for label, value in player_options.items()}
     set_options = _set_options(session, match_id)
     inverse_set_options = {value: label for label, value in set_options.items()}
-    last_event = events[-1]
-    st.subheader("Editar ou excluir último evento")
+    event_label_by_id = {
+        event.id: _event_editor_label(event)
+        for event in events
+        if event.id is not None
+    }
+    event_ids = [event.id for event in events if event.id is not None]
+    if not event_ids:
+        return
+    selected_event_id = st.selectbox(
+        "Evento para editar ou excluir",
+        options=event_ids,
+        index=len(event_ids) - 1,
+        format_func=lambda event_id: event_label_by_id[event_id],
+        key="edit_event_id",
+    )
+    selected_event = next(
+        event for event in events if event.id == selected_event_id
+    )
+    st.subheader("Editar ou excluir evento selecionado")
 
     with st.form("edit_last_event_form"):
-        timestamp_second = st.number_input(
-            "Timestamp do último evento (s)",
-            min_value=0.0,
-            value=float(last_event.timestamp_second),
-            step=0.1,
+        timestamp_input = st.text_input(
+            "Timestamp do evento",
+            value=format_seconds_for_input(selected_event.timestamp_second),
+            help=TIME_INPUT_HELP,
         )
+        _render_time_input_preview(timestamp_input)
         event_type = st.selectbox(
-            "Evento do último registro",
+            "Evento do registro",
             options=event_types,
-            index=event_types.index(last_event.event_type),
+            index=event_types.index(selected_event.event_type),
             format_func=event_type_label,
         )
         team_side = st.radio(
-            "Lado do último evento",
+            "Lado do evento",
             options=["team", "opponent"],
             horizontal=True,
-            index=0 if last_event.team_side == "team" else 1,
+            index=0 if selected_event.team_side == "team" else 1,
             format_func=team_side_label,
         )
         player_label = st.selectbox(
-            "Atleta do último evento",
+            "Atleta do evento",
             options=list(player_options.keys()),
             index=_option_index(
                 list(player_options.keys()),
-                inverse_player_options.get(last_event.player_id, "Sem atleta"),
+                inverse_player_options.get(selected_event.player_id, "Sem atleta"),
             ),
         )
         zone_label = st.selectbox(
-            "Zona do último evento",
+            "Zona do evento",
             options=["Sem zona"] + sorted(ZONES),
             index=_option_index(
                 ["Sem zona"] + sorted(ZONES),
-                last_event.zone or "Sem zona",
+                selected_event.zone or "Sem zona",
             ),
             format_func=_zone_option_label,
         )
         set_label = st.selectbox(
-            "Set do último evento",
+            "Set do evento",
             options=list(set_options.keys()),
             index=_option_index(
                 list(set_options.keys()),
-                inverse_set_options.get(last_event.set_id, "Sem set"),
+                inverse_set_options.get(selected_event.set_id, "Sem set"),
             ),
         )
         points_value = st.selectbox(
-            "Pontos do último evento",
+            "Pontos do evento",
             options=[0, 1, 2],
-            index=[0, 1, 2].index(int(last_event.points_value)),
+            index=[0, 1, 2].index(int(selected_event.points_value)),
         )
-        event_subtype = st.text_input("Subtipo do último evento", value=last_event.event_subtype or "")
-        outcome = st.text_input("Desfecho do último evento", value=last_event.outcome or "")
-        notes = st.text_area("Notas do último evento", value=last_event.notes or "")
-        update_submitted = st.form_submit_button("Atualizar último evento")
+        event_subtype = st.text_input("Subtipo do evento", value=selected_event.event_subtype or "")
+        outcome = st.text_input("Desfecho do evento", value=selected_event.outcome or "")
+        notes = st.text_area("Notas do evento", value=selected_event.notes or "")
+        update_submitted = st.form_submit_button("Atualizar evento selecionado")
         if update_submitted:
             try:
+                timestamp_second = _parse_time_input(timestamp_input, "Timestamp do evento")
                 updated = update_event(
                     session,
-                    last_event.id,
+                    selected_event.id,
                     set_id=set_options[set_label],
                     taxonomy_version_id=taxonomy_id,
                     event_type=event_type,
@@ -491,12 +522,12 @@ def _render_last_event_editor(
             except ValueError as exc:
                 st.error(str(exc))
 
-    if st.button("Excluir último evento", key="delete_last_event", type="secondary"):
-        deleted = delete_event(session, last_event.id)
+    if st.button("Excluir evento selecionado", key="delete_selected_event", type="secondary"):
+        deleted = delete_event(session, selected_event.id)
         if deleted:
-            st.success(f"Evento {last_event.id} excluído.")
+            st.success(f"Evento {selected_event.id} excluído.")
         else:
-            st.error("Falha ao excluir o último evento.")
+            st.error("Falha ao excluir o evento selecionado.")
 
 
 def _players_for_match(session: Session, match_id: int) -> list[Player]:
@@ -572,6 +603,29 @@ def _zone_option_label(value: str | None) -> str:
     if value in {None, "Sem zona"}:
         return "Sem zona"
     return zone_label(value)
+
+
+def _event_editor_label(event: Event) -> str:
+    event_id = event.id if event.id is not None else "?"
+    return (
+        f"Evento {event_id} — {format_seconds_for_input(event.timestamp_second)} — "
+        f"{event_type_label(event.event_type)}"
+    )
+
+
+def _parse_time_input(raw_value: str, field_label: str) -> float:
+    try:
+        return timecode_to_seconds(raw_value)
+    except ValueError as exc:
+        raise ValueError(f"{field_label}: {exc}") from exc
+
+
+def _render_time_input_preview(raw_value: str) -> None:
+    try:
+        parsed = timecode_to_seconds(raw_value)
+        st.caption(f"Convertido internamente para {parsed:.1f} s")
+    except ValueError:
+        st.caption("Formato aceito: segundos, MM:SS ou HH:MM:SS.")
 
 
 def _match_label(match: Match) -> str:

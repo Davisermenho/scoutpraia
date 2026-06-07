@@ -47,18 +47,18 @@ Campos:
 
 - `Número do set`
   - use `1`, `2`, `3`...
-- `Início do set (s)`
-  - segundo em que o set começa no vídeo
-- `Fim do set (s)`
-  - segundo em que o set termina no vídeo
+- `Início do set`
+  - aceita segundos ou formato de vídeo como `00:17.5`
+- `Fim do set`
+  - aceita segundos ou formato de vídeo como `00:31.5`
 
 ### Exemplo
 
 Se o segundo set começa em `17,5` segundos e termina em `31,52` segundos:
 
 - `Número do set` = `2`
-- `Início do set (s)` = `17,5`
-- `Fim do set (s)` = `31,52`
+- `Início do set` = `00:17.5`
+- `Fim do set` = `00:31.5`
 
 Depois clique em `Salvar set`.
 
@@ -100,9 +100,9 @@ Campos:
   - `Adversária` se a posse é do outro time
 - `Set da posse`
   - escolha o set em que a posse aconteceu
-- `Início da posse (s)`
+- `Início da posse`
   - momento em que a posse começa
-- `Fim da posse (s)`
+- `Fim da posse`
   - momento em que a posse termina
 - `Resultado da posse`
   - texto curto, por exemplo:
@@ -119,8 +119,8 @@ Campos:
 
 - `Equipe da posse` = `Equipe`
 - `Set da posse` = `Set 1`
-- `Início da posse (s)` = `151`
-- `Fim da posse (s)` = `158,4`
+- `Início da posse` = `02:31`
+- `Fim da posse` = `02:38.4`
 - `Resultado da posse` = `gol`
 - `Pontos feitos` = `1`
 - `Pontos sofridos` = `0`
@@ -129,8 +129,8 @@ Campos:
 
 - `Equipe da posse` = `Adversária`
 - `Set da posse` = `Set 1`
-- `Início da posse (s)` = `203`
-- `Fim da posse (s)` = `208,6`
+- `Início da posse` = `03:23`
+- `Fim da posse` = `03:28.6`
 - `Resultado da posse` = `erro forçado`
 - `Pontos feitos` = `0`
 - `Pontos sofridos` = `0`
@@ -160,48 +160,37 @@ Exemplo:
 - ação ocorreu no primeiro set
 - selecione `Set 1`
 
-### 4.2 Campo `Timestamp manual (s)`
+### 4.2 Campo `Timestamp do vídeo`
 
-Este campo aceita **segundos corridos do vídeo**, não formato `mm:ss`.
+Este campo aceita diretamente o formato que você lê no vídeo.
 
 Exemplos corretos:
 
-- `0,7`
-- `2,4`
-- `17,5`
-- `151`
+- `00:00.7`
+- `00:02.4`
+- `00:17.5`
+- `02:25`
+- `14:05`
+- `145`
 - `845`
 
 Exemplos incorretos:
 
-- `02:31`
-- `14:05`
 - `8m12s`
-
-### Como converter
-
-Fórmula:
-
-`minutos * 60 + segundos`
-
-Exemplos:
-
-- `2:31` → `2 * 60 + 31 = 151`
-- `14:05` → `14 * 60 + 5 = 845`
-- `0:17,5` → `17,5`
+- `2min25`
+- texto livre sem padrão
 
 ### Como usar na prática
 
 1. dê play no vídeo
 2. pause no momento da ação
 3. leia o tempo do player
-4. converta para segundos, se necessário
-5. digite no campo `Timestamp manual (s)`
+4. digite no campo `Timestamp do vídeo`
 
 Importante:
 
 - o player do Streamlit no MVP **não captura o tempo automaticamente**
-- por isso o timestamp atual é **manual**
+- mas a UI agora converte `MM:SS`, `HH:MM:SS` ou segundos internamente
 
 ### 4.3 Campo `Evento`
 
@@ -342,7 +331,7 @@ Eles apenas:
 
 Depois disso você ainda precisa:
 
-1. revisar o `Timestamp manual (s)`
+1. revisar o `Timestamp do vídeo`
 2. revisar `Lado`
 3. preencher atleta, zona, posse e pontos quando aplicável
 4. clicar em `Salvar evento`
@@ -392,15 +381,15 @@ Situação:
 **Set**
 
 - `Número do set` = `1`
-- `Início do set (s)` = `0`
-- `Fim do set (s)` = `600`
+- `Início do set` = `00:00`
+- `Fim do set` = `10:00`
 
 **Posse**
 
 - `Equipe da posse` = `Equipe`
 - `Set da posse` = `Set 1`
-- `Início da posse (s)` = `151`
-- `Fim da posse (s)` = `156`
+- `Início da posse` = `02:31`
+- `Fim da posse` = `02:36`
 - `Resultado da posse` = `gol`
 - `Pontos feitos` = `1`
 - `Pontos sofridos` = `0`
@@ -408,7 +397,7 @@ Situação:
 #### Evento 1
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `154,8`
+- `Timestamp do vídeo` = `02:34.8`
 - `Evento` = `Tentativa de finalização`
 - `Lado` = `Equipe`
 - `Atleta` = atleta que arremessou
@@ -422,7 +411,7 @@ Situação:
 #### Evento 2
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `155,0`
+- `Timestamp do vídeo` = `02:35`
 - `Evento` = `Gol marcado`
 - `Lado` = `Equipe`
 - `Atleta` = mesma atleta finalizadora
@@ -444,8 +433,8 @@ Situação:
 
 - `Equipe da posse` = `Equipe`
 - `Set da posse` = `Set 1`
-- `Início da posse (s)` = `203`
-- `Fim da posse (s)` = `206,2`
+- `Início da posse` = `03:23`
+- `Fim da posse` = `03:26.2`
 - `Resultado da posse` = `erro técnico`
 - `Pontos feitos` = `0`
 - `Pontos sofridos` = `0`
@@ -453,7 +442,7 @@ Situação:
 #### Evento
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `205,9`
+- `Timestamp do vídeo` = `03:25.9`
 - `Evento` = `Erro técnico`
 - `Lado` = `Equipe`
 - `Atleta` = atleta que errou o passe ou recepção
@@ -482,8 +471,8 @@ Situação:
 
 - `Equipe da posse` = `Adversária`
 - `Set da posse` = `Set 1`
-- `Início da posse (s)` = `248`
-- `Fim da posse (s)` = `253,4`
+- `Início da posse` = `04:08`
+- `Fim da posse` = `04:13.4`
 - `Resultado da posse` = `defesa da goleira`
 - `Pontos feitos` = `0`
 - `Pontos sofridos` = `0`
@@ -491,7 +480,7 @@ Situação:
 #### Evento 1
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `252,8`
+- `Timestamp do vídeo` = `04:12.8`
 - `Evento` = `Tentativa de finalização`
 - `Lado` = `Adversária`
 - `Atleta` = se conhecida, a finalizadora adversária
@@ -503,7 +492,7 @@ Situação:
 #### Evento 2
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `252,9`
+- `Timestamp do vídeo` = `04:12.9`
 - `Evento` = `Defesa da goleira`
 - `Lado` = `Equipe`
 - `Atleta` = goleira da equipe
@@ -515,7 +504,7 @@ Situação:
 #### Evento 3
 
 - `Set` = `Set 1`
-- `Timestamp manual (s)` = `253,1`
+- `Timestamp do vídeo` = `04:13.1`
 - `Evento` = `Parada defensiva`
 - `Lado` = `Equipe`
 - `Atleta` = atleta principal da ação, se fizer sentido
@@ -530,7 +519,7 @@ Situação:
 Use este padrão:
 
 - sempre preencher `Set`
-- sempre preencher `Timestamp manual (s)` em segundos
+- sempre preencher `Timestamp do vídeo`
 - sempre definir `Lado`
 - usar `Posse` sempre que a jogada estiver clara
 - preencher `Atleta` quando houver segurança

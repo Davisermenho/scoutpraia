@@ -234,7 +234,7 @@ def test_tagging_page_renders_empty_state(monkeypatch, tmp_path: Path) -> None:
     ]
 
 
-def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path: Path) -> None:
+def test_tagging_page_create_update_and_delete_selected_event(monkeypatch, tmp_path: Path) -> None:
     engine = configure_page_modules(monkeypatch, tmp_path)
     with Session(engine) as session:
         fixture = seed_ui_fixture(session, tmp_path)
@@ -245,7 +245,7 @@ def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path:
     assert any(button.label == "Tentativa de finalização" for button in at.button)
 
     selectbox_by_label(at, "Set").set_value(f"Set 1 (id {fixture['set_id']})")
-    number_input_by_label(at, "Timestamp manual (s)").set_value(12.5)
+    text_input_by_label(at, "Timestamp do vídeo").set_value("00:12.5")
     selectbox_by_label(at, "Evento").set_value("goal_scored")
     radio_by_label(at, "Lado").set_value("team")
     selectbox_by_label(at, "Atleta").set_value("Maria (#9)")
@@ -259,20 +259,22 @@ def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path:
     assert len(at.exception) == 0
     assert any("Evento" in item.value and "salvo" in item.value for item in at.success)
 
-    selectbox_by_label(at, "Evento do último registro").set_value("technical_error")
-    selectbox_by_label(at, "Pontos do último evento").set_value(0)
-    button_by_label(at, "Atualizar último evento").click()
+    selectbox_by_label(at, "Evento para editar ou excluir").set_value(1)
+    selectbox_by_label(at, "Evento do registro").set_value("technical_error")
+    selectbox_by_label(at, "Pontos do evento").set_value(0)
+    button_by_label(at, "Atualizar evento selecionado").click()
     at.run()
 
     assert any("atualizado" in item.value for item in at.success)
 
-    button_by_label(at, "Excluir último evento").click()
+    button_by_label(at, "Excluir evento selecionado").click()
     at.run()
 
     assert any("excluído" in item.value for item in at.success)
     with Session(engine) as session:
         events = session.exec(select(Event).where(Event.match_id == fixture["match_id"])).all()
     assert len(events) == 1
+    assert events[0].event_type == "goal_scored"
 
 
 def test_reports_page_generates_reports_via_ui(monkeypatch, tmp_path: Path) -> None:
@@ -369,6 +371,13 @@ def radio_by_label(at: AppTest, label: str):
         if element.label == label:
             return element
     raise AssertionError(f"Radio não encontrado: {label}")
+
+
+def text_input_by_label(at: AppTest, label: str):
+    for element in at.text_input:
+        if element.label == label:
+            return element
+    raise AssertionError(f"Text input não encontrado: {label}")
 
 
 def button_by_label(at: AppTest, label: str):
