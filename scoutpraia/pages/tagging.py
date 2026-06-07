@@ -172,7 +172,7 @@ def _render_quick_event_buttons(event_types: list[str]) -> None:
             if st.button(
                 event_type.replace("_", " ").title(),
                 key=f"quick_event_{event_type}",
-                use_container_width=True,
+                width="stretch",
             ):
                 st.session_state["tagging_event_type"] = event_type
 
@@ -384,7 +384,7 @@ def _render_event_history(session: Session, match_id: int, limit: int) -> None:
             }
             for event in events[-limit:]
         ],
-        use_container_width=True,
+        width="stretch",
     )
 
 

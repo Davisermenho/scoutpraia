@@ -47,7 +47,7 @@ def _render_opponents(session: Session) -> None:
                 }
                 for opponent in opponents
             ],
-            use_container_width=True,
+            width="stretch",
         )
     else:
         st.info("Nenhuma adversária cadastrada.")
@@ -127,7 +127,7 @@ def _render_players(session: Session) -> None:
                 }
                 for player in players
             ],
-            use_container_width=True,
+            width="stretch",
         )
     else:
         st.info("Nenhuma atleta cadastrada.")
@@ -252,7 +252,7 @@ def _render_matches(session: Session) -> None:
                 }
                 for match in matches
             ],
-            use_container_width=True,
+            width="stretch",
         )
     else:
         st.info("Nenhum jogo cadastrado.")
@@ -393,7 +393,7 @@ def _render_match_roster(session: Session, matches: list) -> None:
                 }
                 for entry in roster
             ],
-            use_container_width=True,
+            width="stretch",
         )
         removable_player_label = st.selectbox(
             "Remover atleta do elenco",

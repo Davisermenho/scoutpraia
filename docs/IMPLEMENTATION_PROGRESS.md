@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-06T23:21:09Z
+date_utc=2026-06-07T02:33:17Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=a02832f
+git_head=3e2dcf5
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -1084,4 +1084,119 @@ Limitações, gaps e riscos:
 
 - As exclusões em `Jogos` são deliberadamente conservadoras; entidades com vínculos operacionais são bloqueadas em vez de sofrer exclusão em cascata.
 - Dashboard e Adversárias estão comprovados por renderização e dados sintéticos, mas ainda não por navegação humana fim a fim.
-- Ainda falta rodar um ensaio operacional completo com vídeo real, marcação extensa e relatório final.
+
+---
+
+## Ciclo — Verificação visual e ensaio operacional com vídeo real
+
+Fase atual declarada: `Fase 7 — Interface Streamlit` + ensaio operacional local.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Verificação visual com `agent-browser` nas páginas `Dashboard`, `Marcação`, `Relatórios` e `Adversárias`.
+- Confirmação de carregamento sem overlay de erro e sem erros de console no fluxo visual observado.
+- Ensaio operacional real em banco local com o vídeo `storage/videos/jogo_x6ppOlG0XlQ_2h19m44s_2h52m31s.mp4`.
+- Criação local de adversária, atletas, jogo, `SetSegment`, `Possession` e `Event` usando o vídeo real.
+- Geração local de relatório coletivo, individual e de adversária com arquivos HTML em `storage/reports/`.
+
+Comandos executados:
+
+```bash
+streamlit run app.py --server.headless true --server.port 8512
+agent-browser open http://localhost:8512
+agent-browser snapshot -i
+agent-browser screenshot /tmp/scoutpraia-dashboard-real.png --annotate
+agent-browser screenshot /tmp/scoutpraia-tagging-real.png --annotate
+agent-browser screenshot /tmp/scoutpraia-reports-real.png --annotate
+python3 - <<'PY'
+# cria cenário operacional real com vídeo local, evento e relatórios
+PY
+```
+
+Resultado observado:
+
+```text
+Dashboard carregou com conteúdo e sem overlay.
+Marcação carregou com vídeo real, seletor de jogo preenchido e histórico do evento real.
+Relatórios carregou com prévia de KPIs e listagem dos arquivos HTML gerados.
+Adversárias carregou com formulário e estado navegável sem erro de console.
+
+Cenário real persistido:
+match_id=1
+event_id=1
+collective_report=storage/reports/match-1_collective_...
+individual_report=storage/reports/match-1_individual_atleta-real-e2e_...
+opponent_report=storage/reports/match-1_opponent_adversaria-real-e2e_...
+```
+
+Limitações, gaps e riscos:
+
+- A verificação visual automatizada confirmou carregamento e conteúdo, mas não substitui revisão humana do layout final.
+- O botão de geração de relatório na página `Relatórios` ficou visível no navegador, porém a automação com `agent-browser` não confirmou disparo efetivo do clique; os relatórios do ensaio real foram gerados com sucesso via serviço Python local.
+- O ensaio operacional real ainda foi curto: 1 jogo, 1 posse e 1 evento. Ainda falta um ensaio manual mais longo com marcação extensa em vídeo real.
+- O Streamlit ainda emite warnings de depreciação de `use_container_width`; isso não bloqueou o fluxo, mas precisa ser removido.
+- A prévia tabular de KPIs na página `Relatórios` ainda gera warning de serialização Arrow para colunas com estruturas aninhadas; a UI funciona, porém a apresentação desses campos ainda precisa ser normalizada.
+
+---
+
+## Ciclo — Correção de warnings Streamlit e prova da geração pela UI
+
+Fase atual declarada: `Fase 7 — Interface Streamlit`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Substituição de `use_container_width=True` por `width="stretch"` nas páginas `Dashboard`, `Jogos`, `Marcação`, `Relatórios` e `Adversárias`.
+- Normalização da prévia de KPIs em `Relatórios` para evitar mistura de números, `None` e estruturas aninhadas na mesma coluna tabular.
+- Separação explícita do KPI `set_performance` em tabela própria `Detalhe por set`.
+- Normalização da tabela de tendências em `Adversárias` para texto exibível estável.
+- Reforço do teste de UI da página `Relatórios` para gerar coletivo, individual e adversária via `AppTest`.
+- Nova prova visual da página `Relatórios` com geração real de relatórios pela própria UI no navegador.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py tests/test_report_service.py -W error::DeprecationWarning
+streamlit run app.py --server.headless true --server.port 8515
+agent-browser open http://localhost:8515
+agent-browser snapshot
+agent-browser click @e14
+agent-browser snapshot
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar coletivo')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar individual')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+agent-browser eval "(() => { const btn = [...document.querySelectorAll('button')].find((button) => button.innerText.includes('Gerar adversária')); if (!btn) return 'BUTTON_NOT_FOUND'; btn.click(); return btn.innerText; })()"
+find storage/reports -maxdepth 1 -type f | wc -l
+```
+
+Resultado observado:
+
+```text
+tests/test_streamlit_pages.py .....                                      [ 71%]
+tests/test_report_service.py ..                                          [100%]
+7 passed in 8.81s
+
+Página Relatórios carregada sem novo warning de use_container_width.
+Página Relatórios carregada sem novo warning Arrow no log do Streamlit após a normalização das tabelas.
+
+Geração pela UI comprovada no navegador:
+FILES_BEFORE=4
+FILES_AFTER=5
+status=Relatório coletivo gerado: /home/davis/SCOUT/storage/reports/match-1_collective_2026-06-07t02-31-14-956340utc.html
+
+FILES_BEFORE=5
+FILES_AFTER_INDIVIDUAL=6
+FILES_AFTER=7
+status=Relatório de adversária gerado: /home/davis/SCOUT/storage/reports/match-1_opponent_adversaria-real-e2e_2026-06-07t02-31-52-936160utc.html
+
+Estado visual final da página:
+6 relatório(s) gerado(s) para este jogo.
+arquivo presente para collective, individual e opponent recém-gerados.
+```
+
+Limitações, gaps e riscos:
+
+- O clique nativo `agent-browser click` no botão Streamlit `Gerar coletivo` não disparou o handler nesta sessão; a prova visual foi obtida com `agent-browser eval(...btn.click())`, que acionou o mesmo botão no DOM do navegador e atualizou a UI com sucesso.
+- A prova de UI ficou forte para a página `Relatórios`, mas isso não substitui um ensaio humano longo de marcação com vídeo real.

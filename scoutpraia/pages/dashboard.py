@@ -54,7 +54,7 @@ def render() -> None:
                 }
                 for match in matches[:5]
             ],
-            use_container_width=True,
+            width="stretch",
         )
 
         st.subheader("Resumo de KPIs recentes")
@@ -77,7 +77,7 @@ def render() -> None:
                 }
             )
         if kpi_rows:
-            st.dataframe(pd.DataFrame(kpi_rows), use_container_width=True)
+            st.dataframe(pd.DataFrame(kpi_rows), width="stretch")
         else:
             st.info("Ainda não há eventos suficientes para KPI coletivo recente.")
 

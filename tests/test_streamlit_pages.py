@@ -273,7 +273,7 @@ def test_tagging_page_create_update_and_delete_last_event(monkeypatch, tmp_path:
     assert len(events) == 1
 
 
-def test_reports_page_generates_collective_report(monkeypatch, tmp_path: Path) -> None:
+def test_reports_page_generates_reports_via_ui(monkeypatch, tmp_path: Path) -> None:
     engine = configure_page_modules(monkeypatch, tmp_path)
     with Session(engine) as session:
         fixture = seed_ui_fixture(session, tmp_path)
@@ -286,12 +286,21 @@ def test_reports_page_generates_collective_report(monkeypatch, tmp_path: Path) -
 
     button_by_label(at, "Gerar coletivo").click()
     at.run()
-
     assert any("Relatório coletivo gerado" in item.value for item in at.success)
+
+    button_by_label(at, "Gerar individual").click()
+    at.run()
+    assert any("Relatório individual gerado" in item.value for item in at.success)
+
+    button_by_label(at, "Gerar adversária").click()
+    at.run()
+    assert any("Relatório de adversária gerado" in item.value for item in at.success)
+    assert any("3 relatório(s) gerado(s) para este jogo." in item.value for item in at.caption)
+
     with Session(engine) as session:
         reports = session.exec(select(Report).where(Report.match_id == fixture["match_id"])).all()
-    assert len(reports) == 1
-    assert Path(reports[0].file_path).exists()
+    assert len(reports) == 3
+    assert all(Path(report.file_path).exists() for report in reports)
 
 
 def test_dashboard_page_renders_recent_summary(monkeypatch, tmp_path: Path) -> None:

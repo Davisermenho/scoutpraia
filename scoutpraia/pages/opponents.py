@@ -55,7 +55,7 @@ def render() -> None:
                     }
                     for match in matches
                 ],
-                use_container_width=True,
+                width="stretch",
             )
         else:
             st.info("Nenhum jogo encontrado para esta adversária.")
@@ -82,12 +82,12 @@ def render() -> None:
             st.dataframe(
                 pd.DataFrame(
                     [
-                        {"métrica": key, "valor": _display_value(value)}
+                        {"métrica": key, "valor": _display_text(value)}
                         for key, value in trends.items()
                         if key != "critical_warnings"
                     ]
                 ),
-                use_container_width=True,
+                width="stretch",
             )
             if trends.get("critical_warnings"):
                 st.warning(" | ".join(trends["critical_warnings"]))
@@ -193,6 +193,12 @@ def _score_label(score_team: int | None, score_opponent: int | None) -> str:
 
 
 def _display_value(value: object) -> object:
+    if value is None:
+        return "n/d"
     if isinstance(value, dict):
         return str(value)
     return value
+
+
+def _display_text(value: object) -> str:
+    return str(_display_value(value))
