@@ -62,6 +62,18 @@ Se o segundo set começa em `17,5` segundos e termina em `31,52` segundos:
 
 Depois clique em `Salvar set`.
 
+### O que deve acontecer após `Salvar set`
+
+Se a tela estiver correta:
+
+- aparece a mensagem `Set X salvo.`
+- o campo `Número do set` já muda para o próximo número esperado
+- `Início do set` volta para `00:00`
+- `Fim do set` volta para `00:00`
+- o novo set passa a aparecer no bloco `Set para editar ou excluir`
+
+Se aparecer erro visual logo após salvar, não repita o clique sem conferir primeiro se o set já foi criado no seletor de edição.
+
 ### Quando usar `Sem set`
 
 Use `Sem set` apenas se:
@@ -134,6 +146,22 @@ Campos:
 - `Resultado da posse` = `erro forçado`
 - `Pontos feitos` = `0`
 - `Pontos sofridos` = `0`
+
+### O que deve acontecer após `Salvar posse`
+
+Se a tela estiver correta:
+
+- aparece a mensagem `Posse X salva.`
+- `Equipe da posse` preserva a seleção feita antes de salvar
+- `Set da posse` preserva a seleção feita antes de salvar
+- `Início da posse` volta para `00:00`
+- `Fim da posse` volta para `00:00`
+- `Resultado da posse` volta vazio
+- `Pontos feitos` volta para `0`
+- `Pontos sofridos` volta para `0`
+- a nova posse passa a aparecer no bloco `Posse para editar ou excluir`
+
+Se aparecer erro visual logo após salvar, não repita o clique sem conferir primeiro se a posse já foi criada no seletor de edição.
 
 ### Quando usar `Sem posse`
 
@@ -353,6 +381,7 @@ Ao abrir a página `Marcação` com jogo já cadastrado:
 - `Set` tende a abrir no set mais recente disponível
 - `Posse` tende a abrir na posse mais recente do set selecionado
 - `Número do set` em `Novo set` abre no próximo número esperado
+- após criar `set` ou `posse`, os formulários de `Sets e posses` devem resetar de forma previsível sem erro de UI
 
 ---
 

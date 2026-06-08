@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-08T07:09:26Z
+date_utc=2026-06-08T11:39:18Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=e5af64d
+git_head=3909c49
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -89,13 +89,13 @@ tests/test_streamlit_pages.py ...........                                [ 87%]
 tests/test_ui_labels.py ...                                              [ 95%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 41 passed in 5.29s ==============================
+============================== 41 passed in 5.69s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
  M docs/IMPLEMENTATION_PROGRESS.md
- M scoutpraia/pages/tagging.py
- M tests/test_streamlit_pages.py
+ M docs/guia_preenchimento_marcacao.md
+ M docs/validation_protocol.md
 ```
 
 Interpretação: a base técnica atual está validada para seguir para a próxima fase. Isso **não** prova que o MVP completo está pronto.
@@ -2030,3 +2030,42 @@ Limitações, gaps e riscos:
 
 - Esta correção fecha o defeito de `session_state` tardio nos formulários de criação de `set` e `posse`.
 - A evidência final do repositório inteiro ainda depende do gate completo `scripts/verify_current_state.sh` deste ciclo.
+
+---
+
+## Ciclo — Formalização documental do protocolo humano para `Salvar set` e `Salvar posse`
+
+Fase atual declarada: `Fase 8 — UI Streamlit funcional do fluxo manual`.
+
+Status: `PARCIAL`
+
+Implementado / executado:
+
+- Atualização de `docs/validation_protocol.md` para incluir uma etapa específica de conferência de `Sets e posses` após mudanças de UI.
+- O protocolo agora exige verificar no navegador real:
+  - ausência de `StreamlitAPIException` ao salvar `set`
+  - ausência de `StreamlitAPIException` ao salvar `posse`
+  - reset e preservação corretos dos campos após submit
+  - existência única do novo registro nos seletores de edição
+- Atualização de `docs/guia_preenchimento_marcacao.md` com o comportamento esperado após:
+  - `Salvar set`
+  - `Salvar posse`
+- O texto deixa explícito que a prova atualmente disponível neste ciclo é técnica/automatizada, não humana.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Gate final:
+- 41 passed in 5.69s
+```
+
+Limitações, gaps e riscos:
+
+- Ainda não foi anexada prova humana real deste ciclo em forma de screenshots do navegador.
+- Portanto, este ciclo está formalizado documentalmente, mas a validação humana específica continua pendente.

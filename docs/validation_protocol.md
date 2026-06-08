@@ -137,6 +137,30 @@ Se possível, preferir uma amostra mais rica:
    - vídeo associado ao jogo
    - atleta(s) e adversária cadastradas
 
+#### Etapa 2A — Conferência obrigatória de `Sets e posses` após correções de UI
+
+Usar esta etapa sempre que houver mudança na área `Sets e posses` da página `Marcação`.
+
+1. Abrir `Marcação`.
+2. Expandir `Sets e posses`.
+3. Em `Novo set`, criar 1 set novo e conferir imediatamente:
+   - nenhuma `StreamlitAPIException`
+   - mensagem `Set X salvo.`
+   - `Número do set` já sugere o próximo valor
+   - `Início do set` volta para `00:00`
+   - `Fim do set` volta para `00:00`
+4. Em `Nova posse`, criar 1 posse nova e conferir imediatamente:
+   - nenhuma `StreamlitAPIException`
+   - mensagem `Posse X salva.`
+   - `Equipe da posse` preserva o valor selecionado
+   - `Set da posse` preserva o valor selecionado
+   - `Início da posse` volta para `00:00`
+   - `Fim da posse` volta para `00:00`
+   - `Resultado da posse` volta vazio
+   - `Pontos feitos` volta para `0`
+   - `Pontos sofridos` volta para `0`
+5. Confirmar no seletor de edição que o novo set e a nova posse aparecem uma única vez.
+
 #### Etapa 3 — Marcação humana
 
 1. Abrir `Marcação`.
@@ -180,6 +204,7 @@ Registrar:
 
 - total de eventos do jogo após o ensaio
 - total de relatórios do jogo após o ensaio
+- ids do set e da posse criados no ensaio, quando esta etapa for usada
 - nome dos 3 relatórios mais recentes
 - screenshots das páginas:
   - `Marcação`
@@ -196,6 +221,8 @@ O ensaio só conta como executado quando houver todas as evidências abaixo:
 | URL local aberta em navegador real | sim |
 | pelo menos 1 screenshot de `Marcação` | sim |
 | pelo menos 1 screenshot de `Relatórios` | sim |
+| screenshot do sucesso de `Salvar set`, quando a Etapa 2A for usada | sim |
+| screenshot do sucesso de `Salvar posse`, quando a Etapa 2A for usada | sim |
 | contagem final de eventos do jogo | sim |
 | contagem final de relatórios do jogo | sim |
 | nomes dos relatórios gerados | sim |
@@ -206,6 +233,8 @@ O ensaio só conta como executado quando houver todas as evidências abaixo:
 O ensaio é `APROVADO` quando:
 
 - a UI carrega sem erro fatal
+- `Salvar set` funciona sem `StreamlitAPIException`, quando a Etapa 2A for usada
+- `Salvar posse` funciona sem `StreamlitAPIException`, quando a Etapa 2A for usada
 - o operador consegue salvar a amostra mínima de eventos
 - o histórico da página reflete os eventos salvos
 - pelo menos 1 edição de evento funciona
@@ -218,6 +247,8 @@ O ensaio é `REPROVADO` quando ocorrer qualquer um destes casos:
 
 - a aplicação trava
 - o vídeo não renderiza
+- `Salvar set` lança erro de UI ou gera duplicidade por ambiguidade
+- `Salvar posse` lança erro de UI ou gera duplicidade por ambiguidade
 - salvar evento falha repetidamente
 - o histórico não reflete o que foi salvo
 - a geração de qualquer um dos 3 relatórios falha
@@ -242,6 +273,19 @@ screenshots=
 limitations=
 decision=APROVADO|REPROVADO|PARCIAL
 ```
+
+### Registro específico deste ciclo de correção
+
+Até esta atualização documental, o repositório possui:
+
+- prova automatizada local de que `Salvar set` e `Salvar posse` não lançam mais `StreamlitAPIException`
+- prova automatizada local de persistência correta após salvar
+- ausência de captura humana real anexada neste arquivo
+
+Portanto, para este ciclo específico, a situação honesta é:
+
+- `CORRIGIDO TECNICAMENTE`: sim
+- `VALIDADO HUMANAMENTE EM NAVEGADOR REAL`: pendente até anexar screenshots e registro do ensaio
 
 ### Regra de honestidade
 
