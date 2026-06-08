@@ -2240,3 +2240,215 @@ Limitações, gaps e riscos:
 
 - A abertura automática do navegador continua dependente das capacidades do ambiente gráfico local do usuário.
 - A correção garante fallback claro; não garante que todo ambiente Linux/WSL conseguirá abrir o browser automaticamente.
+
+---
+
+## Execução 1 — Fechamento da operação local básica
+
+Fase atual declarada: `Fase 10 — README e operação local`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Correção do comando de inicialização do banco no `README.md`:
+  - de `python -m scoutpraia.core.database`
+  - para `python3 -m scoutpraia.core.database`
+- Validação do ambiente Python local com `python3 --version`.
+- Validação da inicialização do banco com `python3 -m scoutpraia.core.database`.
+- Validação do launcher `scripts/run_scout.sh` em porta livre usando `--no-browser`.
+- Verificação visual do carregamento do `Dashboard` no navegador automatizado em `http://localhost:8521`.
+- Execução do gate técnico completo do repositório após o ajuste documental.
+
+Comandos executados:
+
+```bash
+python3 --version
+python3 -m scoutpraia.core.database
+scripts/run_scout.sh --no-browser --port 8521
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+python3 --version
+- Python 3.12.3
+
+python3 -m scoutpraia.core.database
+- Banco inicializado em data/scoutpraia.db
+
+scripts/run_scout.sh --no-browser --port 8521
+- server_ready=http://localhost:8521
+
+verificação visual do Dashboard
+- página carregada com navegação lateral visível em `Dashboard`
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+Limitações, gaps e riscos:
+
+- A porta padrão `8516` estava ocupada no momento desta execução; por isso a prova operacional do launcher foi feita em `8521`.
+- O gate passou com arquivos não rastreados já existentes no workspace (`CALUDE.md` e arquivos em `docs/sources/`), que não fizeram parte desta execução.
+
+---
+
+## Execução 2 — Ensaio operacional final com vídeo real e geração dos 3 relatórios pela UI
+
+Fase atual declarada: `Fase 9 — Validação operacional com vídeo real`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Premissas desta execução:
+
+- O estado atual do jogo `CEPRAEA x CAMPINAS`, das atletas, dos eventos, das posses e dos sets foi tratado como dado real pré-existente criado/editado manualmente pelo usuário.
+- O arquivo de contrato canônico do MVP usado nesta execução foi `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`; o caminho legado na raiz permanece removido por migração estrutural anterior.
+
+Implementado / executado:
+
+- Validação do estado real persistido antes do ensaio:
+  - `1` jogo cadastrado com vídeo real local.
+  - `8` eventos persistidos.
+  - `4` sets persistidos.
+  - `9` posses persistidas.
+  - `13` relatórios existentes antes da nova geração.
+- Subida de uma instância dedicada da aplicação para ensaio em `http://localhost:8522`.
+- Ensaio automatizado da UI real com navegador headless temporário via Playwright instalado por `npm` em `/tmp/scout-playwright`.
+- Verificação da página `Marcação` com o jogo real:
+  - cabeçalho `Marcação` carregado;
+  - linha do jogo carregada como `Jogo 1 | Etapa do Circuito Brasileiro 2026 | Classificatória`;
+  - screenshot salva em `/tmp/scout-playwright/exec2-tagging.png`.
+- Geração dos 3 relatórios pela página `Relatórios`:
+  - `Gerar coletivo`;
+  - `Gerar individual`;
+  - `Gerar adversária`.
+- Verificação pós-ensaio:
+  - contador de relatórios passou de `13` para `16`;
+  - os 3 novos arquivos HTML existem fisicamente em `storage/reports/`;
+  - screenshot salva em `/tmp/scout-playwright/exec2-reports.png`.
+
+Comandos executados:
+
+```bash
+python3 - <<'PY'
+from scoutpraia.core.database import create_db_and_tables, engine
+from scoutpraia.models.match import Match, SetSegment, Possession
+from scoutpraia.models.event import Event
+from scoutpraia.models.report import Report
+from sqlmodel import Session, select
+create_db_and_tables()
+with Session(engine) as s:
+    print('matches', len(s.exec(select(Match)).all()))
+    print('events', len(s.exec(select(Event)).all()))
+    print('sets', len(s.exec(select(SetSegment)).all()))
+    print('possessions', len(s.exec(select(Possession)).all()))
+    print('reports', len(s.exec(select(Report)).all()))
+PY
+
+./scripts/run_scout.sh --no-browser --port 8522
+
+mkdir -p /tmp/scout-playwright
+cd /tmp/scout-playwright
+npm init -y
+npm install playwright@1.54.2
+npx playwright install chromium
+node /tmp/scout-playwright/exec2-ui.js
+
+python3 - <<'PY'
+from pathlib import Path
+from scoutpraia.core.database import create_db_and_tables, engine
+from scoutpraia.models.report import Report
+from sqlmodel import Session, select
+create_db_and_tables()
+with Session(engine) as s:
+    reports=s.exec(select(Report).order_by(Report.generated_at)).all()
+    print('report_count', len(reports))
+    for r in reports[-3:]:
+        print(r.report_type, r.file_path, Path(r.file_path).exists())
+PY
+```
+
+Resultado observado:
+
+```text
+estado pré-ensaio
+- matches=1
+- events=8
+- sets=4
+- possessions=9
+- reports=13
+
+launcher dedicado
+- server_ready=http://localhost:8522
+
+UI real — Marcação
+- dashboard_loaded=yes
+- tagging_heading=ok
+- tagging_match_line=Jogo 1 | Etapa do Circuito Brasileiro 2026 | Classificatória
+- tagging_screenshot=/tmp/scout-playwright/exec2-tagging.png
+
+UI real — Relatórios
+- reports_heading=ok
+- reports_count_before=13
+- collective_success=Relatório coletivo gerado: /home/davis/SCOUT/storage/reports/match-1_collective_2026-06-08t15-30-35-236624utc.html
+- individual_success=Relatório individual gerado: /home/davis/SCOUT/storage/reports/match-1_individual_fernanda-campbell_2026-06-08t15-30-35-695231utc.html
+- opponent_success=Relatório de adversária gerado: /home/davis/SCOUT/storage/reports/match-1_opponent_campinas-360_2026-06-08t15-30-35-964601utc.html
+- reports_count_after=16
+- reports_screenshot=/tmp/scout-playwright/exec2-reports.png
+
+validação pós-ensaio
+- report_count=16
+- collective ... True
+- individual ... True
+- opponent ... True
+```
+
+Limitações, gaps e riscos:
+
+- A taxonomia usada continua `draft`; esta execução prova operação real da UI e geração de relatórios, mas não converte KPI em evidência metodológica estável.
+- A automação de navegador exigiu instalação temporária de Playwright via `npm` em `/tmp/scout-playwright` porque:
+  - `python3 -m pip install --user playwright` falhou por `externally-managed-environment` (PEP 668);
+  - `python3 -m venv /tmp/scoutpraia-playwright-venv` falhou por ausência de `ensurepip` / `python3-venv`.
+- O ensaio gerou 3 novos relatórios reais no banco e em `storage/reports/`; isso faz parte da prova operacional, não de um teste sintético.
+
+---
+
+## Ciclo — Ajustes finais mínimos em `docs/SOURCES_ORGANIZATION_PLAN.md`
+
+Fase atual declarada: `Fase documental de governança de fontes`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Ajuste de P1 para evitar prova instável:
+  - removida a formulação que sugeria ausência total de referências por `grep` amplo em `docs/`;
+  - substituída por critério operacional correto: o arquivo `Plano de Pesquisa para Scout Esportivo.md` não é referenciado por contratos, serviços, testes, scripts ou outros documentos operacionais fora do próprio plano.
+- Ajuste do gate para separar explicitamente:
+  - `execução parcial válida do plano`
+  - `execução completa do plano`
+- Ajuste de A4 e A5 para exigir registro de `DOI` como metadado preferencial junto da URL canônica, mesmo quando houver PDF local.
+
+Comandos executados:
+
+```bash
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+Limitações, gaps e riscos:
+
+- O arquivo `docs/SOURCES_ORGANIZATION_PLAN.md` está agora coerente para execução, mas continua sendo um plano; ele não fecha por si só os gaps G1, G5 e G7.
+- `README.md` permanece modificado pela Execução 1 e `docs/IMPLEMENTATION_PROGRESS.md` por registros desta sessão; isso faz parte do estado intencional atual do workspace.
