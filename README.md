@@ -13,6 +13,22 @@ python3 -m scoutpraia.core.database
 streamlit run app.py
 ```
 
+Se `python3 -m venv .venv` falhar por ausência de `ensurepip` / `python3-venv`, use o fallback local já versionado:
+
+```bash
+scripts/setup_venv.sh
+source .venv/bin/activate
+cp .env.example .env
+python3 -m scoutpraia.core.database
+streamlit run app.py
+```
+
+Observações do fallback:
+
+- `scripts/setup_venv.sh` depende de `virtualenv` disponível no ambiente.
+- se `.venv` já existir, o script bloqueia a recriação silenciosa;
+- para remover e recriar `.venv`, use `scripts/setup_venv.sh --force`.
+
 ## Execução rápida
 
 Para subir a aplicação local e abrir a URL padrão automaticamente:

@@ -2663,3 +2663,110 @@ O que ainda não está pronto:
 Limitações, gaps e riscos:
 
 - `SRC-SYNTHESIS-BH` permanece fonte secundária; sua inclusão na matriz não autoriza tratá-la como substituto das fontes primárias.
+
+---
+
+## Ciclo — Correção segura de `scripts/setup_venv.sh`
+
+Fase atual declarada: `Apoio operacional local do MVP`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Criação de proteção explícita em `scripts/setup_venv.sh` para impedir remoção automática da `.venv` existente.
+- Inclusão de `--force` como único caminho para recriar a virtualenv já existente.
+- Inclusão de `--help`.
+- Inclusão de validação prévia do caminho de `requirements.txt`.
+- Inclusão de variáveis opcionais:
+  - `SCOUTPRAIA_VENV_DIR`
+  - `SCOUTPRAIA_REQUIREMENTS`
+- Ajuste das mensagens finais para refletir o caminho real da virtualenv criada.
+
+Comandos executados:
+
+```bash
+bash -n scripts/setup_venv.sh
+scripts/setup_venv.sh --help
+scripts/setup_venv.sh
+tmpdir=$(mktemp -d)
+printf 'pytest==9.0.3\n' > "$tmpdir/requirements.txt"
+SCOUTPRAIA_VENV_DIR="$tmpdir/venv" SCOUTPRAIA_REQUIREMENTS="$tmpdir/requirements.txt" scripts/setup_venv.sh
+"$tmpdir/venv/bin/python" -m pytest --version
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+bash -n scripts/setup_venv.sh
+- ok
+
+scripts/setup_venv.sh --help
+- ajuda exibida com --force e variáveis opcionais
+
+scripts/setup_venv.sh
+- bloqueou recriação silenciosa:
+  "ERRO: a virtualenv já existe em /home/davis/SCOUT/.venv"
+  "Use --force para remover e recriar."
+
+SCOUTPRAIA_VENV_DIR=... SCOUTPRAIA_REQUIREMENTS=... scripts/setup_venv.sh
+- criou virtualenv temporária com virtualenv
+- instalou pytest==9.0.3
+- pytest --version retornou 9.0.3
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+O que ainda não está pronto:
+
+- `README.md` e `docs/IMPLEMENTATION_STEPS_AI.md` ainda descrevem o fluxo principal com `python3 -m venv` / `python -m venv`.
+- Este ciclo corrigiu o script, mas ainda não consolidou o fallback documental para ambientes sem `ensurepip`.
+
+Limitações, gaps e riscos:
+
+- O script continua dependendo de `virtualenv` instalado no ambiente.
+- A recriação real da `.venv` do repositório com `--force` não foi executada neste ciclo para evitar apagar o ambiente local ativo sem necessidade.
+
+---
+
+## Ciclo — Alinhamento documental do fallback de virtualenv
+
+Fase atual declarada: `Apoio operacional local do MVP`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `README.md` passou a documentar explicitamente o fallback com `scripts/setup_venv.sh` quando `python3 -m venv .venv` falhar por ausência de `ensurepip` / `python3-venv`.
+- `docs/IMPLEMENTATION_STEPS_AI.md` passou a registrar o mesmo fallback como caminho operacional secundário, sem substituir o fluxo padrão com `venv`.
+- O texto documental agora está coerente com:
+  - o comportamento implementado em `scripts/setup_venv.sh`;
+  - a limitação real já observada neste ambiente para `python3 -m venv`.
+
+Comandos executados:
+
+```bash
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+O que ainda não está pronto:
+
+- `requirements.txt` e `scripts/run_scout.sh` continuam com mudanças locais ainda não consolidadas neste ciclo.
+
+Limitações, gaps e riscos:
+
+- O fallback documental continua dependendo de `virtualenv` instalado no ambiente local.
+- O fluxo padrão do projeto permanece sendo `python3 -m venv .venv`; o fallback existe para ambientes que não oferecem `ensurepip`.

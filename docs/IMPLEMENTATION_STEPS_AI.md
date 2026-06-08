@@ -646,6 +646,23 @@ streamlit run app.py
 pytest
 ```
 
+Fallback operacional quando `python -m venv .venv` falhar por ausência de `ensurepip` / pacote `python3-venv`:
+
+```bash
+scripts/setup_venv.sh
+source .venv/bin/activate
+cp .env.example .env
+python -m scoutpraia.core.database
+streamlit run app.py
+pytest
+```
+
+Regras desse fallback:
+
+- usar apenas quando o fluxo padrão com `venv` falhar no ambiente local;
+- `scripts/setup_venv.sh` depende de `virtualenv`;
+- o script não remove `.venv` existente sem `--force`.
+
 Gate:
 
 - uma pessoa consegue rodar o projeto localmente seguindo só o README.
