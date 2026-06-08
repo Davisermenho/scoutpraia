@@ -50,6 +50,24 @@ Cada divergência deve gerar uma decisão:
 - remover do MVP
 - manter como hipótese prática fora do KPI final
 
+## Regra de transição de status
+
+Usar esta régua quando um item precisar mudar de `draft` para `testing` ou `approved`.
+
+| Transição | Condição mínima | Evidência mínima | Efeito operacional |
+| --- | --- | --- | --- |
+| `draft` → `testing` | há fonte registrada, definição operacional inicial e utilidade prática suficiente para ensaio controlado | item registrado em `docs/evidence_matrix.md`, definição em `docs/taxonomy_dictionary.md` e marcação humana inicial em vídeo | o item pode entrar em ensaio controlado, UI e prévia de relatório, mas ainda não em KPI final estável |
+| `testing` → `approved` | houve validação em vídeo com revisão de divergências e decisão explícita de manter o item | execução deste protocolo, revisão das ambiguidades e congelamento em nova versão de taxonomia | o item pode sustentar KPI final e relatório final sem ressalva metodológica central |
+| `approved` → nova versão | houve mudança de semântica, regra de marcação ou interpretação do item | nova rodada documental e, quando aplicável, nova validação em vídeo | evita alteração silenciosa de KPI ou relatório |
+
+Fontes verificáveis desta régua:
+
+- `SRC-OBS-MEASUREMENT` para a exigência de confiabilidade observacional
+- `SRC-IHF-RULES` quando o item depende de regra oficial
+- `SRC-NOTATIONAL-BH` quando o item deriva de análise notacional
+- `docs/sources/README.md` para precedência de regra, evidência e hipótese
+- `docs/rag_workflow.md` para o fluxo fonte → definição → validação → aprovação
+
 ---
 
 ## Protocolo operacional repetível para validação humana

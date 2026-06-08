@@ -2153,3 +2153,43 @@ Limitações, gaps e riscos:
 
 - Esta mudança é estritamente de nomenclatura/UX no filtro; não altera a regra de negócio dos `sets`.
 - O filtro `Filtrar por set` continua sem suportar uma distinção entre “evento realmente sem set” e “sem filtro”, porque esse não é o fluxo operacional adotado neste MVP.
+
+---
+
+## Ciclo — Governança documental de status `draft`, `testing` e `approved`
+
+Fase atual declarada: `Fase 1 — Pré-implementação obrigatória`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão de uma tabela objetiva de governança de status em `docs/evidence_matrix.md`, cobrindo:
+  - o que cada status permite
+  - o que bloqueia
+  - impacto em UI, KPIs e relatórios
+  - ações para transformar um item em estável
+  - fontes verificáveis associadas
+- Inclusão de uma régua de transição de status em `docs/validation_protocol.md`, explicitando:
+  - `draft` → `testing`
+  - `testing` → `approved`
+  - `approved` → nova versão quando houver mudança semântica
+- As fontes usadas na documentação foram ancoradas nos códigos já registrados em `docs/sources/README.md` e nos contratos internos do repositório.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+scripts/verify_current_state.sh
+- 41 passed
+```
+
+Limitações, gaps e riscos:
+
+- Esta entrega melhora a governança documental, mas não muda o status real dos itens da taxonomia.
+- Itens hoje em `draft` ou `testing` continuam exigindo validação em vídeo antes de sustentarem KPI final estável.
