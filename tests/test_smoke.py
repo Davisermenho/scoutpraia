@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import socket
 import subprocess
 
 from sqlmodel import SQLModel
@@ -110,3 +112,110 @@ def test_video_metadata_uses_real_ffprobe(tmp_path: Path) -> None:
     assert metadata.width == 16
     assert metadata.height == 16
     assert metadata.codec == "h264"
+
+
+def test_run_scout_fails_fast_when_port_is_already_in_use(tmp_path: Path) -> None:
+    root_dir = Path(__file__).resolve().parents[1]
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    marker = tmp_path / "streamlit_called.txt"
+    fake_streamlit = fake_bin / "streamlit"
+    fake_streamlit.write_text(
+        "#!/usr/bin/env bash\n"
+        f"echo called > {marker}\n"
+        "exit 99\n"
+    )
+    fake_streamlit.chmod(0o755)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        sock.listen(1)
+        port = sock.getsockname()[1]
+
+        env = os.environ.copy()
+        env["PATH"] = f"{fake_bin}:{env['PATH']}"
+
+        result = subprocess.run(
+            [
+                "bash",
+                "scripts/run_scout.sh",
+                "--no-browser",
+                "--port",
+                str(port),
+            ],
+            cwd=root_dir,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+
+    assert result.returncode == 1
+    assert f"Porta já está em uso: {port}" in result.stderr
+    assert "server_ready=" not in result.stdout
+    assert not marker.exists()
+
+
+def test_run_scout_reports_browser_open_failure_with_manual_fallback(
+    tmp_path: Path,
+) -> None:
+    root_dir = Path(__file__).resolve().parents[1]
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+
+    fake_streamlit = fake_bin / "streamlit"
+    fake_streamlit.write_text(
+        "#!/usr/bin/env bash\n"
+        "port=''\n"
+        "while [[ $# -gt 0 ]]; do\n"
+        "  case \"$1\" in\n"
+        "    --server.port)\n"
+        "      port=\"$2\"\n"
+        "      shift 2\n"
+        "      ;;\n"
+        "    *)\n"
+        "      shift\n"
+        "      ;;\n"
+        "  esac\n"
+        "done\n"
+        "printf 'fake_streamlit_port=%s\\n' \"$port\"\n"
+        "exec python3 -m http.server \"$port\" --bind 127.0.0.1\n"
+    )
+    fake_streamlit.chmod(0o755)
+
+    fake_browser = fake_bin / "fake-browser"
+    fake_browser.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo 'browser failed' >&2\n"
+        "exit 1\n"
+    )
+    fake_browser.chmod(0o755)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+    env["SCOUTPRAIA_BROWSER_OPEN_CMD"] = str(fake_browser)
+
+    process = subprocess.Popen(
+        ["bash", "scripts/run_scout.sh", "--port", str(port)],
+        cwd=root_dir,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    try:
+        stdout, stderr = process.communicate(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.terminate()
+        stdout, stderr = process.communicate(timeout=5)
+
+    combined_output = stdout + stderr
+    assert f"server_ready=http://localhost:{port}" in combined_output
+    assert (
+        f"Falha ao abrir navegador automaticamente. Abra manualmente: http://localhost:{port}"
+        in combined_output
+    )

@@ -2193,3 +2193,50 @@ Limitações, gaps e riscos:
 
 - Esta entrega melhora a governança documental, mas não muda o status real dos itens da taxonomia.
 - Itens hoje em `draft` ou `testing` continuam exigindo validação em vídeo antes de sustentarem KPI final estável.
+
+---
+
+## Ciclo — Correção estrutural do launcher `run_scout.sh`
+
+Fase atual declarada: `Fase 8 — UI Streamlit funcional do fluxo manual`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Correção do falso positivo de readiness em `scripts/run_scout.sh`:
+  - o script agora verifica se a porta já está em uso antes de lançar o Streamlit
+  - o script não deve mais imprimir `server_ready=` quando a porta já estiver ocupada por outro processo
+- Correção da abertura automática do navegador:
+  - o script deixou de depender de `python3 -m webbrowser`, que retornava sucesso falso neste ambiente enquanto o `gio` falhava
+  - o script agora tenta abrir a URL com opener explícito do sistema e, se falhar, imprime fallback claro para abertura manual
+- O loop de readiness agora também considera a vida do processo recém-lançado, reduzindo risco de tratar processo morto como subida bem-sucedida.
+- Foram adicionados testes de regressão em `tests/test_smoke.py` para cobrir:
+  - falha rápida quando a porta já está ocupada
+  - mensagem de fallback quando a abertura automática do navegador falha
+
+Comandos executados:
+
+```bash
+bash -n scripts/run_scout.sh
+python3 -m pytest tests/test_smoke.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+bash -n scripts/run_scout.sh
+- run_scout_syntax_ok
+
+python3 -m pytest tests/test_smoke.py -q
+- 11 passed in 5.70s
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+Limitações, gaps e riscos:
+
+- A abertura automática do navegador continua dependente das capacidades do ambiente gráfico local do usuário.
+- A correção garante fallback claro; não garante que todo ambiente Linux/WSL conseguirá abrir o browser automaticamente.
