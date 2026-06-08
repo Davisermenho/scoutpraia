@@ -2770,3 +2770,78 @@ Limitações, gaps e riscos:
 
 - O fallback documental continua dependendo de `virtualenv` instalado no ambiente local.
 - O fluxo padrão do projeto permanece sendo `python3 -m venv .venv`; o fallback existe para ambientes que não oferecem `ensurepip`.
+
+---
+
+## Ciclo — Consolidação da leva de `requirements.txt` e `scripts/run_scout.sh`
+
+Fase atual declarada: `Apoio operacional local do MVP`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `requirements.txt` passou a fixar versões exatas do conjunto atualmente provado no ambiente local:
+  - `streamlit==1.58.0`
+  - `pandas==3.0.3`
+  - `sqlmodel==0.0.38`
+  - `plotly==6.8.0`
+  - `jinja2==3.1.2`
+  - `python-dotenv==1.2.2`
+  - `pydantic==2.13.4`
+  - `pytest==9.0.3`
+- `scripts/run_scout.sh` passou a ativar automaticamente `ROOT_DIR/.venv` quando o ambiente existe, antes de resolver `streamlit`.
+- `README.md` passou a explicar explicitamente esse comportamento do launcher.
+
+Comandos executados:
+
+```bash
+python3 - <<'PY'
+import importlib.metadata as m
+for p in ['streamlit','pandas','sqlmodel','plotly','Jinja2','python-dotenv','pydantic','pytest']:
+    print(f'{p}={m.version(p)}')
+PY
+bash -n scripts/run_scout.sh
+tmpdir=$(mktemp -d)
+virtualenv "$tmpdir/venv"
+"$tmpdir/venv/bin/pip" install --dry-run -r requirements.txt
+env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/bash scripts/run_scout.sh --no-browser --port 8524
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+python3 metadata
+- streamlit=1.58.0
+- pandas=3.0.3
+- sqlmodel=0.0.38
+- plotly=6.8.0
+- Jinja2=3.1.2
+- python-dotenv=1.2.2
+- pydantic=2.13.4
+- pytest=9.0.3
+
+bash -n scripts/run_scout.sh
+- ok
+
+pip install --dry-run -r requirements.txt
+- resolução das dependências passou em virtualenv temporária
+
+env -i ... scripts/run_scout.sh --no-browser --port 8524
+- launcher subiu mesmo com PATH mínimo
+- `server_ready=http://localhost:8524`
+- prova de que a ativação automática da `.venv` ocorreu antes da checagem de `streamlit`
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+O que ainda não está pronto:
+
+- Esta leva ainda não foi separada em commit próprio neste ciclo.
+
+Limitações, gaps e riscos:
+
+- Os pins de `requirements.txt` refletem o ambiente validado neste momento; futuras atualizações exigem nova prova reproduzível.
+- `scripts/run_scout.sh` continua dependendo de uma `.venv` válida quando a intenção for isolar o ambiente do projeto do ambiente global.

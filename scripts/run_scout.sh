@@ -45,6 +45,12 @@ if [[ -z "${PORT}" ]] || ! [[ "${PORT}" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
+if [[ -f "${ROOT_DIR}/.venv/bin/activate" ]]; then
+    source "${ROOT_DIR}/.venv/bin/activate"
+fi
+
+cd "${ROOT_DIR}"
+
 if ! command -v streamlit >/dev/null 2>&1; then
     printf 'Comando não encontrado: streamlit\n' >&2
     exit 1
@@ -54,8 +60,6 @@ if ! command -v python3 >/dev/null 2>&1; then
     printf 'Comando não encontrado: python3\n' >&2
     exit 1
 fi
-
-cd "${ROOT_DIR}"
 
 URL="http://localhost:${PORT}"
 

@@ -37,6 +37,12 @@ Para subir a aplicação local e abrir a URL padrão automaticamente:
 scripts/run_scout.sh
 ```
 
+Comportamento do launcher:
+
+- se `./.venv` existir, o script ativa essa virtualenv automaticamente antes de procurar `streamlit`;
+- isso evita usar um `streamlit` global diferente do ambiente do projeto;
+- se não houver `.venv`, o script continua tentando usar os comandos disponíveis no ambiente atual.
+
 Opções úteis:
 
 ```bash
