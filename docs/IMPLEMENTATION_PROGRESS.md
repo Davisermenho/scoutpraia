@@ -2617,3 +2617,49 @@ Limitações, gaps e riscos:
 
 - `G1`, `G4` e `G5` continuam abertos.
 - O fechamento de `G7` usa arquivos locais HTML da PMC; a base é verificável, mas não é cópia PDF binária do publisher.
+
+---
+
+## Ciclo — Fechamento de G4 em `docs/evidence_matrix.md`
+
+Fase atual declarada: `Governança de evidência e taxonomia`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `docs/evidence_matrix.md` passou a referenciar `SRC-SYNTHESIS-BH` como fonte auxiliar explícita para:
+  - `two_point_goal`
+  - `spin_shot`
+  - `inflight_goal`
+  - `zone`
+- A inclusão foi feita sem trocar a precedência das fontes primárias:
+  - `SRC-IHF-RULES` continua a base normativa;
+  - `SRC-NOTATIONAL-BH` continua a base científica específica;
+  - `SRC-SYNTHESIS-BH` entra apenas como curadoria auxiliar que priorizou os papers.
+
+Comandos executados:
+
+```bash
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+O que ainda não está pronto:
+
+- `G1` continua aberto: taxonomia segue `draft`.
+- `G5` continua aberto: validação observacional humana completa ainda não foi concluída.
+
+Limitações, gaps e riscos:
+
+- `SRC-SYNTHESIS-BH` permanece fonte secundária; sua inclusão na matriz não autoriza tratá-la como substituto das fontes primárias.

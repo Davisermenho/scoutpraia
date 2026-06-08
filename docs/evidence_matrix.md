@@ -35,10 +35,10 @@ Objetivo: padronizar como cada status deve ser interpretado pelo agente, pela UI
 | `points_value` | oficial | `SRC-IHF-RULES` | beach handball tem ações com valores de pontuação distintos | cálculo de placar, eficiência e relatório | `testing` |
 | `set_number` | oficial | `SRC-IHF-RULES` | jogo é organizado por sets | segmentação de scout e relatório por set | `testing` |
 | `shootout_attempt` | oficial | `SRC-IHF-RULES` | shoot-out é situação especial do jogo | análise de eficiência em shoot-out | `testing` |
-| `two_point_goal` | oficial | `SRC-IHF-RULES` | gols especiais valem mais que gol comum | KPI de eficiência de 2 pontos | `testing` |
-| `spin_shot` | oficial/científica | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | ação específica relevante no beach handball | evento ofensivo e clipe técnico | `testing` |
-| `inflight_goal` | oficial/científica | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | ação específica relevante no beach handball | evento ofensivo e clipe técnico | `testing` |
-| `zone` | científica/técnica | `SRC-NOTATIONAL-BH` | zonas permitem analisar tendência e eficiência | mapa de finalização e vulnerabilidade defensiva | `testing` |
+| `two_point_goal` | oficial | `SRC-IHF-RULES`, `SRC-SYNTHESIS-BH` | gols especiais valem mais que gol comum; `SRC-SYNTHESIS-BH` identifica os estudos de suporte para priorização do item | KPI de eficiência de 2 pontos | `testing` |
+| `spin_shot` | oficial/científica | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH`, `SRC-SYNTHESIS-BH` | ação específica relevante no beach handball; `SRC-SYNTHESIS-BH` funciona como fonte auxiliar de curadoria dos papers notacionais | evento ofensivo e clipe técnico | `testing` |
+| `inflight_goal` | oficial/científica | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH`, `SRC-SYNTHESIS-BH` | ação específica relevante no beach handball; `SRC-SYNTHESIS-BH` consolida a priorização dos estudos de arremesso | evento ofensivo e clipe técnico | `testing` |
+| `zone` | científica/técnica | `SRC-NOTATIONAL-BH`, `SRC-SYNTHESIS-BH` | zonas permitem analisar tendência e eficiência; `SRC-SYNTHESIS-BH` aponta os estudos mais úteis para o recorte beach handball | mapa de finalização e vulnerabilidade defensiva | `testing` |
 | `technical_error` | metodologia/técnica | `SRC-OBS-MEASUREMENT` | precisa de definição observável para reduzir ambiguidade | perda de posse e correção de treino | `draft` |
 | `defensive_breakdown` | técnica | decisão do treinador | útil para feedback, mas interpretativo | relatório coletivo e clips de correção | `draft` |
 
