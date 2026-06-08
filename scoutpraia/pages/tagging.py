@@ -664,6 +664,7 @@ def _render_event_editor(
     player_options = _player_options(players)
     inverse_player_options = {value: label for label, value in player_options.items()}
     set_options = _set_options(session, match_id)
+    filter_set_options = _set_filter_options(session, match_id)
     inverse_set_options = {value: label for label, value in set_options.items()}
     possession_options = _possession_options(session, match_id, None)
     inverse_possession_options = {
@@ -675,7 +676,7 @@ def _render_event_editor(
     with filter_col_a:
         filter_set_label = st.selectbox(
             "Filtrar por set",
-            options=list(set_options.keys()),
+            options=list(filter_set_options.keys()),
             key="edit_event_filter_set",
         )
         filter_team_side = st.selectbox(
@@ -699,7 +700,7 @@ def _render_event_editor(
     filtered_events = _filter_events_for_editor(
         events=events,
         players=players,
-        filter_set_id=set_options[filter_set_label],
+        filter_set_id=filter_set_options[filter_set_label],
         filter_team_side=filter_team_side,
         filter_event_type=filter_event_type,
         filter_search=filter_search,
@@ -889,6 +890,11 @@ def _set_options(session: Session, match_id: int) -> dict[str, int | None]:
     for set_segment in sets:
         options[f"Set {set_segment.set_number} (id {set_segment.id})"] = set_segment.id
     return options
+
+
+def _set_filter_options(session: Session, match_id: int) -> dict[str, int | None]:
+    set_options = _set_options(session, match_id)
+    return {"Todos": None, **{label: value for label, value in set_options.items() if value is not None}}
 
 
 def _possession_options(

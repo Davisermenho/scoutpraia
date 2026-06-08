@@ -2113,3 +2113,43 @@ Limitações, gaps e riscos:
 
 - Scripts externos do usuário que apontem manualmente para o contrato na raiz precisarão ser atualizados para `docs/`.
 - O histórico antigo em `docs/IMPLEMENTATION_PROGRESS.md` continua registrando estados transitórios de ciclos anteriores, mas o caminho canônico atual passa a ser `docs/`.
+
+---
+
+## Ciclo — Renomeação do estado padrão do filtro `Filtrar por set`
+
+Fase atual declarada: `Fase 8 — UI Streamlit funcional do fluxo manual`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- O estado padrão do filtro `Filtrar por set` na página `Marcação` foi renomeado de `Sem set` para `Todos`.
+- A lógica de filtragem foi preservada: o valor padrão continua significando ausência de filtro por `set`.
+- A lista do filtro agora mostra:
+  - `Todos`
+  - sets reais existentes no jogo
+- `Sem set` continua reservado apenas para contextos de domínio onde o valor nulo representa ausência real de associação, como no editor de evento.
+- Foi adicionado teste de regressão para garantir que o seletor `Filtrar por set` inicia com `Todos`.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py -q
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_streamlit_pages.py -q
+- 11 passed in 4.63s
+
+scripts/verify_current_state.sh
+- 41 passed in 5.00s
+```
+
+Limitações, gaps e riscos:
+
+- Esta mudança é estritamente de nomenclatura/UX no filtro; não altera a regra de negócio dos `sets`.
+- O filtro `Filtrar por set` continua sem suportar uma distinção entre “evento realmente sem set” e “sem filtro”, porque esse não é o fluxo operacional adotado neste MVP.

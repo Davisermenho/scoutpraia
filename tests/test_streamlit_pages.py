@@ -524,6 +524,8 @@ def test_tagging_page_filters_and_navigates_event_editor(
     at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
     at.run()
 
+    assert selectbox_by_label(at, "Filtrar por set").value == "Todos"
+
     selectbox_by_label(at, "Filtrar por lado").set_value("Equipe")
     button_by_label(at, "Evento anterior").click()
     at.run()
