@@ -39,6 +39,35 @@ Validar `ScoutPraia v0.1` com 1 jogo completo em vídeo.
 | aderência à regra | não contradiz regra oficial |
 | especificidade | respeita beach handball, sem importar lógica de quadra sem ajuste |
 
+## Critérios numéricos de confiabilidade observacional
+
+Usar os limiares abaixo como critério prático do ScoutPraia para campos centrais da taxonomia.
+
+| Métrica | Critério prático do ScoutPraia | Uso |
+| --- | --- | --- |
+| `κ` (Cohen's kappa) | `> 0.81` | categorias excludentes e marcações categóricas centrais |
+| `ICC` | `>= 0.90` | campos contínuos/dimensionais e repetição intra/interobservador |
+| `α` (Cronbach) | `>= 0.90` | consistência interna de grupos centrais de variáveis observacionais |
+
+Interpretação operacional:
+
+- se `κ <= 0.81`, as definições categóricas ainda estão ambíguas demais para estabilização;
+- se `ICC < 0.90`, a repetição observacional ainda flutua além do aceitável para os campos centrais;
+- se `α < 0.90`, a consistência interna do conjunto analisado ainda não sustenta uso estável;
+- qualquer campo crítico abaixo desses limiares deve permanecer `draft` ou `testing`, nunca `approved`.
+
+Fontes verificáveis desta régua numérica:
+
+- `docs/sources/validation_observational_instrument_handball_2023.html`
+  - concordância do painel de especialistas com `κ = 0.889`
+  - médias de confiabilidade manual com `ICC = 0.923`, `α = 0.959`, `κ = 0.901` em intraobservador
+  - médias de confiabilidade manual com `α = 0.913` e `ICC = 0.904` em interobservador
+- `docs/sources/Scout de Handebol de Areia_ Fontes Fortes.md`
+  - consolida o uso operacional de `κ > 0.81` e `ICC > 0.90` para validação prática
+- `docs/sources/primer_observational_measurement_2017.html`
+  - sustenta o papel de `κ`, `ICC` e confiabilidade observacional
+  - alerta que não existe critério universal único para toda área; por isso os limiares acima são tratados aqui como critério prático do ScoutPraia, não lei metodológica universal
+
 ## Saída da validação
 
 Cada divergência deve gerar uma decisão:

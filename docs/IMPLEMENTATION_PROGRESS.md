@@ -2452,3 +2452,168 @@ Limitações, gaps e riscos:
 
 - O arquivo `docs/SOURCES_ORGANIZATION_PLAN.md` está agora coerente para execução, mas continua sendo um plano; ele não fecha por si só os gaps G1, G5 e G7.
 - `README.md` permanece modificado pela Execução 1 e `docs/IMPLEMENTATION_PROGRESS.md` por registros desta sessão; isso faz parte do estado intencional atual do workspace.
+
+---
+
+## Execução — Ações A1–A7 de `docs/SOURCES_ORGANIZATION_PLAN.md`
+
+Fase atual declarada: `Governança de fontes e rastreabilidade taxonômica`.
+
+Status: `PARCIAL COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `A1` executada:
+  - removido `docs/sources/Plano de Pesquisa para Scout Esportivo.md` do workspace.
+- `A2` executada:
+  - `docs/sources/README.md` agora documenta `regras.md` como artefato derivado, com limitações explícitas.
+- `A3` executada:
+  - `docs/sources/README.md` agora registra `SRC-SYNTHESIS-BH` com papel de curadoria secundária e proibição explícita de uso como fonte primária.
+- `A4` executada:
+  - adicionados arquivos locais para `SRC-NOTATIONAL-BH`:
+    - `docs/sources/notational_analysis_bh_iannaccone_2022.pdf`
+    - `docs/sources/womens_bh_statistics_kazan_2022.pdf`
+- `A5` executada:
+  - adicionados arquivos locais para `SRC-OBS-MEASUREMENT`:
+    - `docs/sources/primer_observational_measurement_2017.html`
+    - `docs/sources/validation_observational_instrument_handball_2023.html`
+  - decisão técnica adotada:
+    - as páginas oficiais da PMC foram salvas em HTML porque o download direto dos PDFs retornou challenge intermediário (`Preparing to download ...`) no ambiente atual.
+    - isso mantém rastreabilidade local verificável sem declarar PDF inexistente como prova válida.
+- `A6` executada:
+  - `docs/sources/README.md` agora tem coluna `Arquivo local`, seção `Artefatos derivados`, `SRC-SYNTHESIS-BH` e `SRC-OPENAI-EVALS` com arquivo local.
+- `A7` executada:
+  - `docs/taxonomy_dictionary.md` agora tem coluna `Fonte` nas tabelas de eventos com distinção explícita entre `SRC-*` e `coach_decision`.
+
+Impacto adicional analisado de `docs/sources/Working-with-evals.md`:
+
+- O arquivo muda o diagnóstico do plano para `SRC-OPENAI-EVALS`:
+  - deixa de ser "fonte sem arquivo local";
+  - passa a ser fonte com snapshot local verificável.
+- O conteúdo do arquivo registra um risco estrutural novo para Fase 2:
+  - a plataforma Evals entra em `read-only` em `2026-10-31`;
+  - o desligamento está previsto para `2026-11-30`.
+- Consequência para o repo:
+  - `SRC-OPENAI-EVALS` deve permanecer como referência conceitual para ciclo de avaliação;
+  - não deve ser promovido a dependência estratégica futura do ScoutPraia.
+- Esse impacto foi refletido em:
+  - `docs/sources/README.md`
+  - `docs/SOURCES_ORGANIZATION_PLAN.md`
+
+Comandos executados:
+
+```bash
+cd docs/sources
+rm -f "Plano de Pesquisa para Scout Esportivo.md"
+curl -L 'https://hummov.awf.wroc.pl/pdf-130277-103963?filename=Notational-analysis-of-be.pdf' -o notational_analysis_bh_iannaccone_2022.pdf
+curl -L 'https://hrcak.srce.hr/file/403495' -o womens_bh_statistics_kazan_2022.pdf
+curl -L 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5426358/' -o primer_observational_measurement_2017.html
+curl -L 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10422213/' -o validation_observational_instrument_handball_2023.html
+file notational_analysis_bh_iannaccone_2022.pdf womens_bh_statistics_kazan_2022.pdf primer_observational_measurement_2017.html validation_observational_instrument_handball_2023.html
+
+git diff --check
+scripts/verify_current_state.sh
+
+[ ! -f "docs/sources/Plano de Pesquisa para Scout Esportivo.md" ] && echo "OK A1"
+grep -q "SRC-SYNTHESIS-BH" docs/sources/README.md && echo "OK A3"
+grep -q "Artefatos derivados" docs/sources/README.md && echo "OK A2"
+grep -q "Arquivo local" docs/sources/README.md && echo "OK A6"
+grep -q "| Fonte |" docs/taxonomy_dictionary.md && echo "OK A7"
+ls docs/sources/notational_analysis_bh_iannaccone_2022.pdf docs/sources/womens_bh_statistics_kazan_2022.pdf && echo "OK A4"
+ls docs/sources/primer_observational_measurement_2017.html docs/sources/validation_observational_instrument_handball_2023.html && echo "OK A5"
+```
+
+Resultado observado:
+
+```text
+file
+- notational_analysis_bh_iannaccone_2022.pdf: PDF document
+- womens_bh_statistics_kazan_2022.pdf: PDF document
+- primer_observational_measurement_2017.html: HTML document
+- validation_observational_instrument_handball_2023.html: HTML document
+
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+
+checks do plano
+- OK A1
+- OK A2
+- OK A3
+- OK A4
+- OK A5
+- OK A6
+- OK A7
+```
+
+O que ainda não está pronto:
+
+- `G1` continua aberto:
+  - taxonomia segue `draft`;
+  - não houve validação observacional humana suficiente para promover itens a `testing`/`approved`.
+- `G4` continua aberto:
+  - `docs/evidence_matrix.md` ainda não referencia `SRC-SYNTHESIS-BH` como fonte auxiliar.
+- `G5` continua aberto:
+  - validação observacional humana completa ainda depende de rodada dedicada.
+- `G7` foi fechado neste ciclo posterior:
+  - `docs/validation_protocol.md` agora registra os critérios numéricos explícitos de `κ > 0.81`, `ICC >= 0.90` e `α >= 0.90`;
+  - o protocolo também registra a ressalva metodológica de que esses números são critério prático do ScoutPraia, não corte universal absoluto.
+
+Limitações, gaps e riscos:
+
+- Os arquivos locais de `SRC-OBS-MEASUREMENT` ficaram em HTML oficial, não PDF, por limitação prática do mecanismo de download direto da PMC neste ambiente atual.
+- `Working-with-evals.md` melhora a auditabilidade local de `SRC-OPENAI-EVALS`, mas também formaliza que a plataforma Evals está em deprecação; isso enfraquece o valor dessa fonte como base futura de Fase 2.
+- `CALUDE.md` foi tratado como duplicata byte a byte de `AGENTS.md` e removido do workspace, não versionado.
+- As fontes em `docs/sources/` passam a ser tratadas como artefatos locais intencionais a serem versionados nesta leva de publicação.
+
+---
+
+## Ciclo — Fechamento de G7 e preparação da publicação das fontes locais
+
+Fase atual declarada: `Governança de fontes e protocolo de validação`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `docs/validation_protocol.md` recebeu critérios numéricos explícitos para confiabilidade observacional:
+  - `κ > 0.81`
+  - `ICC >= 0.90`
+  - `α >= 0.90`
+- Os critérios foram documentados como regra prática do ScoutPraia, com ressalva explícita de que a literatura observacional não oferece corte universal único.
+- `docs/SOURCES_ORGANIZATION_PLAN.md` foi alinhado ao novo estado:
+  - `G7` passou a constar como resolvido;
+  - `SRC-OPENAI-EVALS` passou a constar com arquivo local (`Working-with-evals.md`) e impacto de deprecação;
+  - o inventário agora reflete os arquivos realmente presentes após A1–A7.
+- Os não rastreados foram revisados:
+  - `CALUDE.md` removido por ser duplicata de `AGENTS.md`;
+  - arquivos de `docs/sources/` mantidos como artefatos intencionais para versionamento.
+
+Comandos executados:
+
+```bash
+diff -q AGENTS.md CALUDE.md
+rm -f CALUDE.md
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+diff -q AGENTS.md CALUDE.md
+- sem diferenças
+
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+Limitações, gaps e riscos:
+
+- `G1`, `G4` e `G5` continuam abertos.
+- O fechamento de `G7` usa arquivos locais HTML da PMC; a base é verificável, mas não é cópia PDF binária do publisher.

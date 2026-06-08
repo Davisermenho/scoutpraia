@@ -20,7 +20,11 @@ Verificado por: `ls -la /home/davis/SCOUT/docs/sources/`
 | `regras.md` | 110 KB | **não** | presente, não registrado |
 | `2024.naacl-industry.19.pdf` | 831 KB | sim → `SRC-RAG-STRUCTURED` | presente, canônico |
 | `Scout de Handebol de Areia_ Fontes Fortes.md` | 55 KB | **não** | presente, funcional |
-| `Plano de Pesquisa para Scout Esportivo.md` | 59 KB | **não** | presente, **arquivo morto** |
+| `Working-with-evals.md` | 60 KB | **não** | presente, funcional |
+| `notational_analysis_bh_iannaccone_2022.pdf` | 3.6 MB | **não** | presente, baixado em A4 |
+| `womens_bh_statistics_kazan_2022.pdf` | 767 KB | **não** | presente, baixado em A4 |
+| `primer_observational_measurement_2017.html` | 181 KB | **não** | presente, salvo em A5 |
+| `validation_observational_instrument_handball_2023.html` | 260 KB | **não** | presente, salvo em A5 |
 
 ### 0.2 Fontes registradas em `docs/sources/README.md`
 
@@ -29,11 +33,11 @@ Verificado por: Read `docs/sources/README.md:14–22`
 | Código | Tipo | Arquivo local? | Status operacional |
 | --- | --- | --- | --- |
 | `SRC-IHF-RULES` | regra oficial | `ihf_rules_beach_handball.pdf` ✓ | ativo, verificável localmente |
-| `SRC-NOTATIONAL-BH` | literatura científica | **ausente** — URL somente | ativo na matrix, não verificável localmente |
-| `SRC-OBS-MEASUREMENT` | metodologia | **ausente** — URL somente | ativo na matrix, não verificável localmente |
+| `SRC-NOTATIONAL-BH` | literatura científica | `notational_analysis_bh_iannaccone_2022.pdf`; `womens_bh_statistics_kazan_2022.pdf` ✓ | ativo e verificável localmente |
+| `SRC-OBS-MEASUREMENT` | metodologia | `primer_observational_measurement_2017.html`; `validation_observational_instrument_handball_2023.html` ✓ | ativo e verificável localmente |
 | `SRC-RAG-LEWIS` | IA/RAG | **ausente** — URL somente | diferido (Fase 2) |
 | `SRC-RAG-STRUCTURED` | IA/RAG | `2024.naacl-industry.19.pdf` ✓ | diferido (Fase 2), verificável |
-| `SRC-OPENAI-EVALS` | avaliação de IA | **ausente** — URL somente | diferido (Fase 2) |
+| `SRC-OPENAI-EVALS` | avaliação de IA | `Working-with-evals.md` ✓ | diferido (Fase 2), verificável localmente, mas plataforma em deprecação |
 
 ### 0.3 Referências cruzadas ativas
 
@@ -114,7 +118,7 @@ Verificado por: leitura direta de `docs/evidence_matrix.md` e `docs/validation_p
 - `sources/README.md:18`: `SRC-OBS-MEASUREMENT` — URL `https://pmc.ncbi.nlm.nih.gov/articles/PMC5426358/` (sem arquivo local).
 - `evidence_matrix.md:39–41`: cita `SRC-NOTATIONAL-BH` para `spin_shot`, `inflight_goal`, `zone` com status `testing`.
 - `evidence_matrix.md:42`: cita `SRC-OBS-MEASUREMENT` para `technical_error` com status `draft`.
-- Critério de `validation_protocol.md:59`: `draft → testing` exige "fonte registrada" — a URL satisfaz o registro formal, mas sem arquivo local a verificação do agente depende de acesso à internet.
+- Critério de `validation_protocol.md:59`: `draft → testing` exige "fonte registrada" — agora há arquivo local verificável para ambos os códigos.
 
 **Nota adicional sobre `SRC-OBS-MEASUREMENT`:** a URL registrada (`A Primer on Observational Measurement`, PMC5426358) é uma fonte metodológica geral, não específica de handebol de praia. O arquivo `Scout Fontes Fortes.md:190` aponta para uma fonte mais específica e validante para este domínio: "Development and Validation of Observational Game Analysis Tool with AI for Handball" (PMC10422213), que fornece Kappa = 0,889 em contexto de handebol.
 
@@ -287,17 +291,17 @@ Atualizar linha `SRC-NOTATIONAL-BH`: adicionar coluna `Arquivo local` listando o
 
 | Prioridade | Artigo | URL canônica | Nome de arquivo sugerido |
 | --- | --- | --- | --- |
-| 1 | "A Primer on Observational Measurement" | `https://pmc.ncbi.nlm.nih.gov/articles/PMC5426358/` (PMC) | `primer_observational_measurement_2017.pdf` |
-| 1 | "Development and Validation of Observational Game Analysis Tool with AI for Handball" | `https://pmc.ncbi.nlm.nih.gov/articles/PMC10422213/` (PMC) | `validation_observational_instrument_handball_2023.pdf` |
+| 1 | "A Primer on Observational Measurement" | `https://pmc.ncbi.nlm.nih.gov/articles/PMC5426358/` (PMC) | `primer_observational_measurement_2017.html` |
+| 1 | "Development and Validation of Observational Game Analysis Tool with AI for Handball" | `https://pmc.ncbi.nlm.nih.gov/articles/PMC10422213/` (PMC) | `validation_observational_instrument_handball_2023.html` |
 
 **Por que o segundo artigo é crítico:**
 - Fornece Kappa = 0,889 e ICC ≥ 0,91 em contexto de handebol — mais específico do que o "Primer" metodológico geral.
-- `Scout Fontes Fortes.md:143–145` usa esses números. `validation_protocol.md:65` cita `SRC-OBS-MEASUREMENT` sem números. Ter o PDF local permite ao agente verificar a origem dos thresholds.
+- `Scout Fontes Fortes.md:143–145` usa esses números. `validation_protocol.md:65` cita `SRC-OBS-MEASUREMENT` sem números. Ter o arquivo local oficial permite ao agente verificar a origem dos thresholds.
 
 **Destino:** `docs/sources/`
 
 **Instrução para o README após download:**
-Atualizar linha `SRC-OBS-MEASUREMENT`: adicionar coluna `Arquivo local` listando os PDFs baixados.
+Atualizar linha `SRC-OBS-MEASUREMENT`: adicionar coluna `Arquivo local` listando os arquivos locais baixados/salvos.
 
 **Impacto:**
 - `validation_protocol.md` ganha base local verificável para seus critérios (via G7).
@@ -322,10 +326,10 @@ Nova tabela (após todas as ações):
 | --- | --- | --- | --- | --- |
 | `SRC-IHF-RULES` | regra oficial | IHF Rules — Beach Handball | `ihf_rules_beach_handball.pdf` | pontuação, set, shoot-out, ações especiais |
 | `SRC-NOTATIONAL-BH` | literatura científica | Notational analysis of BH | `notational_analysis_bh_iannaccone_2022.pdf`, `womens_bh_statistics_kazan_2022.pdf` | indicadores de finalização, zonas, eficiência |
-| `SRC-OBS-MEASUREMENT` | metodologia | Observational Measurement | `primer_observational_measurement_2017.pdf`, `validation_observational_instrument_handball_2023.pdf` | confiabilidade, validade, controle de ambiguidade |
+| `SRC-OBS-MEASUREMENT` | metodologia | Observational Measurement | `primer_observational_measurement_2017.html`, `validation_observational_instrument_handball_2023.html` | confiabilidade, validade, controle de ambiguidade |
 | `SRC-RAG-LEWIS` | IA/RAG | RAG for Knowledge-Intensive NLP | ausente (Fase 2) | redução de dependência de memória interna |
 | `SRC-RAG-STRUCTURED` | IA/RAG | Reducing hallucination via RAG | `2024.naacl-industry.19.pdf` | auditoria de saídas estruturadas (Fase 2) |
-| `SRC-OPENAI-EVALS` | avaliação de IA | OpenAI Evals | ausente (Fase 2) | ciclo de teste e medição de erro |
+| `SRC-OPENAI-EVALS` | avaliação de IA | OpenAI Evals / Working with evals | `Working-with-evals.md` | ciclo de teste e medição de erro; referência conceitual, não dependência estratégica |
 | `SRC-SYNTHESIS-BH` | curadoria secundária | Scout de Handebol de Areia: Fontes Fortes | `Scout de Handebol de Areia_ Fontes Fortes.md` | mapa de pesquisa; thresholds para `validation_protocol.md`; **não citar como fonte primária** |
 ```
 
@@ -416,10 +420,11 @@ Verificado contra `evidence_matrix.md`, `sources/README.md` e as regras IHF. A d
 **Critério de resolução:** iniciar Fase 2 RAG conforme `rag_workflow.md`.
 **Impacto enquanto não resolvido:** nenhum para MVP.
 
-### G3 — SRC-OPENAI-EVALS sem arquivo local
+### G3 — `SRC-OPENAI-EVALS` com arquivo local, mas plataforma em deprecação
 
-**Causa:** diferido para Fase 2.
-**Impacto enquanto não resolvido:** nenhum para MVP.
+**Causa:** `Working-with-evals.md` resolve a rastreabilidade local, porém o próprio documento oficial informa que a plataforma Evals entrará em `read-only` em `2026-10-31` e será desligada em `2026-11-30`.
+**Critério de resolução:** manter `SRC-OPENAI-EVALS` apenas como referência conceitual para ciclo de avaliação e, quando a Fase 2 começar, preferir abordagem local/determinística ou substituto oficial vigente.
+**Impacto enquanto não resolvido:** nenhum para o MVP atual, mas impede planejar dependência estrutural futura na plataforma Evals.
 
 ### G4 — `evidence_matrix.md` não referencia `SRC-SYNTHESIS-BH`
 
@@ -438,15 +443,23 @@ Verificado contra `evidence_matrix.md`, `sources/README.md` e as regras IHF. A d
 **Causa:** após A7, a coluna Fonte existe, mas a distinção semântica entre "baseado em evidência científica" e "decisão prática do treinador" deve ser legível de relance.
 **Critério de resolução:** ao executar A7, usar notação consistente: `coach_decision` é um valor válido na coluna Fonte (já reconhecido em `evidence_matrix.md:8`), não uma lacuna a esconder.
 
-### G7 — `validation_protocol.md` sem critérios numéricos de confiabilidade *(gap novo identificado nesta revisão)*
+### G7 — `validation_protocol.md` sem critérios numéricos de confiabilidade *(resolvido em 2026-06-08)*
 
-**Causa:** `validation_protocol.md:65` cita `SRC-OBS-MEASUREMENT` como exigência de confiabilidade observacional, mas não especifica os critérios numéricos (Kappa, ICC, Cronbach α). Os thresholds existem apenas em `SRC-SYNTHESIS-BH`.
-**Evidência:** `grep -n "kappa\|Kappa\|ICC\|Cronbach\|0\.81\|0\.90" docs/validation_protocol.md` → zero resultados.
-**Critério de resolução:** após A3 (registro de `SRC-SYNTHESIS-BH`) e A5 (download de `validation_observational_instrument_handball_2023.pdf`), atualizar `validation_protocol.md:59–60` adicionando critérios numéricos explícitos com citações:
-  - Kappa > 0,81: citando `SRC-OBS-MEASUREMENT` (PMC10422213) — verificável
-  - ICC ≥ 0,90: citando `SRC-OBS-MEASUREMENT` (PMC10422213) — verificável
-  - Cronbach α: citando `primer_observational_measurement_2017.pdf` — verificável
-**Bloqueador:** A5 deve ser executada primeiro (para ter os PDFs locais que sustentam os números).
+**Estado atual:** resolvido.
+
+**Como foi resolvido:**
+- `docs/validation_protocol.md` passou a registrar critérios numéricos explícitos para:
+  - `κ > 0.81`
+  - `ICC >= 0.90`
+  - `α >= 0.90`
+- o protocolo agora também registra a ressalva metodológica correta:
+  - os números são critério prático do ScoutPraia;
+  - não são corte universal absoluto para toda a literatura observacional.
+
+**Base verificável usada no fechamento:**
+- `docs/sources/validation_observational_instrument_handball_2023.html`
+- `docs/sources/Scout de Handebol de Areia_ Fontes Fortes.md`
+- `docs/sources/primer_observational_measurement_2017.html`
 
 ---
 
@@ -488,13 +501,13 @@ grep -q "| Fonte |" docs/taxonomy_dictionary.md && echo "OK A7" || echo "FALHA A
 ls docs/sources/notational_analysis_bh_iannaccone_2022.pdf 2>/dev/null && echo "OK A4" || echo "PENDENTE A4 (requer download)"
 
 # 7. Pelo menos um arquivo SRC-OBS-MEASUREMENT baixado
-ls docs/sources/primer_observational_measurement_2017.pdf 2>/dev/null && echo "OK A5" || echo "PENDENTE A5 (requer download)"
+ls docs/sources/primer_observational_measurement_2017.html docs/sources/validation_observational_instrument_handball_2023.html 2>/dev/null && echo "OK A5" || echo "PENDENTE A5 (requer download)"
 ```
 
 Resultado esperado:
 - `scripts/verify_current_state.sh`: todos os checks internos passando.
 - Checks 1–5: todos `OK` (independentes de download).
-- Checks 6–7: `OK` quando os downloads forem executados; `PENDENTE` é estado válido se Fase 2 ainda não iniciou.
+- Checks 6–7: `OK` quando os downloads/snapshots locais forem executados; `PENDENTE` é estado válido se Fase 2 ainda não iniciou.
 
 **Interpretação correta do gate:**
 - **execução parcial válida do plano:** `scripts/verify_current_state.sh` passa, checks 1–5 estão `OK` e checks 6–7 podem estar `PENDENTE` quando A4/A5 ainda não foram executadas.
@@ -523,11 +536,12 @@ docs/
     ├── regras.md                                    # derivado de SRC-IHF-RULES (A2)
     ├── 2024.naacl-industry.19.pdf                   # SRC-RAG-STRUCTURED (Fase 2)
     ├── Scout de Handebol de Areia_ Fontes Fortes.md # SRC-SYNTHESIS-BH (A3)
+    ├── Working-with-evals.md                        # SRC-OPENAI-EVALS (referência conceitual; plataforma em deprecação)
     ├── notational_analysis_bh_iannaccone_2022.pdf   # SRC-NOTATIONAL-BH (A4)
     ├── womens_bh_statistics_kazan_2022.pdf          # SRC-NOTATIONAL-BH (A4)
     ├── throwing_performance_elite_womens_bh_2020.pdf# SRC-NOTATIONAL-BH (A4, opcional)
-    ├── primer_observational_measurement_2017.pdf    # SRC-OBS-MEASUREMENT (A5)
-    └── validation_observational_instrument_handball_2023.pdf # SRC-OBS-MEASUREMENT (A5)
+    ├── primer_observational_measurement_2017.html   # SRC-OBS-MEASUREMENT (A5)
+    └── validation_observational_instrument_handball_2023.html # SRC-OBS-MEASUREMENT (A5)
 ```
 
 **Removido ao final:** `docs/sources/Plano de Pesquisa para Scout Esportivo.md` (A1)
