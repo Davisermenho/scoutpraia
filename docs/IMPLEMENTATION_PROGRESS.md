@@ -8,11 +8,11 @@ Regra: uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidênci
 
 ## Estado atual
 
-Última atualização: `2026-06-07`
+Última atualização: `2026-06-08`
 
 Status geral: `BASE TÉCNICA INICIAL FUNCIONANDO`
 
-Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético, analytics com fixture controlada, geração local de relatórios HTML persistidos e o núcleo da UI Streamlit para Dashboard, Jogos, Marcação, Relatórios e Adversárias estão funcionando dentro do escopo testado. A página `Marcação` já cobre edição/exclusão de `set`, `posse` e qualquer `evento` salvo, com filtros e navegação rápida no editor. Validação observacional, verificação visual humana do fluxo completo e operação com vídeo real ainda não foram implementadas integralmente.
+Importante: o MVP completo ainda **não** está pronto. A base de projeto, banco, modelos iniciais, seed de taxonomia, serviços de eventos, validação de concordância, geração real de clipe com `ffmpeg` em teste sintético, analytics com fixture controlada, geração local de relatórios HTML persistidos e o núcleo da UI Streamlit para Dashboard, Jogos, Marcação, Relatórios e Adversárias estão funcionando dentro do escopo testado. A página `Marcação` já cobre criação, edição e exclusão de `set`, `posse` e qualquer `evento` salvo, com filtros, navegação rápida no editor e sem a falha de `session_state` tardio nos formulários de criação. Validação observacional, verificação visual humana do fluxo completo e operação com vídeo real ainda não foram implementadas integralmente.
 
 ---
 
@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-07T19:57:08Z
+date_utc=2026-06-08T07:09:26Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=d397b1e
+git_head=e5af64d
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -76,25 +76,24 @@ event_definitions=29
 expected_event_definitions=29
 
 == Tests ==
-collected 39 items
-tests/test_analytics_service.py ..                                       [  5%]
+collected 41 items
+tests/test_analytics_service.py ..                                       [  4%]
 tests/test_clip_service.py .                                             [  7%]
-tests/test_event_service.py ..                                           [ 13%]
-tests/test_match_service.py .....                                        [ 25%]
-tests/test_models.py ..                                                  [ 30%]
-tests/test_real_video_integration.py ..                                  [ 35%]
-tests/test_report_service.py ..                                          [ 41%]
-tests/test_smoke.py .........                                            [ 64%]
-tests/test_streamlit_pages.py .........                                  [ 87%]
-tests/test_ui_labels.py ...                                              [ 94%]
+tests/test_event_service.py ..                                           [ 12%]
+tests/test_match_service.py .....                                        [ 24%]
+tests/test_models.py ..                                                  [ 29%]
+tests/test_real_video_integration.py ..                                  [ 34%]
+tests/test_report_service.py ..                                          [ 39%]
+tests/test_smoke.py .........                                            [ 60%]
+tests/test_streamlit_pages.py ...........                                [ 87%]
+tests/test_ui_labels.py ...                                              [ 95%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 39 passed in 5.83s ==============================
+============================== 41 passed in 5.29s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
  M docs/IMPLEMENTATION_PROGRESS.md
- M docs/guia_preenchimento_marcacao.md
  M scoutpraia/pages/tagging.py
  M tests/test_streamlit_pages.py
 ```
@@ -1971,3 +1970,63 @@ Limitações, gaps e riscos:
 
 - Eu não reproduzi a exceção original no meu ambiente, então a correção foi feita na condição estrutural que permite o problema: importação redundante com `metadata` parcialmente populado.
 - Se existir outro caminho de importação fora do pacote `scoutpraia.*`, ele continua sendo um risco de arquitetura e deve ser evitado.
+
+---
+
+## Ciclo — Correção de `session_state` tardio em `Novo set` e `Nova posse`
+
+Fase atual declarada: `Fase 8 — UI Streamlit funcional do fluxo manual`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Regressões adicionadas em `tests/test_streamlit_pages.py` para provar criação de `set` e criação de `posse` sem `StreamlitAPIException`.
+- Correção em `scoutpraia/pages/tagging.py` para remover a escrita tardia em chaves de widgets já instanciados:
+  - `new_set_number`
+  - `new_set_start`
+  - `new_set_end`
+  - `new_possession_set`
+- Introdução de estado pendente não vinculado a widget:
+  - `pending_new_set_state`
+  - `pending_new_possession_state`
+  - `management_success_message`
+- O pós-submit agora aplica reset/default no rerun seguinte, antes da criação dos widgets.
+- O formulário `Novo set` volta com:
+  - próximo número sugerido
+  - `Início do set = 00:00`
+  - `Fim do set = 00:00`
+- O formulário `Nova posse` volta com:
+  - `Equipe da posse` preservada
+  - `Set da posse` preservado
+  - `Início da posse = 00:00`
+  - `Fim da posse = 00:00`
+  - `Resultado da posse` limpo
+  - `Pontos feitos = 0`
+  - `Pontos sofridos = 0`
+- Remoção do uso redundante de `value=` em widgets de criação que já são controlados por `session_state`, para evitar warning de estado duplicado.
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_streamlit_pages.py -q -k 'creates_set_without_session_state_exception or creates_possession_without_session_state_exception'
+python3 -m pytest tests/test_streamlit_pages.py -q
+```
+
+Resultado observado:
+
+```text
+Testes de regressão:
+- 2 passed, 9 deselected in 1.37s
+
+Suíte da página:
+- 11 passed in 3.68s
+
+Gate final:
+- 41 passed in 5.29s
+```
+
+Limitações, gaps e riscos:
+
+- Esta correção fecha o defeito de `session_state` tardio nos formulários de criação de `set` e `posse`.
+- A evidência final do repositório inteiro ainda depende do gate completo `scripts/verify_current_state.sh` deste ciclo.

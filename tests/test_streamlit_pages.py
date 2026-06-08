@@ -395,6 +395,78 @@ def test_tagging_page_update_and_delete_selected_possession(
     assert deleted is None
 
 
+def test_tagging_page_creates_set_without_session_state_exception(
+    monkeypatch, tmp_path: Path
+) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        seed_ui_fixture(session, tmp_path)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    number_input_by_label(at, "Número do set").set_value(2)
+    text_input_by_label(at, "Início do set").set_value("00:20")
+    text_input_by_label(at, "Fim do set").set_value("00:32")
+    button_by_label(at, "Salvar set").click()
+    at.run()
+
+    assert len(at.exception) == 0
+    assert any("Set 2 salvo." in item.value for item in at.success)
+    assert number_input_by_label(at, "Número do set").value == 3
+    assert text_input_by_label(at, "Início do set").value == "00:00"
+    assert text_input_by_label(at, "Fim do set").value == "00:00"
+
+    with Session(engine) as session:
+        sets = session.exec(select(SetSegment).order_by(SetSegment.id)).all()
+    assert len(sets) == 2
+    assert sets[-1].set_number == 2
+    assert sets[-1].start_second == 20
+    assert sets[-1].end_second == 32
+
+
+def test_tagging_page_creates_possession_without_session_state_exception(
+    monkeypatch, tmp_path: Path
+) -> None:
+    engine = configure_page_modules(monkeypatch, tmp_path)
+    with Session(engine) as session:
+        fixture = seed_ui_fixture(session, tmp_path)
+
+    at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
+    at.run()
+
+    radio_by_label(at, "Equipe da posse").set_value("opponent")
+    selectbox_by_label(at, "Set da posse").set_value(f"Set 1 (id {fixture['set_id']})")
+    text_input_by_label(at, "Início da posse").set_value("00:05")
+    text_input_by_label(at, "Fim da posse").set_value("00:09")
+    text_input_by_label(at, "Resultado da posse").set_value("saída construída")
+    number_input_by_label(at, "Pontos feitos").set_value(1)
+    number_input_by_label(at, "Pontos sofridos").set_value(0)
+    button_by_label(at, "Salvar posse").click()
+    at.run()
+
+    assert len(at.exception) == 0
+    assert any("Posse 2 salva." in item.value for item in at.success)
+    assert radio_by_label(at, "Equipe da posse").value == "opponent"
+    assert selectbox_by_label(at, "Set da posse").value == f"Set 1 (id {fixture['set_id']})"
+    assert text_input_by_label(at, "Início da posse").value == "00:00"
+    assert text_input_by_label(at, "Fim da posse").value == "00:00"
+    assert text_input_by_label(at, "Resultado da posse").value == ""
+    assert number_input_by_label(at, "Pontos feitos").value == 0
+    assert number_input_by_label(at, "Pontos sofridos").value == 0
+
+    with Session(engine) as session:
+        possessions = session.exec(select(Possession).order_by(Possession.id)).all()
+    assert len(possessions) == 2
+    assert possessions[-1].team_side == "opponent"
+    assert possessions[-1].set_id == fixture["set_id"]
+    assert possessions[-1].start_second == 5
+    assert possessions[-1].end_second == 9
+    assert possessions[-1].result == "saída construída"
+    assert possessions[-1].points_scored == 1
+    assert possessions[-1].points_conceded == 0
+
+
 def test_tagging_page_filters_and_navigates_event_editor(
     monkeypatch, tmp_path: Path
 ) -> None:

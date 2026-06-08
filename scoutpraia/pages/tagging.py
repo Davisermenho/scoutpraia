@@ -138,6 +138,9 @@ def _init_state() -> None:
     st.session_state.setdefault("tagging_outcome", "")
     st.session_state.setdefault("tagging_notes", "")
     st.session_state.setdefault("edit_event_id", None)
+    st.session_state.setdefault("pending_new_set_state", None)
+    st.session_state.setdefault("pending_new_possession_state", None)
+    st.session_state.setdefault("management_success_message", None)
 
 
 def _select_match(matches: list[Match]) -> Match | None:
@@ -209,10 +212,13 @@ def _render_quick_event_buttons(event_types: list[str]) -> None:
 
 def _render_management_tools(session: Session, match_id: int) -> None:
     with st.expander("Sets e posses", expanded=False):
+        success_message = st.session_state.pop("management_success_message", None)
+        if success_message:
+            st.success(success_message)
         left_col, right_col = st.columns(2)
         with left_col:
             next_set_number = _next_set_number(session, match_id)
-            st.session_state.setdefault("new_set_number", next_set_number)
+            _sync_new_set_form_state(next_set_number)
             with st.form("create_set_form"):
                 st.markdown("**Novo set**")
                 set_number = st.number_input(
@@ -222,14 +228,12 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                 )
                 start_input = st.text_input(
                     "Início do set",
-                    value=format_seconds_for_input(0.0),
                     key="new_set_start",
                     help=TIME_INPUT_HELP,
                 )
                 _render_time_input_preview(start_input)
                 end_input = st.text_input(
                     "Fim do set",
-                    value=format_seconds_for_input(0.0),
                     key="new_set_end",
                     help=TIME_INPUT_HELP,
                 )
@@ -248,10 +252,15 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         session.add(set_segment)
                         session.commit()
                         session.refresh(set_segment)
-                        st.session_state["new_set_number"] = int(set_segment.set_number) + 1
-                        st.session_state["new_set_start"] = format_seconds_for_input(0.0)
-                        st.session_state["new_set_end"] = format_seconds_for_input(0.0)
-                        st.success(f"Set {set_segment.set_number} salvo.")
+                        st.session_state["pending_new_set_state"] = {
+                            "new_set_number": int(set_segment.set_number) + 1,
+                            "new_set_start": format_seconds_for_input(0.0),
+                            "new_set_end": format_seconds_for_input(0.0),
+                        }
+                        st.session_state["management_success_message"] = (
+                            f"Set {set_segment.set_number} salvo."
+                        )
+                        st.rerun()
                     except ValueError as exc:
                         st.error(str(exc))
             set_options = _set_options(session, match_id)
@@ -322,7 +331,7 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                             st.error(str(exc))
         with right_col:
             set_options = _set_options(session, match_id)
-            _sync_management_form_state(set_options)
+            _sync_new_possession_form_state(set_options)
             with st.form("create_possession_form"):
                 st.markdown("**Nova posse**")
                 possession_team_side = st.radio(
@@ -339,14 +348,12 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                 )
                 start_input = st.text_input(
                     "Início da posse",
-                    value=format_seconds_for_input(0.0),
                     key="new_possession_start",
                     help=TIME_INPUT_HELP,
                 )
                 _render_time_input_preview(start_input)
                 end_input = st.text_input(
                     "Fim da posse",
-                    value=format_seconds_for_input(0.0),
                     key="new_possession_end",
                     help=TIME_INPUT_HELP,
                 )
@@ -356,14 +363,12 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                     "Pontos feitos",
                     min_value=0,
                     max_value=2,
-                    value=0,
                     key="new_possession_points_scored",
                 )
                 points_conceded = st.number_input(
                     "Pontos sofridos",
                     min_value=0,
                     max_value=2,
-                    value=0,
                     key="new_possession_points_conceded",
                 )
                 submitted = st.form_submit_button("Salvar posse")
@@ -384,8 +389,19 @@ def _render_management_tools(session: Session, match_id: int) -> None:
                         session.add(possession)
                         session.commit()
                         session.refresh(possession)
-                        st.session_state["new_possession_set"] = selected_set_label
-                        st.success(f"Posse {possession.id} salva.")
+                        st.session_state["pending_new_possession_state"] = {
+                            "new_possession_team_side": possession_team_side,
+                            "new_possession_set": selected_set_label,
+                            "new_possession_start": format_seconds_for_input(0.0),
+                            "new_possession_end": format_seconds_for_input(0.0),
+                            "new_possession_result": "",
+                            "new_possession_points_scored": 0,
+                            "new_possession_points_conceded": 0,
+                        }
+                        st.session_state["management_success_message"] = (
+                            f"Posse {possession.id} salva."
+                        )
+                        st.rerun()
                     except ValueError as exc:
                         st.error(str(exc))
             possession_options = _possession_options(session, match_id, None)
@@ -905,7 +921,29 @@ def _sync_selected_event_type(event_types: list[str]) -> None:
         st.session_state["tagging_event_type"] = event_types[0]
 
 
-def _sync_management_form_state(set_options: dict[str, int | None]) -> None:
+def _sync_new_set_form_state(next_set_number: int) -> None:
+    pending_state = st.session_state.pop("pending_new_set_state", None)
+    if pending_state:
+        for key, value in pending_state.items():
+            st.session_state[key] = value
+    st.session_state.setdefault("new_set_number", next_set_number)
+    st.session_state.setdefault("new_set_start", format_seconds_for_input(0.0))
+    st.session_state.setdefault("new_set_end", format_seconds_for_input(0.0))
+    if st.session_state.get("new_set_number") in {None, 0}:
+        st.session_state["new_set_number"] = next_set_number
+
+
+def _sync_new_possession_form_state(set_options: dict[str, int | None]) -> None:
+    pending_state = st.session_state.pop("pending_new_possession_state", None)
+    if pending_state:
+        for key, value in pending_state.items():
+            st.session_state[key] = value
+    st.session_state.setdefault("new_possession_team_side", "team")
+    st.session_state.setdefault("new_possession_start", format_seconds_for_input(0.0))
+    st.session_state.setdefault("new_possession_end", format_seconds_for_input(0.0))
+    st.session_state.setdefault("new_possession_result", "")
+    st.session_state.setdefault("new_possession_points_scored", 0)
+    st.session_state.setdefault("new_possession_points_conceded", 0)
     if st.session_state.get("new_possession_set") not in set_options:
         st.session_state["new_possession_set"] = _default_set_label(set_options)
 
