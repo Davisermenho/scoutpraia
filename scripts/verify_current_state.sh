@@ -30,12 +30,17 @@ printf 'legacy_video_dir_absent=Videos-Jogos\n'
 printf 'forbidden_tracked_files=none\n'
 
 printf '\n== Required MVP doc checks ==\n'
-player_id_count=$(sed -n '/### `match_roster`/,/### `sets`/p' MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md | grep -c -- '- `player_id`')
-kpi_title_count=$(grep -c '^## 13\.1 KPIs coletivos$' MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md)
+mvp_doc=docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+test -f "$mvp_doc"
+test ! -e MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+player_id_count=$(sed -n '/### `match_roster`/,/### `sets`/p' "$mvp_doc" | grep -c -- '- `player_id`')
+kpi_title_count=$(grep -c '^## 13\.1 KPIs coletivos$' "$mvp_doc")
 printf 'match_roster_player_id_count=%s\n' "$player_id_count"
 printf 'kpi_13_1_title_count=%s\n' "$kpi_title_count"
 test "$player_id_count" -eq 1
 test "$kpi_title_count" -eq 1
+printf 'mvp_doc_path=%s\n' "$mvp_doc"
+printf 'legacy_root_mvp_doc_absent=yes\n'
 
 printf '\n== Python import ==\n'
 python3 -c "import scoutpraia; print(scoutpraia.__doc__)"

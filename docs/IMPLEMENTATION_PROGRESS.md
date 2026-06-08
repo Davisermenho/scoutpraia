@@ -51,10 +51,10 @@ Resultado observado:
 
 ```text
 == ScoutPraia current-state verification ==
-date_utc=2026-06-08T11:39:18Z
+date_utc=2026-06-08T12:20:15Z
 cwd=/home/davis/SCOUT
 git_branch=main
-git_head=3909c49
+git_head=bfd5f51
 
 == Repository hygiene checks ==
 canonical_video_dir=storage/videos
@@ -64,6 +64,8 @@ forbidden_tracked_files=none
 == Required MVP doc checks ==
 match_roster_player_id_count=1
 kpi_13_1_title_count=1
+mvp_doc_path=docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+legacy_root_mvp_doc_absent=yes
 
 == Python import ==
 ScoutPraia local beach handball scouting app.
@@ -89,13 +91,18 @@ tests/test_streamlit_pages.py ...........                                [ 87%]
 tests/test_ui_labels.py ...                                              [ 95%]
 tests/test_validation_service.py ..                                      [100%]
 
-============================== 41 passed in 5.69s ==============================
+============================== 41 passed in 6.02s ==============================
 
 == Git whitespace check ==
 == Working tree summary ==
+ M AGENTS.md
+ D MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+ M docs/AUDIT_EVIDENCE_VALIDATION.md
+ M docs/AUDIT_MVP_AGENT_FLOW.md
  M docs/IMPLEMENTATION_PROGRESS.md
- M docs/guia_preenchimento_marcacao.md
- M docs/validation_protocol.md
+ M docs/IMPLEMENTATION_STEPS_AI.md
+ T docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+ M scripts/verify_current_state.sh
 ```
 
 Interpretação: a base técnica atual está validada para seguir para a próxima fase. Isso **não** prova que o MVP completo está pronto.
@@ -116,7 +123,7 @@ Evidência:
 
 Arquivos relacionados:
 
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
 - `docs/IMPLEMENTATION_STEPS_AI.md`
 
 ### Fase 2 — Estrutura base do projeto
@@ -445,7 +452,7 @@ Fase atual: cadastro de jogos e persistência de metadados de vídeo.
 Implementado:
 
 - `Match` recebeu `video_width`, `video_height`, `video_fps` e `video_codec`.
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi atualizado para refletir esses campos.
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi atualizado para refletir esses campos.
 - `scoutpraia/services/match_service.py` cadastra adversária, atleta e jogo.
 - `create_match_with_video()` executa `ffprobe` via `probe_video_metadata()` e persiste metadados em `Match`.
 - `scoutpraia/pages/matches.py` agora tem cadastro básico real de adversárias, atletas e jogos.
@@ -751,7 +758,7 @@ Status: `AUDITADO`
 
 Escopo:
 
-- ler `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- ler `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
 - ler `docs/IMPLEMENTATION_STEPS_AI.md`
 - ler `docs/IMPLEMENTATION_PROGRESS.md`
 - avaliar se o fluxo documental é correto para um agente implementar o MVP
@@ -783,7 +790,7 @@ collected 15 items
 Conclusão:
 
 - O fluxo correto para agentes é seguir `docs/IMPLEMENTATION_STEPS_AI.md` como ordem executável.
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` permanece como contrato de produto e critério de escopo.
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` permanece como contrato de produto e critério de escopo.
 - `docs/IMPLEMENTATION_PROGRESS.md` deve continuar registrando prova, pendências e bloqueios.
 - O próximo trabalho técnico autorizado é completar `report_service.py`.
 
@@ -1809,7 +1816,7 @@ Implementado / executado:
   - filtro combinado por set, lado e busca textual
   - exclusão do evento filtrado correto
 - Correção da causa raiz do gate documental:
-  - `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi restaurado como alias para o contrato real da raiz, evitando nova falha em `scripts/verify_current_state.sh`.
+  - `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi consolidado como caminho documental do contrato MVP.
 
 Comandos executados:
 
@@ -1831,7 +1838,7 @@ Gate final:
 Limitações, gaps e riscos:
 
 - A navegação rápida atua sobre a lista filtrada atual; filtros muito amplos continuam exigindo uso manual da busca.
-- O alias documental em `docs/` precisa ser incluído no Git na próxima publicação para que o gate permaneça reproduzível em outros clones.
+- Naquele ciclo, o contrato ainda estava em transição de caminho; essa observação deixa de valer após a migração canônica para `docs/`.
 
 ---
 
@@ -1875,7 +1882,7 @@ Gate final:
 Limitações, gaps e riscos:
 
 - O histórico de ciclos anteriores em `docs/IMPLEMENTATION_PROGRESS.md` permanece como registro temporal e ainda cita estados parciais de etapas antigas.
-- O alias `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` continua pendente de versionamento para manter o contrato documental consistente em clones futuros.
+- O histórico desse ciclo registra um estado transitório anterior à migração canônica do contrato para `docs/`.
 
 ---
 
@@ -2069,3 +2076,40 @@ Limitações, gaps e riscos:
 
 - Ainda não foi anexada prova humana real deste ciclo em forma de screenshots do navegador.
 - Portanto, este ciclo está formalizado documentalmente, mas a validação humana específica continua pendente.
+
+---
+
+## Ciclo — Migração do contrato MVP para `docs/`
+
+Fase atual declarada: `Fase 1 — Pré-implementação obrigatória`.
+
+Status: `FUNCIONANDO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` deixou de ser symlink e passou a ser o arquivo real canônico do contrato MVP.
+- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` foi removido da raiz do repositório.
+- `AGENTS.md` passou a instruir leitura do contrato em `docs/`.
+- `scripts/verify_current_state.sh` passou a:
+  - validar `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+  - falhar se o arquivo legado da raiz reaparecer
+- `docs/IMPLEMENTATION_STEPS_AI.md`, `docs/AUDIT_MVP_AGENT_FLOW.md` e `docs/AUDIT_EVIDENCE_VALIDATION.md` foram alinhados ao novo caminho canônico.
+- `docs/IMPLEMENTATION_PROGRESS.md` foi corrigido para remover a narrativa de alias transitório como estado atual.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+Gate final:
+- 41 passed in 6.02s
+```
+
+Limitações, gaps e riscos:
+
+- Scripts externos do usuário que apontem manualmente para o contrato na raiz precisarão ser atualizados para `docs/`.
+- O histórico antigo em `docs/IMPLEMENTATION_PROGRESS.md` continua registrando estados transitórios de ciclos anteriores, mas o caminho canônico atual passa a ser `docs/`.

@@ -10,7 +10,7 @@ Não declarar trabalho como concluído sem prova reproduzível. Toda afirmação
 
 Antes de implementar qualquer coisa, leia:
 
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
 - `docs/IMPLEMENTATION_STEPS_AI.md`
 - `docs/IMPLEMENTATION_PROGRESS.md`
 - `docs/sources/README.md`

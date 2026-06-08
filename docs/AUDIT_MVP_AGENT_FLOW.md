@@ -2,7 +2,7 @@
 
 Data: `2026-06-06`
 
-Objetivo: avaliar se `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`, `docs/IMPLEMENTATION_STEPS_AI.md` e `docs/IMPLEMENTATION_PROGRESS.md` formam um fluxo correto para o agente implementar o MVP sem desviar da arquitetura definida.
+Objetivo: avaliar se `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`, `docs/IMPLEMENTATION_STEPS_AI.md` e `docs/IMPLEMENTATION_PROGRESS.md` formam um fluxo correto para o agente implementar o MVP sem desviar da arquitetura definida.
 
 ## Veredito
 
@@ -10,7 +10,7 @@ O fluxo está correto para um agente implementar o MVP, com uma ressalva operaci
 
 Motivo:
 
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` define produto, arquitetura, entidades, fluxo operacional e critérios de sucesso.
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` define produto, arquitetura, entidades, fluxo operacional e critérios de sucesso.
 - `docs/IMPLEMENTATION_STEPS_AI.md` transforma o MVP em gates técnicos sequenciais e verificáveis.
 - `docs/IMPLEMENTATION_PROGRESS.md` registra o que já foi provado e o que segue parcial.
 - `scripts/verify_current_state.sh` fornece prova reproduzível mínima antes de avançar.
@@ -92,7 +92,7 @@ Ainda não comprovado como MVP:
 
 ## Ponto de atenção
 
-`MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` traz um roadmap de produto em fases operacionais. `docs/IMPLEMENTATION_STEPS_AI.md` traz a ordem técnica para agentes.
+`docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` traz um roadmap de produto em fases operacionais. `docs/IMPLEMENTATION_STEPS_AI.md` traz a ordem técnica para agentes.
 
 Essas duas ordens não são idênticas, mas não conflitam:
 
@@ -102,7 +102,7 @@ Essas duas ordens não são idênticas, mas não conflitam:
 Para agentes, a ordem correta é:
 
 1. seguir `docs/IMPLEMENTATION_STEPS_AI.md`
-2. conferir o escopo contra `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+2. conferir o escopo contra `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
 3. atualizar `docs/IMPLEMENTATION_PROGRESS.md`
 4. rodar `scripts/verify_current_state.sh`
 5. não avançar se o gate falhar

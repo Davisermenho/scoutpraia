@@ -1,6 +1,6 @@
 # ScoutPraia — Plano de Implementação para IA
 
-Este arquivo é o contrato de execução para uma IA implementar o ScoutPraia até o MVP completo. Ele deriva do `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e deve ser seguido na ordem.
+Este arquivo é o contrato de execução para uma IA implementar o ScoutPraia até o MVP completo. Ele deriva do `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e deve ser seguido na ordem.
 
 A palavra "garantia" aqui significa garantia operacional por gates: a IA só pode avançar quando a fase anterior entrega arquivos, comportamento e validações definidos. Fontes e plano não garantem resultado por si mesmos; a completude vem de implementação, teste, revisão com vídeo e aceite final.
 
@@ -71,21 +71,21 @@ A palavra "garantia" aqui significa garantia operacional por gates: a IA só pod
 
 ### 1.1 Corrigir inconsistências do MVP documental
 
-Antes de codar, revisar `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e corrigir:
+Antes de codar, revisar `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e corrigir:
 
 - `match_roster` tem `player_id` duplicado; manter apenas um.
 - `## 13.1 KPIs coletivos` aparece duplicado; manter apenas um.
 
 Gate de aceite:
 
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` não tem duplicações óbvias de campo/título.
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` não tem duplicações óbvias de campo/título.
 - `git diff --check` não acusa espaços problemáticos, se o repo estiver em Git.
 
 ### 1.2 Confirmar arquivos de contrato
 
 A IA deve ler estes arquivos antes de implementar:
 
-- `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
 - `docs/sources/README.md`
 - `docs/evidence_matrix.md`
 - `docs/taxonomy_dictionary.md`

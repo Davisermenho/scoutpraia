@@ -145,7 +145,7 @@ O `skip` é correto para CI/repo porque vídeos reais são dados locais ignorado
 
 | Área | Arquivos principais | Prova |
 | --- | --- | --- |
-| contrato documental | `MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` | contadores no script |
+| contrato documental | `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` | contadores no script |
 | higiene de repo | `.gitignore`, `scripts/verify_current_state.sh` | ausência de mídia/banco/legado versionado |
 | banco e modelos base | `scoutpraia/core/database.py`, `scoutpraia/models/*` | init de DB e criação de tabelas |
 | taxonomia inicial | `scoutpraia/services/taxonomy_service.py` | seed idempotente com 29 definições |
