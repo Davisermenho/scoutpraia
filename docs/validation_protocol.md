@@ -99,6 +99,118 @@ Fontes verificáveis desta régua:
 
 ---
 
+## Checklist operacional editável para fechamento de `G1` e `G5`
+
+Usar este checklist quando o objetivo for:
+
+- fechar `G5` (validação observacional humana executada);
+- fechar `G1` (taxonomia deixa de estar integralmente em `draft`).
+
+### Bloco A — Congelamento da rodada
+
+- [ ] `scripts/verify_current_state.sh` passou antes do ensaio
+- [ ] `git_head` registrado
+- [ ] `video_file` registrado
+- [ ] `match_id` registrado
+- [ ] taxonomia ativa registrada
+- [ ] escopo da rodada definido:
+  - [ ] revisão operacional de UI
+  - [ ] revisão metodológica de taxonomia
+  - [ ] promoção de status
+
+Preencher:
+
+```text
+data_utc=
+git_head=
+video_file=
+match_id=
+taxonomy_before=
+goal_of_round=
+operator=
+review_scope=
+```
+
+### Bloco B — Evidência mínima para fechar `G5`
+
+- [ ] UI carrega sem erro fatal
+- [ ] vídeo renderiza
+- [ ] `Salvar set` funciona
+- [ ] `Salvar posse` funciona
+- [ ] amostra mínima de eventos foi salva
+- [ ] histórico reflete os eventos salvos
+- [ ] pelo menos 1 edição de evento funciona
+- [ ] filtros localizam o evento correto
+- [ ] relatório coletivo foi gerado pela UI
+- [ ] relatório individual foi gerado pela UI
+- [ ] relatório de adversária foi gerado pela UI
+- [ ] os arquivos existem em `storage/reports/`
+- [ ] há screenshots nomeados do ensaio
+- [ ] decisão final do ensaio foi registrada
+
+Preencher:
+
+```text
+new_events_count=
+final_event_count=
+new_reports_count=
+final_report_count=
+recent_reports=
+screenshots=
+limitations=
+decision=APROVADO|REPROVADO|PARCIAL
+```
+
+### Bloco C — Revisão item a item para fechar `G1`
+
+Aplicar este bloco para cada evento/campo relevante da taxonomia revisado na rodada.
+
+| Item | Status anterior | Evidência em vídeo | Divergência encontrada | Decisão | Status novo | Nova versão necessária? | Observação |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `shot_attempt` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+| `goal_scored` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+| `technical_error` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+| `spin_shot` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+| `inflight_goal` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+| `defensive_breakdown` | `draft` |  |  | manter\|ajustar\|fundir\|dividir\|remover |  | sim\|não |  |
+
+Se outros itens forem revisados, duplicar a linha e preencher.
+
+### Bloco D — Gate de promoção de status
+
+Marcar apenas quando a evidência mínima estiver satisfeita.
+
+- [ ] pelo menos 1 item saiu de `draft` para `testing` com base em:
+  - [ ] fonte registrada
+  - [ ] definição operacional inicial
+  - [ ] utilidade prática suficiente
+  - [ ] marcação humana inicial em vídeo
+- [ ] cada item promovido para `testing` foi refletido em:
+  - [ ] `docs/taxonomy_dictionary.md`
+  - [ ] `docs/evidence_matrix.md`
+- [ ] cada item promovido para `approved` teve:
+  - [ ] validação em vídeo
+  - [ ] revisão explícita de divergências
+  - [ ] decisão documentada de manter
+  - [ ] congelamento em nova versão da taxonomia
+
+### Bloco E — Critério formal de fechamento
+
+`G5` pode ser fechado quando:
+
+- [ ] houver 1 rodada humana documentada com decisão final
+- [ ] screenshots e registro textual estiverem anexados neste arquivo ou referenciados de forma estável
+
+`G1` pode ser fechado quando:
+
+- [ ] a taxonomia deixar de estar integralmente em `draft`
+- [ ] existir decisão explícita por item revisado
+- [ ] o dicionário operacional tiver sido atualizado
+- [ ] a matrix de evidência tiver sido atualizada quando necessário
+- [ ] a nova versão da taxonomia tiver sido criada se houve mudança semântica
+
+---
+
 ## Protocolo operacional repetível para validação humana
 
 Objetivo: executar um ensaio humano reproduzível do fluxo crítico do MVP no navegador real, cobrindo `Marcação` e `Relatórios` com vídeo local verdadeiro.

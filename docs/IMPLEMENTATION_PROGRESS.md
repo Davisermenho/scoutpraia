@@ -2845,3 +2845,52 @@ Limitações, gaps e riscos:
 
 - Os pins de `requirements.txt` refletem o ambiente validado neste momento; futuras atualizações exigem nova prova reproduzível.
 - `scripts/run_scout.sh` continua dependendo de uma `.venv` válida quando a intenção for isolar o ambiente do projeto do ambiente global.
+
+---
+
+## Ciclo — Checklist operacional editável para fechamento de `G1` e `G5`
+
+Fase atual declarada: `Governança documental de validação humana e taxonomia`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- `docs/validation_protocol.md` passou a conter um checklist operacional editável específico para:
+  - congelamento da rodada;
+  - evidência mínima para fechar `G5`;
+  - revisão item a item para fechar `G1`;
+  - gate de promoção de status;
+  - critério formal de fechamento.
+- `docs/SOURCES_ORGANIZATION_PLAN.md` passou a conter checklists explícitos dentro dos próprios gaps `G1` e `G5`.
+- O objetivo foi eliminar lacuna operacional entre:
+  - plano textual de fechamento;
+  - execução humana real;
+  - atualização documental após a rodada.
+
+Comandos executados:
+
+```bash
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- 43 passed
+```
+
+O que ainda não está pronto:
+
+- `G1` continua aberto até a rodada humana promover ao menos parte da taxonomia para além de `draft`.
+- `G5` continua aberto até a rodada humana ser executada e anexada com evidência real.
+
+Limitações, gaps e riscos:
+
+- O checklist reduz ambiguidade operacional, mas não substitui a execução humana com vídeo real.
+- Nenhum status da taxonomia foi promovido neste ciclo; a mudança aqui é de governança e execução documental.

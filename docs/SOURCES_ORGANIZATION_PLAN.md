@@ -414,6 +414,17 @@ Verificado contra `evidence_matrix.md`, `sources/README.md` e as regras IHF. A d
 **Critério de resolução:** executar protocolo de validação humana conforme `docs/validation_protocol.md:73–314`.
 **Bloqueador:** humano — requer sessão com vídeo real.
 
+**Checklist operacional de fechamento:**
+
+- [ ] rodada humana executada com vídeo real
+- [ ] bloco de registro preenchido em `docs/validation_protocol.md`
+- [ ] revisão item a item concluída
+- [ ] pelo menos 1 item promovido de `draft` para `testing` ou `approved`
+- [ ] `docs/taxonomy_dictionary.md` atualizado
+- [ ] `docs/evidence_matrix.md` atualizado, se necessário
+- [ ] nova versão de taxonomia criada, se houve mudança semântica
+- [ ] `docs/IMPLEMENTATION_PROGRESS.md` atualizado com a decisão
+
 ### G2 — SRC-RAG-LEWIS sem arquivo local
 
 **Causa:** diferido para Fase 2 (intencionalmente).
@@ -437,6 +448,21 @@ Verificado contra `evidence_matrix.md`, `sources/README.md` e as regras IHF. A d
 **Causa:** requer sessão humana com vídeo real.
 **Critério de resolução:** roteiro em `docs/validation_protocol.md:73–314`.
 **Impacto:** MVP não pode ser declarado completo — `AUDIT_EVIDENCE_VALIDATION.md:160–168` confirma explicitamente.
+
+**Checklist operacional de fechamento:**
+
+- [ ] `scripts/verify_current_state.sh` passou antes do ensaio
+- [ ] UI carregou sem erro fatal
+- [ ] vídeo real renderizou
+- [ ] `Salvar set` funcionou
+- [ ] `Salvar posse` funcionou
+- [ ] amostra mínima de eventos foi marcada
+- [ ] pelo menos 1 edição de evento funcionou
+- [ ] filtros localizaram o evento correto
+- [ ] 3 relatórios foram gerados pela UI
+- [ ] arquivos existem em `storage/reports/`
+- [ ] screenshots foram anexados ou referenciados
+- [ ] decisão final do ensaio foi registrada em `docs/validation_protocol.md`
 
 ### G6 — Eventos interpretativos em `taxonomy_dictionary.md` sem distinção clara entre `SRC` e `coach_decision`
 
