@@ -33,6 +33,16 @@ LIGHTWEIGHT_SQLITE_COLUMNS = {
         "video_fps": "REAL",
         "video_codec": "TEXT",
     },
+    "events": {
+        "result_possession": "TEXT",
+        "scorer_role": "TEXT",
+        "court_lane": "TEXT",
+        "shot_origin_depth": "TEXT",
+        "goal_zone": "TEXT",
+        "trajectory_visible": "INTEGER",
+        "derived_points": "INTEGER",
+        "review_marker": "INTEGER",
+    },
 }
 
 

@@ -2894,3 +2894,816 @@ Limitações, gaps e riscos:
 
 - O checklist reduz ambiguidade operacional, mas não substitui a execução humana com vídeo real.
 - Nenhum status da taxonomia foi promovido neste ciclo; a mudança aqui é de governança e execução documental.
+
+---
+
+## Ciclo — Aplicação da checklist de `G1` e fechamento mínimo honesto do gap
+
+Fase atual declarada: `Governança documental de validação humana e taxonomia`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Aplicação da checklist operacional de `G1` usando o estado real já existente do banco local e dos relatórios do jogo `match_id=1`.
+- Registro formal da rodada em `docs/validation_protocol.md`.
+- Sincronização do item `two_point_goal` de `draft` para `testing` em `docs/taxonomy_dictionary.md`.
+- Atualização de `docs/SOURCES_ORGANIZATION_PLAN.md` para marcar `G1` como resolvido no sentido estrito do gap documental: a taxonomia deixou de estar integralmente em `draft`.
+
+Comandos executados:
+
+```bash
+scripts/verify_current_state.sh
+python3 - <<'PY'
+from sqlmodel import Session, select
+from scoutpraia.core.database import engine, create_db_and_tables
+from scoutpraia.models.match import Match, SetSegment, Possession
+from scoutpraia.models.event import Event
+from scoutpraia.models.taxonomy import TaxonomyVersion
+from scoutpraia.models.report import Report
+create_db_and_tables()
+with Session(engine) as s:
+    ...
+PY
+```
+
+Resultado observado:
+
+```text
+scripts/verify_current_state.sh
+- 43 passed
+
+banco local
+- match_id=1 com vídeo real associado
+- taxonomy_version=ScoutPraia v0.1 status global=draft
+- eventos persistidos incluem `two_point_goal` com `points_value=2`
+- relatórios reais já persistidos para `match_id=1`
+```
+
+O que ainda não está pronto:
+
+- `G5` continua aberto.
+- a versão global da taxonomia continua `draft`.
+- não houve promoção de item para `approved`.
+
+Limitações, gaps e riscos:
+
+- O fechamento de `G1` aqui é mínimo e estrito ao nome do gap: a taxonomia deixou de estar totalmente em `draft`, mas isso não equivale a taxonomia validada por completo.
+- A validação observacional humana completa, com screenshots e decisão final de ensaio, continua pendente em `G5`.
+
+---
+
+## Ciclo — Separação de especialista na taxonomia e analytics
+
+Fase atual declarada: `Taxonomia + analytics + testes vermelhos/verdes`.
+
+Status: `PARCIAL COM PROVA REPRODUZÍVEL`
+
+Implementado / executado:
+
+- Inclusão dos eventos `specialist_attempt` e `specialist_goal` em `scoutpraia/services/taxonomy_service.py`.
+- Reposicionamento de `two_point_attempt` e `two_point_goal` como categoria genérica/fallback, preservando compatibilidade com o histórico já salvo.
+- Ajuste do seed para sincronizar definições já existentes no banco com a versão corrente do código, além de adicionar eventos ausentes.
+- Validação de `points_value` para `specialist_goal` em `scoutpraia/services/event_service.py`.
+- Inclusão de `specialist_efficiency` nos KPIs coletivos e por adversária, e de `conversion_by_type["specialist"]` nos KPIs individuais em `scoutpraia/services/analytics_service.py`.
+- Inclusão dos rótulos `Tentativa da especialista`, `Gol da especialista` e `Eficiência da especialista` em `scoutpraia/ui_labels.py`.
+- Exposição mínima na UI de marcação por meio da taxonomia ativa e botão rápido adicional em `scoutpraia/pages/tagging.py`.
+- Atualização dos contratos em `docs/taxonomy_dictionary.md`, `docs/evidence_matrix.md`, `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e `docs/IMPLEMENTATION_STEPS_AI.md`.
+
+Testes adicionados / ajustados:
+
+- `tests/test_taxonomy_service.py`
+- `tests/test_event_service.py`
+- `tests/test_analytics_service.py`
+- `tests/test_ui_labels.py`
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_taxonomy_service.py tests/test_event_service.py tests/test_analytics_service.py tests/test_ui_labels.py -q
+python3 -m pytest tests/test_smoke.py tests/test_report_service.py tests/test_streamlit_pages.py -q
+python3 -m pytest -q
+```
+
+Resultado observado:
+
+```text
+tests/test_taxonomy_service.py tests/test_event_service.py tests/test_analytics_service.py tests/test_ui_labels.py
+- 8 passed
+
+tests/test_smoke.py tests/test_report_service.py tests/test_streamlit_pages.py
+- 24 passed
+
+suite completa
+- 44 passed
+```
+
+O que ainda não está pronto:
+
+- Os templates HTML de relatório ainda não exibem explicitamente `specialist_efficiency`; isso fica para a próxima leva de relatórios/UI.
+- Ainda não houve prova humana em vídeo real registrando e gerando relatório com `specialist_goal`.
+- O histórico antigo salvo como `two_point_goal` não foi recategorizado automaticamente para evitar evidência falsa.
+
+Limitações, gaps e riscos:
+
+- `two_point_efficiency` permanece compatível e agora agrega `two_point_*` + `specialist_*`; isso preserva continuidade, mas exige clareza documental para não ser interpretado como métrica puramente “genérica”.
+- A distinção entre especialista e outros 2 pontos continua dependente de confirmação visual/operacional do colete em quadra; não houve inferência automática por `primary_role`.
+
+---
+
+## Ciclo — Segunda leva: relatórios + UI operacional + prova real pela interface
+
+Fase atual declarada: `Relatórios + UI operacional + prova real pela interface`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado / executado:
+
+- Inclusão explícita de `specialist_efficiency` nos templates HTML:
+  - `scoutpraia/templates/report_collective.html`
+  - `scoutpraia/templates/report_opponent.html`
+- Inclusão explícita de `conversion_by_type["specialist"]` no template HTML individual:
+  - `scoutpraia/templates/report_individual.html`
+- Inclusão da métrica `Eficiência da especialista` na página `Adversárias` em `scoutpraia/pages/opponents.py`.
+- Inclusão dos botões rápidos `Tentativa da especialista` e `Gol da especialista` na página `Marcação` em `scoutpraia/pages/tagging.py`.
+- Ajuste operacional na UI de `Marcação` para aplicar valor padrão de pontos no mesmo ciclo de interação:
+  - `specialist_goal`, `two_point_goal`, `inflight_goal` e `shootout_goal` passam a preencher `Pontos = 2`
+  - `goal_scored` e `goal_conceded` passam a preencher `Pontos = 1`
+  - demais eventos continuam com `Pontos = 0`
+- Ampliação da cobertura automatizada para garantir:
+  - presença visual dos novos botões rápidos;
+  - preenchimento correto do formulário após clique em `Gol da especialista`;
+  - presença da métrica da especialista na página `Adversárias`;
+  - presença dos campos de especialista nos três relatórios HTML.
+
+Testes adicionados / ajustados:
+
+- `tests/test_report_service.py`
+- `tests/test_streamlit_pages.py`
+
+Comandos executados:
+
+```bash
+python3 -m pytest tests/test_report_service.py tests/test_streamlit_pages.py -q
+python3 -m pytest -q
+git diff --check
+scripts/verify_current_state.sh
+```
+
+Resultado observado:
+
+```text
+tests/test_report_service.py tests/test_streamlit_pages.py
+- 13 passed
+
+suite completa
+- 44 passed
+
+git diff --check
+- sem erros
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- 44 passed
+```
+
+Prova real pela interface:
+
+- Ambiente isolado temporário criado em `/tmp/scoutpraia-specialist-proof`.
+- Banco, storage e relatórios isolados via variáveis:
+  - `SCOUTPRAIA_DB_PATH=/tmp/scoutpraia-specialist-proof/data.db`
+  - `SCOUTPRAIA_VIDEO_DIR=/tmp/scoutpraia-specialist-proof/storage/videos`
+  - `SCOUTPRAIA_CLIP_DIR=/tmp/scoutpraia-specialist-proof/storage/clips`
+  - `SCOUTPRAIA_REPORT_DIR=/tmp/scoutpraia-specialist-proof/storage/reports`
+  - `SCOUTPRAIA_THUMBNAIL_DIR=/tmp/scoutpraia-specialist-proof/storage/thumbnails`
+- Seed local de prova executado com dados controlados contendo:
+  - `specialist_attempt` e `specialist_goal` do lado `team`
+  - `specialist_attempt` e `specialist_goal` do lado `opponent`
+- App local isolado iniciado em `http://localhost:8520`.
+- Automação real de navegador executada com Playwright local, produzindo:
+  - `/tmp/scoutpraia-specialist-proof/ui-proof.log`
+  - `/tmp/scoutpraia-specialist-proof/screens/tagging-specialist.png`
+  - `/tmp/scoutpraia-specialist-proof/screens/reports-specialist.png`
+  - `/tmp/scoutpraia-specialist-proof/screens/opponents-specialist.png`
+
+Resultado observado na UI real:
+
+```text
+loaded=dashboard
+loaded=tagging
+tagging_specialist_attempt_button=1
+tagging_specialist_goal_button=1
+tagging_points_label_count=1
+loaded=reports
+reports_preview_specialist_label=1
+reports_count_caption=true
+reports_download_collective=1
+reports_download_individual=1
+reports_download_opponent=1
+loaded=opponents
+opponents_specialist_metric=2
+```
+
+Interpretação da prova real:
+
+- `Marcação` expõe os dois botões rápidos de especialista na UI real.
+- `Relatórios` exibe o campo de especialista na prévia/KPI e permite geração dos 3 relatórios pela UI.
+- `Adversárias` exibe a métrica `Eficiência da especialista` na UI real.
+- A trilha de prova acima foi obtida no navegador, não apenas por chamada de serviço Python.
+
+O que ainda não está pronto:
+
+- Esta prova real foi feita em ambiente isolado temporário, não no banco operacional definitivo do usuário.
+- A taxonomia global continua com status `draft`; os eventos de especialista não foram promovidos para `testing` ou `approved`.
+- Não houve recategorização automática do histórico legado salvo como `two_point_goal`.
+
+Limitações, gaps e riscos:
+
+- A prova operacional de UI é real e reproduzível, mas usa seed controlada para isolar o comportamento; isso evita evidência falsa sobre o banco principal.
+- `two_point_efficiency` continua agregando o legado genérico e os eventos de especialista; a leitura analítica correta depende de olhar também `specialist_efficiency`.
+- A classificação de um lance como `specialist_*` continua dependente de confirmação humana do uso efetivo da especialista no vídeo.
+
+---
+
+## Ciclo — Eventos v1 passo 1: camada de contrato no código
+
+Fase atual declarada: `Eventos v1 / Passo 1 — camada de contrato no código`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Criação do pacote `scoutpraia/contracts/`.
+- Criação de `scoutpraia/contracts/events_v1.py` como registro declarativo isolado dos módulos:
+  - `finalization_v1`
+  - `no_shot_attack_v1`
+- Registro explícito de:
+  - eventos principais de `Finalização v1.0`
+  - campo auxiliar `specialist_finish_role`
+  - bloqueio de importação por `import_rule_v1 = nao_importar_v1`
+  - separação de domínio de resultados entre Finalização e Ataque sem finalização
+- Criação de `tests/test_events_v1_contract_registry.py`.
+
+Não implementado nesta fase:
+
+- nenhuma integração com `scoutpraia/pages/tagging.py`
+- nenhuma alteração em `scoutpraia/services/event_service.py`
+- nenhuma migração do modelo `Event`
+- nenhuma alteração da taxonomia seed ativa
+
+Testes executados:
+
+- `python3 -m pytest tests/test_finalization_contract.py tests/test_events_v1_contract_registry.py -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_finalization_contract.py tests/test_events_v1_contract_registry.py -q
+34 passed in 0.05s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 78 items
+- 78 passed in 13.23s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- `scoutpraia.contracts.events_v1` importa sem erro.
+- O registro expõe exatamente os dois módulos v1 planejados:
+  - `finalization_v1`
+  - `no_shot_attack_v1`
+- O teste do registro prova que:
+  - `specialist_finish_role` permanece auxiliar e não aparece como botão principal
+  - `shootout_attempt` não entra em `Finalização v1.0`
+  - a regra de importação continua bloqueada em todos os itens do contrato
+  - `lost_possession_no_shot` fica separado do domínio de resultados da Finalização
+
+O que ainda não está pronto:
+
+- O contrato v1 ainda não influencia a UI real de marcação.
+- O contrato v1 ainda não influencia persistência, banco ou relatórios.
+- A nomenclatura do módulo `no_shot_attack_v1` ainda não foi confrontada com a planilha original `Contrato_Operacional`, que não está versionada neste repositório.
+- Os eventos v1 continuam fora da taxonomia operacional ativa e não podem ser considerados importados no app.
+
+Limitações, gaps e riscos:
+
+- O passo 1 é propositalmente isolado; ele reduz risco de mistura semântica, mas ainda não prova operação do fluxo v1 no aplicativo.
+- Os códigos conservadores de `Ataque sem finalização` foram registrados apenas como camada contratual local; podem exigir ajuste nominal quando a planilha original estiver disponível para confronto.
+- Enquanto `import_rule_v1` permanecer bloqueado, existe evidência de contrato em código, mas não de uso operacional no scout.
+
+---
+
+## Ciclo — Eventos v1 passo 2: serviço de Finalização
+
+Fase atual declarada: `Eventos v1 / Passo 2 — serviço de Finalização`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Criação de `scoutpraia/services/finalization_contract_service.py`.
+- Extração da lógica de validação e derivação de pontos da `Finalização v1.0` para um serviço reutilizável.
+- Serviço conectado ao registro declarativo de `FINALIZATION_V1` criado no passo 1, em vez de repetir a lista de eventos principais em um ponto isolado.
+- Inclusão de `FinalizationRecordInput` para representar a forma mínima de chamada do serviço.
+- Inclusão de validações explícitas para:
+  - matriz `event_code + result_possession`
+  - derivação de pontos por `event_code + result_possession + scorer_role`
+  - bloqueio de `manual_points` divergente
+  - bloqueio de `specialist_shot`
+  - bloqueio de `position_code=specialist`
+  - bloqueio de `lost_possession_no_shot`
+  - bloqueio de `six_metre_throw + shot_blocked`
+  - bloqueio de `goalkeeper_shot + shot_blocked`
+
+Testes adicionados:
+
+- `tests/test_finalization_contract_service.py`
+
+Testes executados:
+
+- `python3 -m pytest tests/test_finalization_contract.py tests/test_finalization_contract_service.py -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_finalization_contract.py tests/test_finalization_contract_service.py -q
+42 passed in 0.04s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 91 items
+- 91 passed in 15.32s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- `validate_record(event_code='simple_shot', result_possession='goal', scorer_role='specialist', manual_points=2)` retorna `2`.
+- O teste do serviço prova os casos obrigatórios do plano:
+  - `simple_shot + goal + field_player = 1`
+  - `simple_shot + goal + specialist = 2`
+  - `simple_shot + save + specialist = 0`
+  - `six_metre_throw + rebound_live = 0`
+  - `six_metre_throw + shot_blocked` bloqueia
+  - `goalkeeper_shot + shot_blocked` bloqueia
+  - `manual_points` divergente bloqueia
+
+O que ainda não está pronto:
+
+- O serviço de Finalização ainda não está integrado ao `scoutpraia/services/event_service.py`.
+- A UI de `Marcação` ainda não usa `result_possession`, `scorer_role` nem pontos derivados por contrato.
+- O modelo `Event` ainda não persiste os campos adicionais do contrato v1.
+- A taxonomia operacional ativa continua sem importar os eventos v1.
+
+Limitações, gaps e riscos:
+
+- Esta fase prova a regra de negócio da Finalização v1 em serviço Python, mas não prova ainda a persistência real desse formato no banco.
+- Enquanto o `event_service.py` global continuar validando `points_value` pela taxonomia atual, ainda existe risco de divergência se alguém tentar misturar manualmente o contrato v1 com o fluxo legado.
+- O bloqueio de importação continua correto e necessário; liberar a UI antes do passo de banco/modelo criaria inconsistência de dados.
+
+---
+
+## Ciclo — Eventos v1 passo 3: serviço de Ataque sem finalização
+
+Fase atual declarada: `Eventos v1 / Passo 3 — serviço de Ataque sem finalização`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Criação de `scoutpraia/services/no_shot_attack_contract_service.py`.
+- Extração das regras do módulo `Ataque sem finalização v1.0` para um serviço Python isolado, sem integrar a UI nem o banco nesta fase.
+- Inclusão de `NoShotAttackRecordInput` para representar a forma mínima de chamada do serviço.
+- Inclusão de validações explícitas para:
+  - aceitar apenas eventos cuja posse termina sem arremesso
+  - exigir `result_possession=lost_possession_no_shot`
+  - bloquear eventos de finalização dentro do módulo
+  - bloquear transição ofensiva dentro do módulo
+  - validar `passive_play_turnover` apenas com subtipos aprovados
+  - validar `substitution_error_turnover` apenas quando a equipe está em posse e perde a posse
+  - impedir `specialist_late` como causa direta de turnover
+  - impedir o uso de `area_invasion` como classificação de erro forçado/controle de bola
+
+Testes adicionados:
+
+- `tests/test_no_shot_attack_contract_service.py`
+
+Testes executados:
+
+- `python3 -m pytest tests/test_no_shot_attack_contract_service.py -q`
+- `python3 -m pytest tests/test_no_shot_attack_contract_service.py tests/test_finalization_contract.py tests/test_finalization_contract_service.py tests/test_events_v1_contract_registry.py -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_no_shot_attack_contract_service.py -q
+9 passed in 0.03s
+
+python3 -m pytest tests/test_no_shot_attack_contract_service.py tests/test_finalization_contract.py tests/test_finalization_contract_service.py tests/test_events_v1_contract_registry.py -q
+56 passed in 0.07s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 100 items
+- 100 passed in 11.85s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- O serviço aceita um turnover sem arremesso válido, por exemplo `ball_control_turnover + lost_possession_no_shot + bad_pass`.
+- O teste do serviço prova os casos obrigatórios do plano:
+  - invasão de área não entra como erro forçado/controle de bola
+  - especialista atrasada não entra como causa direta de turnover
+  - erro de troca só entra com a equipe em posse e perda efetiva da posse
+  - jogo passivo entra apenas com subtipos aprovados
+  - finalização não entra em `Ataque sem finalização`
+
+O que ainda não está pronto:
+
+- O serviço de `Ataque sem finalização` ainda não está integrado ao `scoutpraia/services/event_service.py`.
+- A UI de `Marcação` ainda não expõe os campos e filtros próprios do módulo.
+- O modelo `Event` ainda não persiste os campos adicionais exigidos pelo contrato v1.
+- A taxonomia operacional ativa continua sem importar os eventos v1.
+
+Limitações, gaps e riscos:
+
+- Os subtipos aprovados de jogo passivo foram codificados de forma conservadora porque a planilha operacional original não está versionada neste repositório.
+- O serviço prova a regra de negócio do módulo em Python, mas ainda não prova a persistência nem a operação do fluxo pela UI.
+- Enquanto os passos de banco/modelo e UI não forem executados, o contrato v1 continua corretamente bloqueado para importação no app.
+
+---
+
+## Ciclo — Eventos v1 passo 4: modelo/banco
+
+Fase atual declarada: `Eventos v1 / Passo 4 — adaptação controlada de modelo/banco`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Atualização de `scoutpraia/models/event.py` com campos explícitos estáveis para Eventos v1:
+  - `result_possession`
+  - `scorer_role`
+  - `court_lane`
+  - `shot_origin_depth`
+  - `goal_zone`
+  - `trajectory_visible`
+  - `derived_points`
+  - `review_marker`
+- Atualização de `scoutpraia/core/database.py` para aplicar atualização leve de schema SQLite também na tabela `events`, via `ALTER TABLE`, sem depender de recriação do banco local.
+- Criação de `tests/test_event_model_v1_fields.py`.
+
+Escopo deliberadamente não implementado nesta fase:
+
+- nenhuma integração com `scoutpraia/pages/tagging.py`
+- nenhuma alteração de salvamento no `scoutpraia/services/event_service.py`
+- nenhuma importação dos eventos v1 para a taxonomia ativa
+
+Testes executados:
+
+- `python3 -m pytest tests/test_models.py tests/test_event_model_v1_fields.py -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_models.py tests/test_event_model_v1_fields.py -q
+4 passed in 0.58s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 102 items
+- 102 passed in 11.99s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- `Event.model_fields` agora expõe os campos v1 estáveis planejados.
+- O teste `test_event_model_persists_v1_explicit_fields` prova persistência em SQLite novo dos campos:
+  - `result_possession`
+  - `scorer_role`
+  - `court_lane`
+  - `shot_origin_depth`
+  - `goal_zone`
+  - `trajectory_visible`
+  - `derived_points`
+  - `review_marker`
+- O teste `test_lightweight_schema_update_adds_v1_event_columns_to_existing_sqlite_table` prova que um schema legado de `events` recebe as novas colunas por atualização leve, sem recriar a tabela.
+
+O que ainda não está pronto:
+
+- O fluxo legado de criação/edição de eventos ainda não preenche nem valida os novos campos v1.
+- A UI de `Marcação` ainda não separa módulos nem mostra os novos campos auxiliares.
+- Os relatórios e KPIs ainda não leem os novos campos do `Event`.
+- A taxonomia operacional ativa continua separada dos eventos v1.
+
+Limitações, gaps e riscos:
+
+- A atualização leve de schema adiciona colunas novas ao SQLite existente, mas não faz backfill semântico do histórico já salvo.
+- `derived_points` passou a existir no banco, mas ainda não substitui `points_value`; a convivência entre ambos é intencional nesta fase para não quebrar o fluxo legado.
+- Como `event_service.py` e `tagging.py` ainda não usam esses campos, esta fase prova prontidão estrutural do banco/modelo, não uso operacional completo.
+
+---
+
+## Ciclo — Eventos v1 passo 5: UI de marcação
+
+Fase atual declarada: `Eventos v1 / Passo 5 — adaptação da UI de marcação`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Atualização de `scoutpraia/pages/tagging.py` para separar a marcação em grupos visuais quando a taxonomia selecionada contém eventos v1:
+  - `Finalização v1.0`
+  - `Ataque sem finalização v1.0`
+  - `Eventos ativos da taxonomia`
+- A UI não expõe `specialist_finish_role` como botão.
+- A UI não expõe `shootout_attempt` dentro do bloco de `Finalização v1.0`.
+- Para `Finalização v1.0`:
+  - pontos manuais foram substituídos por `Pontos calculados`
+  - `result_possession` aparece com opções filtradas por evento
+  - `scorer_role` aparece como campo auxiliar
+  - `shot_origin_depth` e `court_lane` aparecem nas finalizações de jogo corrido
+  - `six_metre_throw` aceita apenas os resultados específicos do contrato
+- Para `Ataque sem finalização v1.0`:
+  - `result_possession` fica restrito a perda de posse sem arremesso
+  - a UI expõe `Causa da perda de posse` ou `Subtipo do jogo passivo`, conforme o evento
+  - pontos ficam travados em `0`
+- Atualização de `scoutpraia/services/event_service.py` para aceitar persistência dos eventos v1 sem quebrar o fluxo legado:
+  - delega validação/derivação ao serviço de `Finalização v1.0`
+  - delega validação ao serviço de `Ataque sem finalização v1.0`
+  - persiste `derived_points` e os novos campos explícitos do modelo quando o evento é v1
+- Atualização de `scoutpraia/ui_labels.py` com os novos rótulos dos códigos v1.
+
+Importante:
+
+- O seed padrão da taxonomia `ScoutPraia v0.1` **não** foi alterado para importar eventos v1 nesta fase.
+- A UI só mostra os blocos v1 quando a taxonomia selecionada já contém essas definições, como nos testes controlados desta rodada.
+
+Testes adicionados / ajustados:
+
+- `tests/test_tagging_finalization_v1_ui.py`
+- `tests/test_tagging_no_shot_attack_v1_ui.py`
+- `tests/test_event_service.py`
+- `tests/test_ui_labels.py`
+
+Testes executados:
+
+- `python3 -m pytest tests/test_event_service.py tests/test_ui_labels.py tests/test_tagging_finalization_v1_ui.py tests/test_tagging_no_shot_attack_v1_ui.py -q`
+- `python3 -m pytest tests/test_streamlit_pages.py -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_event_service.py tests/test_ui_labels.py tests/test_tagging_finalization_v1_ui.py tests/test_tagging_no_shot_attack_v1_ui.py -q
+9 passed in 2.57s
+
+python3 -m pytest tests/test_streamlit_pages.py -q
+11 passed in 4.39s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 106 items
+- 106 passed in 11.66s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- O teste `test_tagging_page_creates_finalization_v1_event_with_derived_points` prova que a UI:
+  - mostra `Arremesso simples`
+  - salva `simple_shot`
+  - deriva `points_value=2` para `goal + specialist`
+  - persiste `result_possession`, `scorer_role`, `court_lane` e `shot_origin_depth`
+- O teste `test_tagging_page_creates_no_shot_attack_v1_event` prova que a UI:
+  - mostra `Perda por erro de controle`
+  - salva `ball_control_turnover`
+  - persiste `result_possession=lost_possession_no_shot`
+  - persiste `event_subtype=bad_pass`
+  - mantém `points_value=0`
+- `tests/test_event_service.py` agora prova também a persistência dos novos campos v1 pelo serviço de eventos.
+
+O que ainda não está pronto:
+
+- Os relatórios e KPIs ainda não usam os novos campos v1 de forma explícita.
+- O seed padrão da taxonomia continua sem importar os eventos v1.
+- A edição de eventos v1 na UI foi adaptada no fluxo básico, mas a experiência completa ainda depende da fase de relatórios/KPIs e da decisão final de importação.
+
+Limitações, gaps e riscos:
+
+- Esta fase prova uso operacional dos eventos v1 apenas em taxonomias de teste/controladas; ela não altera a taxonomia seed ativa do produto.
+- `points_value` e `derived_points` continuam coexistindo; isso é intencional para preservar compatibilidade com o histórico legado.
+- Como a liberação de importação continua bloqueada, ainda existe diferença entre “UI pronta para o contrato” e “taxonomia padrão do app já migrada”.
+
+---
+
+## Ciclo — Eventos v1 passo 6: relatórios e KPIs
+
+Fase atual declarada: `Eventos v1 / Passo 6 — integração com relatórios e KPIs`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Atualização de `scoutpraia/services/analytics_service.py` para reconhecer os eventos v1 em taxonomias controladas.
+- Inclusão de métricas mínimas dos módulos v1:
+  - `no_shot_attack_total`
+  - `no_shot_attack_causes`
+  - `finalization_attempts_total`
+  - `finalization_efficiency_by_type`
+  - `points_by_technical_type`
+  - `points_by_scorer_role`
+  - `specialist_shots_total`
+  - `six_metre_throw_breakdown`
+- Ajuste dos contadores genéricos para que `goals_total`, `shot_attempts`, eficiência de 2 pontos e eficiência da especialista também reconheçam eventos v1 quando presentes.
+- Atualização dos templates:
+  - `scoutpraia/templates/report_collective.html`
+  - `scoutpraia/templates/report_individual.html`
+  - `scoutpraia/templates/report_opponent.html`
+- Normalização do retorno de `opponent_kpis()` para sempre expor as chaves v1, inclusive em cenários legados sem eventos suficientes.
+
+Importante:
+
+- O seed padrão `ScoutPraia v0.1` continua com `31` definições e **não** importa os eventos v1 nesta fase.
+- Os relatórios/KPIs v1 funcionam quando a taxonomia selecionada já contém as definições v1, como nas fixtures controladas de teste desta rodada.
+
+Testes adicionados:
+
+- `tests/test_reports_events_v1.py`
+
+Testes executados:
+
+- `python3 -m pytest tests/test_reports_events_v1.py -q`
+- `python3 -m pytest tests/test_analytics_service.py tests/test_report_service.py -q`
+- `python3 -m pytest tests/test_streamlit_pages.py::test_reports_page_generates_reports_via_ui -q`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_reports_events_v1.py -q
+2 passed in 1.48s
+
+python3 -m pytest tests/test_analytics_service.py tests/test_report_service.py -q
+4 passed in 1.67s
+
+python3 -m pytest tests/test_streamlit_pages.py::test_reports_page_generates_reports_via_ui -q
+1 passed in 1.57s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 108 items
+- 108 passed in 11.97s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- `tests/test_reports_events_v1.py` prova, com taxonomia v1 controlada, que os KPIs coletivos incluem:
+  - `Posses sem finalização = 2`
+  - causas `bad_pass` e `forewarning_expired`
+  - `Total de finalizações v1 = 3`
+  - aproveitamento por tipo de finalização
+  - pontos por tipo técnico
+  - pontos por `scorer_role`
+  - `Arremessos da especialista = 1`
+  - breakdown de `six_metre_throw`
+- O mesmo teste prova que os payloads coletivo, individual e de adversária expõem essas métricas.
+- O HTML coletivo gerado inclui explicitamente os campos novos do passo 6.
+- `tests/test_streamlit_pages.py::test_reports_page_generates_reports_via_ui` continua passando, o que prova ausência de regressão no fluxo legado da página de relatórios.
+
+O que ainda não está pronto:
+
+- O seed padrão da taxonomia não inclui os eventos v1.
+- A página de relatórios continua exibindo os blocos v1 apenas quando a taxonomia usada no jogo contém essas definições.
+- Ainda não há decisão de migração semântica do histórico legado para remapear automaticamente eventos antigos em equivalentes v1.
+
+Limitações, gaps e riscos:
+
+- Esta fase prova leitura analítica dos eventos v1 em taxonomias controladas, não migração completa da taxonomia padrão do produto.
+- Métricas legadas e métricas v1 convivem no mesmo serviço; isso foi feito para compatibilidade, mas aumenta a necessidade de clareza documental sobre qual taxonomia gerou cada relatório.
+- O histórico salvo com eventos antigos continua sendo interpretado pela lógica legada; não houve backfill para eventos v1.
+
+---
+
+## Ciclo — Eventos v1 passo 6A: correção dos KPIs inconsistentes e revisão do worktree
+
+Fase atual declarada: `Eventos v1 / estabilização de analytics antes de liberar importação`.
+
+Status: `IMPLEMENTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Correção de `scoutpraia/services/analytics_service.py` para que `individual_kpis()["conversion_by_type"]["specialist"]` deixe de depender apenas de `specialist_attempt`/`specialist_goal` legados.
+- Consolidação do mesmo bloco de `individual_kpis()` para que `conversion_by_type["two_point"]` use os mesmos helpers compatíveis com legado + v1, evitando incoerência interna depois da correção da especialista.
+- Correção de `opponent_kpis()["top_two_point_scorer_player_id"]` para usar gols de 2 pontos resolvidos por `derived_points` ou `points_value`, em vez de depender apenas de `event_type` legado.
+- Inclusão de testes focados nos dois bugs priorizados:
+  - consolidação legado + v1 da métrica da especialista;
+  - ranking da artilheira de 2 pontos da adversária com evento v1.
+- Ampliação do teste de payload de relatórios v1 para garantir que os KPIs corrigidos também chegam ao relatório individual e ao payload de adversária.
+
+Arquivos alterados nesta rodada:
+
+- `scoutpraia/services/analytics_service.py`
+- `tests/test_analytics_service.py`
+- `tests/test_reports_events_v1.py`
+
+Testes executados:
+
+- `python3 -m pytest tests/test_analytics_service.py tests/test_reports_events_v1.py -q`
+- `python3 -m pytest`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+- `git status --short`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_analytics_service.py tests/test_reports_events_v1.py -q
+- 6 passed in 1.05s
+
+python3 -m pytest
+- collected 110 items
+- 110 passed in 12.58s
+
+scripts/verify_current_state.sh
+- taxonomy=ScoutPraia v0.1
+- taxonomy_status=draft
+- event_definitions=31
+- expected_event_definitions=31
+- collected 110 items
+- 110 passed in 12.37s
+
+git diff --check
+- sem saída; sem erro de whitespace
+
+git status --short
+- worktree continua misto: arquivos rastreados modificados + arquivos v1 ainda não rastreados
+```
+
+Evidência funcional desta fase:
+
+- `test_individual_specialist_conversion_consolidates_legacy_and_v1_events` prova que a conversão da especialista agora soma mundo legado e v1 no mesmo KPI.
+- `test_opponent_top_two_point_scorer_uses_v1_resolved_points` prova que o ranking de 2 pontos da adversária reconhece `simple_shot + scorer_role=specialist` e outros gols v1 de 2 pontos.
+- `tests/test_reports_events_v1.py` agora prova também:
+  - `individual_payload["kpis"]["conversion_by_type"]["specialist"] == 1.0`
+  - `opponent_payload["kpis"]["top_two_point_scorer_player_id"]` preenchido por evento v1
+
+O que ainda não está pronto:
+
+- A taxonomia seed padrão continua em `ScoutPraia v0.1`, `draft`, sem importar os eventos v1.
+- A trilha v1 segue experimental/controlada; não houve promoção para taxonomia operacional padrão.
+- O worktree ainda não está curado para commit: há arquivos essenciais v1 não rastreados e vários arquivos rastreados modificados fora do escopo mínimo desta correção.
+
+Limitações, gaps e riscos:
+
+- A correção fecha a inconsistência analítica mais visível antes de qualquer promoção de v1, mas não resolve sozinha a governança de quais arquivos entram em um commit coerente.
+- O ranking de 2 pontos agora usa pontos resolvidos (`derived_points` com fallback para `points_value`); isso reduz dependência do nome do evento, mas continua assumindo que a persistência do evento v1 normaliza corretamente a pontuação.
+- Como a seed padrão não foi promovida, ainda existe diferença entre “analytics pronto para eventos v1 controlados” e “produto operando v1 por padrão”.

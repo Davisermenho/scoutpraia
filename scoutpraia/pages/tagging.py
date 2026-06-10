@@ -5,6 +5,7 @@ from collections.abc import Iterable
 import streamlit as st
 from sqlmodel import Session, select
 
+from scoutpraia.contracts.events_v1 import FINALIZATION_V1, NO_SHOT_ATTACK_V1
 from scoutpraia.core.database import create_db_and_tables, engine
 from scoutpraia.models.event import Event
 from scoutpraia.models.match import Match, Possession, SetSegment
@@ -16,6 +17,11 @@ from scoutpraia.services.event_service import (
     list_events_by_match,
     update_event,
 )
+from scoutpraia.services.finalization_contract_service import (
+    ALLOWED_RESULTS_BY_EVENT as FINALIZATION_ALLOWED_RESULTS,
+    FinalizationContractError,
+    derive_points as derive_finalization_points,
+)
 from scoutpraia.services.match_service import (
     delete_possession,
     delete_set_segment,
@@ -25,8 +31,15 @@ from scoutpraia.services.match_service import (
     update_possession,
     update_set_segment,
 )
+from scoutpraia.services.no_shot_attack_contract_service import (
+    ALLOWED_CAUSE_DETAILS_BY_EVENT,
+    NoShotAttackContractError,
+    PASSIVE_PLAY_APPROVED_SUBTYPES,
+    validate_record as validate_no_shot_attack_record,
+)
 from scoutpraia.ui_labels import (
     column_label,
+    display_value_label,
     event_type_label,
     team_side_label,
     zone_label,
@@ -39,6 +52,8 @@ QUICK_EVENT_TYPES = [
     "shot_attempt",
     "goal_scored",
     "two_point_goal",
+    "specialist_attempt",
+    "specialist_goal",
     "technical_error",
     "turnover",
     "assist",
@@ -50,6 +65,60 @@ QUICK_EVENT_TYPES = [
     "shootout_goal",
 ]
 TIME_INPUT_HELP = "Aceita segundos, MM:SS ou HH:MM:SS. Exemplos: 145, 02:25, 01:02:25, 02:25.4."
+FINALIZATION_EVENT_TYPES = tuple(
+    event_contract.event_code for event_contract in FINALIZATION_V1.primary_events
+)
+NO_SHOT_ATTACK_EVENT_TYPES = tuple(
+    event_contract.event_code for event_contract in NO_SHOT_ATTACK_V1.primary_events
+)
+RUNNING_FINALIZATION_EVENT_TYPES = frozenset(
+    {"simple_shot", "spin_shot", "inflight_shot", "goalkeeper_shot"}
+)
+ORDERED_FINALIZATION_RESULTS = [
+    "goal",
+    "save",
+    "shot_wide",
+    "shot_blocked",
+    "rebound_live",
+    "execution_invalid_6m",
+]
+SCORER_ROLE_OPTIONS = ["field_player", "specialist", "goalkeeper"]
+COURT_LANE_OPTIONS = ["left_lane", "center_lane", "right_lane"]
+SHOT_ORIGIN_DEPTH_OPTIONS = [
+    "six_metre_line",
+    "nine_metre_band",
+    "long_range",
+]
+CHOICE_LABELS = {
+    "goal": "Gol",
+    "save": "Defesa",
+    "shot_wide": "Para fora",
+    "shot_blocked": "Bloqueado",
+    "rebound_live": "Rebote vivo",
+    "execution_invalid_6m": "Execução inválida de 6m",
+    "lost_possession_no_shot": "Perda de posse sem arremesso",
+    "field_player": "Jogadora de linha",
+    "specialist": "Especialista",
+    "goalkeeper": "Goleira",
+    "left_lane": "Corredor esquerdo",
+    "center_lane": "Corredor central",
+    "right_lane": "Corredor direito",
+    "six_metre_line": "Linha dos 6m",
+    "nine_metre_band": "Faixa dos 9m",
+    "long_range": "Longa distância",
+    "bad_pass": "Passe errado",
+    "bad_reception": "Recepção falha",
+    "travelling": "Andada",
+    "double_dribble": "Duplo drible",
+    "foot_fault": "Violação de pé",
+    "area_invasion": "Invasão de área",
+    "offensive_foul": "Falta de ataque",
+    "line_violation": "Violação de linha",
+    "forewarning_expired": "Aviso de passivo expirado",
+    "clear_chance_refused": "Chance clara recusada",
+    "illegal_substitution": "Troca irregular",
+    "extra_attacker_entry_error": "Erro de entrada da atacante extra",
+}
 
 
 def render() -> None:
@@ -134,6 +203,10 @@ def _init_state() -> None:
     st.session_state.setdefault("tagging_zone", None)
     st.session_state.setdefault("tagging_possession", None)
     st.session_state.setdefault("tagging_points", 0)
+    st.session_state.setdefault("tagging_result_possession", None)
+    st.session_state.setdefault("tagging_scorer_role", None)
+    st.session_state.setdefault("tagging_court_lane", None)
+    st.session_state.setdefault("tagging_shot_origin_depth", None)
     st.session_state.setdefault("tagging_event_subtype", "")
     st.session_state.setdefault("tagging_outcome", "")
     st.session_state.setdefault("tagging_notes", "")
@@ -194,20 +267,22 @@ def _render_video(match: Match) -> None:
 
 def _render_quick_event_buttons(event_types: list[str]) -> None:
     st.subheader("Botões rápidos")
-    quick_types = [event_type for event_type in QUICK_EVENT_TYPES if event_type in event_types]
-    if not quick_types:
+    quick_groups = _quick_button_groups(event_types)
+    if not quick_groups:
         st.info("Nenhum evento rápido disponível para esta taxonomia.")
         return
 
-    button_columns = st.columns(3)
-    for index, event_type in enumerate(quick_types):
-        with button_columns[index % 3]:
-            if st.button(
-                event_type_label(event_type),
-                key=f"quick_event_{event_type}",
-                width="stretch",
-            ):
-                st.session_state["tagging_event_type"] = event_type
+    for group_title, group_event_types in quick_groups:
+        st.markdown(f"**{group_title}**")
+        button_columns = st.columns(3)
+        for index, event_type in enumerate(group_event_types):
+            with button_columns[index % 3]:
+                if st.button(
+                    event_type_label(event_type),
+                    key=f"quick_event_{event_type}",
+                    width="stretch",
+                ):
+                    _apply_event_type_defaults(event_type)
 
 
 def _render_management_tools(session: Session, match_id: int) -> None:
@@ -545,6 +620,16 @@ def _render_event_form(
             if st.button(label, key=f"shift_timestamp_{label}"):
                 _shift_tagging_timestamp(delta)
 
+    event_type = st.selectbox(
+        "Evento",
+        options=event_types,
+        key="tagging_event_type",
+        format_func=event_type_label,
+    )
+    selected_event_type = st.session_state["tagging_event_type"]
+    _sync_contract_field_state(selected_event_type)
+    st.caption(_event_module_caption(selected_event_type))
+
     with st.form("create_event_form"):
         timestamp_input = st.text_input(
             "Timestamp do vídeo",
@@ -552,12 +637,6 @@ def _render_event_form(
             help=TIME_INPUT_HELP,
         )
         _render_time_input_preview(timestamp_input)
-        event_type = st.selectbox(
-            "Evento",
-            options=event_types,
-            key="tagging_event_type",
-            format_func=event_type_label,
-        )
         team_side = st.radio(
             "Lado",
             options=["team", "opponent"],
@@ -586,33 +665,43 @@ def _render_event_form(
             options=list(possession_options.keys()),
             key="tagging_possession",
         )
-        points_value = st.selectbox("Pontos", options=[0, 1, 2], key="tagging_points")
-        event_subtype = st.text_input("Subtipo", key="tagging_event_subtype")
-        outcome = st.text_input("Desfecho", key="tagging_outcome")
+        selected_event_type = st.session_state["tagging_event_type"]
+        result_possession, scorer_role, points_value = _render_contract_fields(
+            selected_event_type
+        )
+        if _is_legacy_event_type(selected_event_type):
+            event_subtype = st.text_input("Subtipo", key="tagging_event_subtype")
+            outcome = st.text_input("Desfecho", key="tagging_outcome")
+        else:
+            event_subtype = st.session_state.get("tagging_event_subtype", "")
+            outcome = st.session_state.get("tagging_outcome", "")
         notes = st.text_area("Notas", key="tagging_notes")
         submitted = st.form_submit_button("Salvar evento")
 
         if submitted:
             try:
                 timestamp_second = _parse_time_input(timestamp_input, "Timestamp do vídeo")
+                event_payload = _build_create_event_payload(
+                    match=match,
+                    taxonomy=taxonomy,
+                    selected_set_id=selected_set_id,
+                    possession_id=possession_options[possession_label],
+                    event_type=selected_event_type,
+                    player_id=player_options[player_label],
+                    secondary_player_id=player_options[secondary_player_label],
+                    team_side=team_side,
+                    timestamp_second=float(timestamp_second),
+                    zone_value=None if zone_label == "Sem zona" else zone_label,
+                    notes=notes or None,
+                    event_subtype=event_subtype or None,
+                    outcome=outcome or None,
+                    result_possession=result_possession,
+                    scorer_role=scorer_role,
+                    points_value=points_value,
+                )
                 created = create_event(
                     session,
-                    Event(
-                        match_id=match.id,
-                        set_id=selected_set_id,
-                        possession_id=possession_options[possession_label],
-                        taxonomy_version_id=taxonomy.id,
-                        event_type=event_type,
-                        event_subtype=event_subtype or None,
-                        player_id=player_options[player_label],
-                        secondary_player_id=player_options[secondary_player_label],
-                        team_side=team_side,
-                        timestamp_second=float(timestamp_second),
-                        outcome=outcome or None,
-                        zone=None if zone_label == "Sem zona" else zone_label,
-                        points_value=int(points_value),
-                        notes=notes or None,
-                    ),
+                    Event(**event_payload),
                 )
                 st.session_state["tagging_timestamp_second"] = float(created.timestamp_second)
                 st.success(f"Evento {created.id} salvo.")
@@ -812,34 +901,44 @@ def _render_event_editor(
                 ),
             ),
         )
-        points_value = st.selectbox(
-            "Pontos do evento",
-            options=[0, 1, 2],
-            index=[0, 1, 2].index(int(selected_event.points_value)),
-        )
-        event_subtype = st.text_input("Subtipo do evento", value=selected_event.event_subtype or "")
-        outcome = st.text_input("Desfecho do evento", value=selected_event.outcome or "")
+        (
+            result_possession,
+            scorer_role,
+            points_value,
+            event_subtype,
+            outcome,
+            court_lane,
+            shot_origin_depth,
+        ) = _render_edit_contract_fields(selected_event)
         notes = st.text_area("Notas do evento", value=selected_event.notes or "")
         update_submitted = st.form_submit_button("Atualizar evento selecionado")
         if update_submitted:
             try:
                 timestamp_second = _parse_time_input(timestamp_input, "Timestamp do evento")
-                updated = update_event(
-                    session,
-                    selected_event.id,
+                update_changes = _build_update_event_changes(
+                    selected_event=selected_event,
                     set_id=set_options[set_label],
                     possession_id=possession_options[possession_label],
-                    taxonomy_version_id=taxonomy_id,
+                    taxonomy_id=taxonomy_id,
                     event_type=event_type,
                     player_id=player_options[player_label],
                     secondary_player_id=player_options[secondary_player_label],
                     team_side=team_side,
                     timestamp_second=float(timestamp_second),
-                    zone=None if zone_label == "Sem zona" else zone_label,
-                    points_value=int(points_value),
-                    event_subtype=event_subtype or None,
-                    outcome=outcome or None,
+                    zone_value=None if zone_label == "Sem zona" else zone_label,
                     notes=notes or None,
+                    event_subtype=event_subtype,
+                    outcome=outcome,
+                    result_possession=result_possession,
+                    scorer_role=scorer_role,
+                    points_value=points_value,
+                    court_lane=court_lane,
+                    shot_origin_depth=shot_origin_depth,
+                )
+                updated = update_event(
+                    session,
+                    selected_event.id,
+                    **update_changes,
                 )
                 st.success(f"Evento {updated.id} atualizado.")
             except ValueError as exc:
@@ -926,6 +1025,41 @@ def _sync_selected_event_type(event_types: list[str]) -> None:
     if st.session_state["tagging_event_type"] not in event_types:
         st.session_state["tagging_event_type"] = event_types[0]
 
+    selected_event_type = st.session_state["tagging_event_type"]
+    last_synced_type = st.session_state.get("tagging_last_event_type_synced")
+    if selected_event_type == last_synced_type:
+        return
+
+    _apply_event_type_defaults(selected_event_type)
+
+
+def _apply_event_type_defaults(event_type: str) -> None:
+    default_result = _default_result_possession(event_type)
+    default_scorer_role = _default_scorer_role(event_type)
+    point_defaults = {
+        "goal_scored": 1,
+        "goal_conceded": 1,
+        "two_point_goal": 2,
+        "specialist_goal": 2,
+        "inflight_goal": 2,
+        "shootout_goal": 2,
+    }
+    st.session_state["tagging_event_type"] = event_type
+    st.session_state["tagging_points"] = point_defaults.get(event_type, 0)
+    st.session_state["tagging_result_possession"] = default_result
+    st.session_state["tagging_scorer_role"] = default_scorer_role
+    st.session_state["tagging_court_lane"] = _default_choice(COURT_LANE_OPTIONS)
+    st.session_state["tagging_shot_origin_depth"] = _default_choice(
+        SHOT_ORIGIN_DEPTH_OPTIONS
+    )
+    if _is_no_shot_attack_event(event_type):
+        st.session_state["tagging_event_subtype"] = _default_no_shot_subtype(event_type)
+        st.session_state["tagging_outcome"] = default_result or ""
+    elif _is_finalization_event(event_type):
+        st.session_state["tagging_event_subtype"] = ""
+        st.session_state["tagging_outcome"] = default_result or ""
+    st.session_state["tagging_last_event_type_synced"] = event_type
+
 
 def _sync_new_set_form_state(next_set_number: int) -> None:
     pending_state = st.session_state.pop("pending_new_set_state", None)
@@ -971,6 +1105,7 @@ def _sync_event_form_state(session: Session, match_id: int) -> None:
         st.session_state["tagging_zone"] = "Sem zona"
     if st.session_state.get("tagging_points") not in {0, 1, 2}:
         st.session_state["tagging_points"] = 0
+    _sync_contract_field_state(st.session_state["tagging_event_type"])
 
     selected_set_id = set_options[st.session_state["tagging_set"]]
     possession_options = _possession_options(session, match_id, selected_set_id)
@@ -1119,3 +1254,475 @@ def _render_time_input_preview(raw_value: str) -> None:
 
 def _match_label(match: Match) -> str:
     return f"Jogo {match.id} — {match.competition_name or 'sem competição'}"
+
+
+def _quick_button_groups(event_types: list[str]) -> list[tuple[str, list[str]]]:
+    finalization = [event_type for event_type in FINALIZATION_EVENT_TYPES if event_type in event_types]
+    no_shot_attack = [
+        event_type for event_type in NO_SHOT_ATTACK_EVENT_TYPES if event_type in event_types
+    ]
+    legacy = [
+        event_type
+        for event_type in QUICK_EVENT_TYPES
+        if event_type in event_types
+        and event_type not in FINALIZATION_EVENT_TYPES
+        and event_type not in NO_SHOT_ATTACK_EVENT_TYPES
+    ]
+    groups: list[tuple[str, list[str]]] = []
+    if finalization:
+        groups.append(("Finalização v1.0", finalization))
+    if no_shot_attack:
+        groups.append(("Ataque sem finalização v1.0", no_shot_attack))
+    if legacy:
+        groups.append(("Eventos ativos da taxonomia", legacy))
+    return groups
+
+
+def _is_finalization_event(event_type: str) -> bool:
+    return event_type in FINALIZATION_EVENT_TYPES
+
+
+def _is_no_shot_attack_event(event_type: str) -> bool:
+    return event_type in NO_SHOT_ATTACK_EVENT_TYPES
+
+
+def _is_legacy_event_type(event_type: str) -> bool:
+    return not _is_finalization_event(event_type) and not _is_no_shot_attack_event(
+        event_type
+    )
+
+
+def _event_module_caption(event_type: str) -> str:
+    if _is_finalization_event(event_type):
+        return "Modo: Finalização v1.0. Pontos derivados automaticamente pelo contrato."
+    if _is_no_shot_attack_event(event_type):
+        return "Modo: Ataque sem finalização v1.0. Perda de posse sem arremesso."
+    return "Modo: taxonomia ativa legada. Pontos manuais continuam disponíveis."
+
+
+def _sync_contract_field_state(event_type: str) -> None:
+    result_options = _result_options_for_event(event_type)
+    if result_options and st.session_state.get("tagging_result_possession") not in result_options:
+        st.session_state["tagging_result_possession"] = result_options[0]
+
+    if _is_finalization_event(event_type):
+        scorer_options = _scorer_role_options_for_event(event_type)
+        if st.session_state.get("tagging_scorer_role") not in scorer_options:
+            st.session_state["tagging_scorer_role"] = scorer_options[0]
+        if st.session_state.get("tagging_court_lane") not in COURT_LANE_OPTIONS:
+            st.session_state["tagging_court_lane"] = COURT_LANE_OPTIONS[0]
+        if st.session_state.get("tagging_shot_origin_depth") not in SHOT_ORIGIN_DEPTH_OPTIONS:
+            st.session_state["tagging_shot_origin_depth"] = SHOT_ORIGIN_DEPTH_OPTIONS[0]
+
+    if _is_no_shot_attack_event(event_type):
+        allowed_subtypes = _no_shot_subtype_options(event_type)
+        if allowed_subtypes:
+            if st.session_state.get("tagging_event_subtype") not in allowed_subtypes:
+                st.session_state["tagging_event_subtype"] = allowed_subtypes[0]
+        else:
+            st.session_state["tagging_event_subtype"] = ""
+
+
+def _render_contract_fields(
+    event_type: str,
+) -> tuple[str | None, str | None, int]:
+    if _is_finalization_event(event_type):
+        result_options = _result_options_for_event(event_type)
+        result_possession = st.selectbox(
+            "Resultado da finalização",
+            options=result_options,
+            key="tagging_result_possession",
+            format_func=_choice_label,
+        )
+        scorer_role = st.selectbox(
+            "Papel da arremessadora",
+            options=_scorer_role_options_for_event(event_type),
+            key="tagging_scorer_role",
+            format_func=_choice_label,
+        )
+        if event_type in RUNNING_FINALIZATION_EVENT_TYPES:
+            st.selectbox(
+                "Profundidade da origem do arremesso",
+                options=SHOT_ORIGIN_DEPTH_OPTIONS,
+                key="tagging_shot_origin_depth",
+                format_func=_choice_label,
+            )
+            st.selectbox(
+                "Corredor da quadra",
+                options=COURT_LANE_OPTIONS,
+                key="tagging_court_lane",
+                format_func=_choice_label,
+            )
+        preview_points = _preview_finalization_points(event_type, result_possession, scorer_role)
+        st.text_input("Pontos calculados", value=str(preview_points), disabled=True)
+        return result_possession, scorer_role, int(preview_points)
+
+    if _is_no_shot_attack_event(event_type):
+        result_possession = st.selectbox(
+            "Resultado da posse",
+            options=_result_options_for_event(event_type),
+            key="tagging_result_possession",
+            format_func=_choice_label,
+        )
+        subtype_options = _no_shot_subtype_options(event_type)
+        if subtype_options:
+            label = (
+                "Subtipo do jogo passivo"
+                if event_type == "passive_play_turnover"
+                else "Causa da perda de posse"
+            )
+            st.selectbox(
+                label,
+                options=subtype_options,
+                key="tagging_event_subtype",
+                format_func=_choice_label,
+            )
+        st.text_input("Pontos calculados", value="0", disabled=True)
+        return result_possession, None, 0
+
+    points_value = st.selectbox("Pontos", options=[0, 1, 2], key="tagging_points")
+    return None, None, int(points_value)
+
+
+def _build_create_event_payload(
+    *,
+    match: Match,
+    taxonomy: TaxonomyVersion,
+    selected_set_id: int | None,
+    possession_id: int | None,
+    event_type: str,
+    player_id: int | None,
+    secondary_player_id: int | None,
+    team_side: str,
+    timestamp_second: float,
+    zone_value: str | None,
+    notes: str | None,
+    event_subtype: str | None,
+    outcome: str | None,
+    result_possession: str | None,
+    scorer_role: str | None,
+    points_value: int,
+) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "match_id": match.id,
+        "set_id": selected_set_id,
+        "possession_id": possession_id,
+        "taxonomy_version_id": taxonomy.id,
+        "event_type": event_type,
+        "event_subtype": event_subtype,
+        "player_id": player_id,
+        "secondary_player_id": secondary_player_id,
+        "team_side": team_side,
+        "timestamp_second": timestamp_second,
+        "outcome": outcome,
+        "zone": zone_value,
+        "points_value": points_value,
+        "notes": notes,
+        "result_possession": result_possession,
+        "scorer_role": scorer_role,
+    }
+    if _is_finalization_event(event_type):
+        derived_points = _validate_finalization_form_data(
+            event_type=event_type,
+            result_possession=result_possession,
+            scorer_role=scorer_role,
+        )
+        payload["points_value"] = derived_points
+        payload["derived_points"] = derived_points
+        payload["outcome"] = result_possession
+        payload["court_lane"] = st.session_state.get("tagging_court_lane")
+        payload["shot_origin_depth"] = st.session_state.get("tagging_shot_origin_depth")
+    elif _is_no_shot_attack_event(event_type):
+        _validate_no_shot_attack_form_data(
+            event_type=event_type,
+            result_possession=result_possession,
+            event_subtype=event_subtype,
+        )
+        payload["points_value"] = 0
+        payload["derived_points"] = 0
+        payload["outcome"] = result_possession
+    return payload
+
+
+def _render_edit_contract_fields(
+    selected_event: Event,
+) -> tuple[str | None, str | None, int, str | None, str | None, str | None, str | None]:
+    if _is_finalization_event(selected_event.event_type):
+        result_options = _result_options_for_event(selected_event.event_type)
+        default_result = (
+            selected_event.result_possession
+            if selected_event.result_possession in result_options
+            else result_options[0]
+        )
+        result_possession = st.selectbox(
+            "Resultado da finalização do evento",
+            options=result_options,
+            index=_option_index(result_options, default_result),
+            format_func=_choice_label,
+        )
+        scorer_options = _scorer_role_options_for_event(selected_event.event_type)
+        default_scorer_role = (
+            selected_event.scorer_role
+            if selected_event.scorer_role in scorer_options
+            else scorer_options[0]
+        )
+        scorer_role = st.selectbox(
+            "Papel da arremessadora do evento",
+            options=scorer_options,
+            index=_option_index(scorer_options, default_scorer_role),
+            format_func=_choice_label,
+        )
+        court_lane = None
+        shot_origin_depth = None
+        if selected_event.event_type in RUNNING_FINALIZATION_EVENT_TYPES:
+            court_lane = st.selectbox(
+                "Corredor da quadra do evento",
+                options=COURT_LANE_OPTIONS,
+                index=_option_index(
+                    COURT_LANE_OPTIONS,
+                    selected_event.court_lane or COURT_LANE_OPTIONS[0],
+                ),
+                format_func=_choice_label,
+            )
+            shot_origin_depth = st.selectbox(
+                "Profundidade da origem do arremesso do evento",
+                options=SHOT_ORIGIN_DEPTH_OPTIONS,
+                index=_option_index(
+                    SHOT_ORIGIN_DEPTH_OPTIONS,
+                    selected_event.shot_origin_depth or SHOT_ORIGIN_DEPTH_OPTIONS[0],
+                ),
+                format_func=_choice_label,
+            )
+        preview_points = _preview_finalization_points(
+            selected_event.event_type,
+            result_possession,
+            scorer_role,
+        )
+        st.text_input("Pontos calculados do evento", value=str(preview_points), disabled=True)
+        return (
+            result_possession,
+            scorer_role,
+            preview_points,
+            None,
+            result_possession,
+            court_lane,
+            shot_origin_depth,
+        )
+
+    if _is_no_shot_attack_event(selected_event.event_type):
+        result_options = _result_options_for_event(selected_event.event_type)
+        result_possession = st.selectbox(
+            "Resultado da posse do evento",
+            options=result_options,
+            index=_option_index(
+                result_options,
+                selected_event.result_possession or result_options[0],
+            ),
+            format_func=_choice_label,
+        )
+        subtype_options = _no_shot_subtype_options(selected_event.event_type)
+        event_subtype = None
+        if subtype_options:
+            label = (
+                "Subtipo do jogo passivo do evento"
+                if selected_event.event_type == "passive_play_turnover"
+                else "Causa da perda de posse do evento"
+            )
+            event_subtype = st.selectbox(
+                label,
+                options=subtype_options,
+                index=_option_index(
+                    subtype_options,
+                    selected_event.event_subtype or subtype_options[0],
+                ),
+                format_func=_choice_label,
+            )
+        st.text_input("Pontos calculados do evento", value="0", disabled=True)
+        return result_possession, None, 0, event_subtype, result_possession, None, None
+
+    points_value = st.selectbox(
+        "Pontos do evento",
+        options=[0, 1, 2],
+        index=[0, 1, 2].index(int(selected_event.points_value)),
+    )
+    event_subtype = st.text_input("Subtipo do evento", value=selected_event.event_subtype or "")
+    outcome = st.text_input("Desfecho do evento", value=selected_event.outcome or "")
+    return None, None, int(points_value), event_subtype or None, outcome or None, None, None
+
+
+def _build_update_event_changes(
+    *,
+    selected_event: Event,
+    set_id: int | None,
+    possession_id: int | None,
+    taxonomy_id: int,
+    event_type: str,
+    player_id: int | None,
+    secondary_player_id: int | None,
+    team_side: str,
+    timestamp_second: float,
+    zone_value: str | None,
+    notes: str | None,
+    event_subtype: str | None,
+    outcome: str | None,
+    result_possession: str | None,
+    scorer_role: str | None,
+    points_value: int,
+    court_lane: str | None,
+    shot_origin_depth: str | None,
+) -> dict[str, object]:
+    changes: dict[str, object] = {
+        "set_id": set_id,
+        "possession_id": possession_id,
+        "taxonomy_version_id": taxonomy_id,
+        "event_type": event_type,
+        "player_id": player_id,
+        "secondary_player_id": secondary_player_id,
+        "team_side": team_side,
+        "timestamp_second": timestamp_second,
+        "zone": zone_value,
+        "points_value": points_value,
+        "event_subtype": event_subtype,
+        "outcome": outcome,
+        "notes": notes,
+        "result_possession": result_possession,
+        "scorer_role": scorer_role,
+        "court_lane": court_lane,
+        "shot_origin_depth": shot_origin_depth,
+    }
+    if _is_finalization_event(event_type):
+        derived_points = _validate_finalization_form_data(
+            event_type=event_type,
+            result_possession=result_possession,
+            scorer_role=scorer_role,
+        )
+        changes["points_value"] = derived_points
+        changes["derived_points"] = derived_points
+        changes["outcome"] = result_possession
+    elif _is_no_shot_attack_event(event_type):
+        _validate_no_shot_attack_form_data(
+            event_type=event_type,
+            result_possession=result_possession,
+            event_subtype=event_subtype,
+        )
+        changes["points_value"] = 0
+        changes["derived_points"] = 0
+        changes["outcome"] = result_possession
+        changes["scorer_role"] = None
+        changes["court_lane"] = None
+        changes["shot_origin_depth"] = None
+    else:
+        changes["result_possession"] = None
+        changes["scorer_role"] = None
+        changes["court_lane"] = None
+        changes["shot_origin_depth"] = None
+        changes["derived_points"] = None
+    return changes
+
+
+def _result_options_for_event(event_type: str) -> list[str]:
+    if _is_finalization_event(event_type):
+        return [
+            result
+            for result in ORDERED_FINALIZATION_RESULTS
+            if result in FINALIZATION_ALLOWED_RESULTS[event_type]
+        ]
+    if _is_no_shot_attack_event(event_type):
+        return ["lost_possession_no_shot"]
+    return []
+
+
+def _scorer_role_options_for_event(event_type: str) -> list[str]:
+    if event_type == "goalkeeper_shot":
+        return ["goalkeeper"]
+    if event_type == "simple_shot":
+        return ["field_player", "specialist"]
+    return ["field_player", "specialist", "goalkeeper"]
+
+
+def _default_result_possession(event_type: str) -> str | None:
+    options = _result_options_for_event(event_type)
+    return options[0] if options else None
+
+
+def _default_scorer_role(event_type: str) -> str | None:
+    options = _scorer_role_options_for_event(event_type) if _is_finalization_event(event_type) else []
+    return options[0] if options else None
+
+
+def _default_no_shot_subtype(event_type: str) -> str:
+    options = _no_shot_subtype_options(event_type)
+    return options[0] if options else ""
+
+
+def _no_shot_subtype_options(event_type: str) -> list[str]:
+    if not _is_no_shot_attack_event(event_type):
+        return []
+    if event_type == "passive_play_turnover":
+        return list(PASSIVE_PLAY_APPROVED_SUBTYPES)
+    return list(ALLOWED_CAUSE_DETAILS_BY_EVENT[event_type])
+
+
+def _preview_finalization_points(
+    event_type: str,
+    result_possession: str | None,
+    scorer_role: str | None,
+) -> int:
+    if not result_possession or not scorer_role:
+        return 0
+    try:
+        return derive_finalization_points(event_type, result_possession, scorer_role)
+    except FinalizationContractError:
+        return 0
+
+
+def _validate_finalization_form_data(
+    *,
+    event_type: str,
+    result_possession: str | None,
+    scorer_role: str | None,
+) -> int:
+    if not result_possession:
+        raise ValueError("Finalização v1 exige seleção de resultado.")
+    if not scorer_role:
+        raise ValueError("Finalização v1 exige seleção do papel da arremessadora.")
+    try:
+        return derive_finalization_points(event_type, result_possession, scorer_role)
+    except FinalizationContractError as exc:
+        raise ValueError(f"Contrato Finalização v1 inválido: {exc}") from exc
+
+
+def _validate_no_shot_attack_form_data(
+    *,
+    event_type: str,
+    result_possession: str | None,
+    event_subtype: str | None,
+) -> None:
+    if not result_possession:
+        raise ValueError("Ataque sem finalização v1 exige seleção de resultado.")
+    passive_subtype = event_subtype if event_type == "passive_play_turnover" else None
+    try:
+        validate_no_shot_attack_record(
+            event_code=event_type,
+            result_possession=result_possession,
+            team_in_possession=True,
+            turnover_cause_detail=event_subtype,
+            passive_subtype=passive_subtype,
+            shot_attempted=False,
+            is_offensive_transition=False,
+        )
+    except NoShotAttackContractError as exc:
+        raise ValueError(f"Contrato Ataque sem finalização v1 inválido: {exc}") from exc
+
+
+def _choice_label(value: str | None) -> str:
+    if value is None:
+        return "n/d"
+    if value in CHOICE_LABELS:
+        return CHOICE_LABELS[value]
+    translated = display_value_label(value)
+    return str(translated)
+
+
+def _default_choice(options: list[str]) -> str | None:
+    return options[0] if options else None

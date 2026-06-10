@@ -18,4 +18,12 @@ class Event(SQLModel, table=True):
     outcome: str | None = None
     zone: str | None = None
     points_value: int = Field(default=0, ge=0, le=2)
+    result_possession: str | None = None
+    scorer_role: str | None = None
+    court_lane: str | None = None
+    shot_origin_depth: str | None = None
+    goal_zone: str | None = None
+    trajectory_visible: bool | None = None
+    derived_points: int | None = Field(default=None, ge=0, le=2)
+    review_marker: bool | None = None
     notes: str | None = None

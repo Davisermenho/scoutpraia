@@ -22,8 +22,58 @@
       <li>Pontos por posse: {{ kpis.points_per_possession }}</li>
       <li>Conversão ofensiva: {{ kpis.offensive_conversion_rate }}</li>
       <li>Erro técnico por posse: {{ kpis.technical_error_rate }}</li>
+      <li>Posses sem finalização: {{ kpis.no_shot_attack_total }}</li>
+      <li>Total de finalizações v1: {{ kpis.finalization_attempts_total }}</li>
       <li>Eficiência 2 pontos: {{ kpis.two_point_efficiency }}</li>
+      <li>Eficiência da especialista: {{ kpis.specialist_efficiency }}</li>
       <li>Eficiência shoot-out: {{ kpis.shootout_efficiency }}</li>
+      <li>Arremessos da especialista: {{ kpis.specialist_shots_total }}</li>
+    </ul>
+
+    <h2>Eventos v1</h2>
+    <h3>Causas de perda sem finalização</h3>
+    <ul>
+      {% for cause, total in kpis.no_shot_attack_causes.items() %}
+      <li>{{ cause }}: {{ total }}</li>
+      {% else %}
+      <li>Sem perdas sem finalização v1.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Aproveitamento por tipo de finalização</h3>
+    <ul>
+      {% for event_type, efficiency in kpis.finalization_efficiency_by_type.items() %}
+      <li>{{ event_type }}: {{ efficiency }}</li>
+      {% else %}
+      <li>Sem finalizações v1.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Pontos por tipo técnico</h3>
+    <ul>
+      {% for event_type, points in kpis.points_by_technical_type.items() %}
+      <li>{{ event_type }}: {{ points }}</li>
+      {% else %}
+      <li>Sem pontos por tipo técnico v1.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Pontos por papel da arremessadora</h3>
+    <ul>
+      {% for scorer_role, points in kpis.points_by_scorer_role.items() %}
+      <li>{{ scorer_role }}: {{ points }}</li>
+      {% else %}
+      <li>Sem pontos por papel da arremessadora.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Tiros de 6m</h3>
+    <ul>
+      {% for result, total in kpis.six_metre_throw_breakdown.items() %}
+      <li>{{ result }}: {{ total }}</li>
+      {% else %}
+      <li>Sem tiros de 6m v1.</li>
+      {% endfor %}
     </ul>
 
     <h2>Avisos críticos</h2>

@@ -56,18 +56,34 @@ EVENT_DEFINITIONS = [
     },
     {
         "event_type": "two_point_attempt",
-        "definition": "tentativa de ação que pode valer 2 pontos",
-        "include_when": "spin, inflight, especialista/goleira ou shoot-out conforme regra aplicável",
-        "exclude_when": "arremesso comum",
-        "decision_rule": "separar tentativa de conversão",
+        "definition": "tentativa genérica de ação que pode valer 2 pontos",
+        "include_when": "há arremesso de 2 pontos sem classificação específica já identificada na taxonomia ativa",
+        "exclude_when": "spin, inflight, especialista ou shoot-out já classificados com evento próprio; arremesso comum",
+        "decision_rule": "usar como fallback legado quando o mecanismo exato do lance de 2 pontos não foi marcado",
         "evidence_type": "official_rule",
     },
     {
         "event_type": "two_point_goal",
-        "definition": "gol válido de 2 pontos",
-        "include_when": "ação especial resulta em gol confirmado",
-        "exclude_when": "gol comum, gol anulado ou erro de pontuação",
-        "decision_rule": "points_value deve ser 2",
+        "definition": "gol genérico válido de 2 pontos",
+        "include_when": "gol de 2 pontos sem classificação específica já identificada na taxonomia ativa",
+        "exclude_when": "gol comum, gol anulado ou gol já classificado como inflight, especialista ou shoot-out",
+        "decision_rule": "points_value deve ser 2; preferir evento específico quando o mecanismo do lance estiver claro",
+        "evidence_type": "official_rule",
+    },
+    {
+        "event_type": "specialist_attempt",
+        "definition": "tentativa de finalização executada pela atleta atuando como especialista",
+        "include_when": "atleta com colete/uniforme de especialista finaliza, convertendo ou não",
+        "exclude_when": "arremesso comum de atleta de linha, inflight já classificado, shoot-out ou lance sem confirmação visual da especialista",
+        "decision_rule": "usar somente quando a função de especialista estiver visível no vídeo ou operacionalmente confirmada",
+        "evidence_type": "official_rule",
+    },
+    {
+        "event_type": "specialist_goal",
+        "definition": "gol convertido pela atleta atuando como especialista",
+        "include_when": "finalização da especialista resulta em gol válido de 2 pontos",
+        "exclude_when": "gol comum, gol anulado, shoot-out ou gol já classificado por outra mecânica específica",
+        "decision_rule": "points_value deve ser 2; usar apenas com confirmação visual/operacional da especialista em quadra",
         "evidence_type": "official_rule",
     },
     {
@@ -258,6 +274,22 @@ def seed_taxonomy(session: Session) -> TaxonomyVersion:
                     **definition_data,
                 )
             )
+            continue
+
+        changed = False
+        for field_name in (
+            "definition",
+            "include_when",
+            "exclude_when",
+            "decision_rule",
+            "evidence_type",
+        ):
+            new_value = definition_data.get(field_name)
+            if getattr(existing, field_name) != new_value:
+                setattr(existing, field_name, new_value)
+                changed = True
+        if changed:
+            session.add(existing)
 
     session.commit()
     session.refresh(taxonomy)

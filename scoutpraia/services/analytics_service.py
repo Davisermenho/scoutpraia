@@ -6,18 +6,40 @@ import pandas as pd
 OFFENSIVE_ATTEMPT_EVENTS = {
     "shot_attempt",
     "two_point_attempt",
+    "specialist_attempt",
     "inflight_attempt",
     "shootout_attempt",
     "spin_shot",
+    "simple_shot",
+    "inflight_shot",
+    "goalkeeper_shot",
+    "six_metre_throw",
 }
 GOAL_EVENTS = {
     "goal_scored",
     "two_point_goal",
+    "specialist_goal",
     "inflight_goal",
     "shootout_goal",
 }
-TWO_POINT_ATTEMPT_EVENTS = {"two_point_attempt"}
-TWO_POINT_GOAL_EVENTS = {"two_point_goal"}
+FINALIZATION_V1_EVENTS = {
+    "simple_shot",
+    "spin_shot",
+    "inflight_shot",
+    "goalkeeper_shot",
+    "six_metre_throw",
+}
+NO_SHOT_ATTACK_V1_EVENTS = {
+    "ball_control_turnover",
+    "offensive_foul_turnover",
+    "passive_play_turnover",
+    "substitution_error_turnover",
+}
+SIX_METRE_THROW_EVENTS = {"six_metre_throw"}
+TWO_POINT_ATTEMPT_EVENTS = {"two_point_attempt", "specialist_attempt"}
+TWO_POINT_GOAL_EVENTS = {"two_point_goal", "specialist_goal"}
+SPECIALIST_ATTEMPT_EVENTS = {"specialist_attempt"}
+SPECIALIST_GOAL_EVENTS = {"specialist_goal"}
 SHOOTOUT_ATTEMPT_EVENTS = {"shootout_attempt"}
 SHOOTOUT_GOAL_EVENTS = {"shootout_goal"}
 SAVE_EVENTS = {"save", "save_shootout"}
@@ -45,15 +67,17 @@ def collective_kpis(
     defensive_possessions = possessions_df[possessions_df["team_side"] == "opponent"]
 
     points_total = int(team_events["points_value"].sum()) if not team_events.empty else 0
-    goals_total = _count_events(team_events, GOAL_EVENTS)
-    shot_attempts = _count_events(team_events, OFFENSIVE_ATTEMPT_EVENTS)
+    goals_total = _count_goals(team_events)
+    shot_attempts = _count_attempts(team_events)
     offensive_possession_total = int(len(offensive_possessions))
     defensive_possession_total = int(len(defensive_possessions))
     technical_errors = _count_events(team_events, {"technical_error"})
     defensive_stops = _count_events(team_events, {"defensive_stop"})
     transition_goals_conceded = _count_transition_goals_conceded(events_df)
-    two_point_attempts = _count_events(team_events, TWO_POINT_ATTEMPT_EVENTS)
-    two_point_goals = _count_events(team_events, TWO_POINT_GOAL_EVENTS)
+    two_point_attempts = _count_two_point_attempts(team_events)
+    two_point_goals = _count_two_point_goals(team_events)
+    specialist_attempts = _count_specialist_attempts(team_events)
+    specialist_goals = _count_specialist_goals(team_events)
     shootout_attempts = _count_events(team_events, SHOOTOUT_ATTEMPT_EVENTS)
     shootout_goals = _count_events(team_events, SHOOTOUT_GOAL_EVENTS)
 
@@ -72,7 +96,16 @@ def collective_kpis(
         ),
         "transition_goals_conceded": transition_goals_conceded,
         "two_point_efficiency": _safe_ratio(two_point_goals, two_point_attempts),
+        "specialist_efficiency": _safe_ratio(specialist_goals, specialist_attempts),
         "shootout_efficiency": _safe_ratio(shootout_goals, shootout_attempts),
+        "no_shot_attack_total": _count_events(team_events, NO_SHOT_ATTACK_V1_EVENTS),
+        "no_shot_attack_causes": _no_shot_attack_causes(team_events),
+        "finalization_attempts_total": _count_events(team_events, FINALIZATION_V1_EVENTS),
+        "finalization_efficiency_by_type": _finalization_efficiency_by_type(team_events),
+        "points_by_technical_type": _points_by_technical_type(team_events),
+        "points_by_scorer_role": _points_by_scorer_role(team_events),
+        "specialist_shots_total": _count_specialist_shots_total(team_events),
+        "six_metre_throw_breakdown": _six_metre_throw_breakdown(team_events),
         "set_performance": _set_performance(team_events, set_segments),
         "critical_warnings": _critical_warnings(
             events_df, taxonomy_status, event_definitions
@@ -97,9 +130,9 @@ def individual_kpis(
 
     for player_id, player_events in team_events.groupby("player_id", sort=True):
         player_id_int = int(player_id)
-        total_attempts = _count_events(player_events, OFFENSIVE_ATTEMPT_EVENTS)
-        total_goals = _count_events(player_events, GOAL_EVENTS)
-        goals_by_zone = player_events[player_events["event_type"].isin(GOAL_EVENTS)]
+        total_attempts = _count_attempts(player_events)
+        total_goals = _count_goals(player_events)
+        goals_by_zone = player_events[_goal_mask(player_events)]
 
         result[player_id_int] = {
             "shot_attempts": total_attempts,
@@ -111,8 +144,12 @@ def individual_kpis(
                     _count_events(player_events, {"shot_attempt"}),
                 ),
                 "two_point": _safe_ratio(
-                    _count_events(player_events, TWO_POINT_GOAL_EVENTS),
-                    _count_events(player_events, TWO_POINT_ATTEMPT_EVENTS),
+                    _count_two_point_goals(player_events),
+                    _count_two_point_attempts(player_events),
+                ),
+                "specialist": _safe_ratio(
+                    _count_specialist_goals(player_events),
+                    _count_specialist_attempts(player_events),
                 ),
                 "inflight": _safe_ratio(
                     _count_events(player_events, {"inflight_goal"}),
@@ -129,6 +166,16 @@ def individual_kpis(
             "steals": _count_events(player_events, {"steal"}),
             "blocks": _count_events(player_events, {"block"}),
             "saves": _count_events(player_events, SAVE_EVENTS),
+            "finalization_attempts_total": _count_events(
+                player_events, FINALIZATION_V1_EVENTS
+            ),
+            "finalization_efficiency_by_type": _finalization_efficiency_by_type(
+                player_events
+            ),
+            "points_by_technical_type": _points_by_technical_type(player_events),
+            "points_by_scorer_role": _points_by_scorer_role(player_events),
+            "specialist_shots_total": _count_specialist_shots_total(player_events),
+            "six_metre_throw_breakdown": _six_metre_throw_breakdown(player_events),
             "direct_goal_participation": total_goals
             + _count_events(player_events, {"assist"}),
             "critical_warnings": warnings,
@@ -155,14 +202,23 @@ def opponent_kpis(
             "top_two_point_scorer_player_id": None,
             "pressure_error_rate": None,
             "transition_vulnerability": None,
+            "specialist_efficiency": None,
             "shootout_efficiency": None,
+            "no_shot_attack_total": 0,
+            "no_shot_attack_causes": {},
+            "finalization_attempts_total": 0,
+            "finalization_efficiency_by_type": {},
+            "points_by_technical_type": {},
+            "points_by_scorer_role": {},
+            "specialist_shots_total": 0,
+            "six_metre_throw_breakdown": {},
             "critical_warnings": _critical_warnings(
                 events_df, taxonomy_status, event_definitions
             ),
         }
 
     shooting_events = opponent_events[
-        opponent_events["event_type"].isin(OFFENSIVE_ATTEMPT_EVENTS | GOAL_EVENTS)
+        _attempt_mask(opponent_events) | _goal_mask(opponent_events)
     ]
     side_counts = (
         shooting_events["zone"].fillna("").map(_attack_side).value_counts().to_dict()
@@ -174,12 +230,7 @@ def opponent_kpis(
     most_frequent_shooter = _top_player_id(
         shooting_events[shooting_events["player_id"].notna()]
     )
-    top_two_point_scorer = _top_player_id(
-        opponent_events[
-            opponent_events["event_type"].isin(TWO_POINT_GOAL_EVENTS)
-            & opponent_events["player_id"].notna()
-        ]
-    )
+    top_two_point_scorer = _top_two_point_scorer_player_id(opponent_events)
     pressure_error_rate = _safe_ratio(
         _count_events(opponent_events, {"forced_error"}),
         int(len(opponent_possessions)),
@@ -187,6 +238,10 @@ def opponent_kpis(
     transition_vulnerability = _safe_ratio(
         _count_transition_events(opponent_events),
         int(len(opponent_possessions)),
+    )
+    specialist_efficiency = _safe_ratio(
+        _count_specialist_goals(opponent_events),
+        _count_specialist_attempts(opponent_events),
     )
     shootout_efficiency = _safe_ratio(
         _count_events(opponent_events, SHOOTOUT_GOAL_EVENTS),
@@ -199,7 +254,20 @@ def opponent_kpis(
         "top_two_point_scorer_player_id": top_two_point_scorer,
         "pressure_error_rate": pressure_error_rate,
         "transition_vulnerability": transition_vulnerability,
+        "specialist_efficiency": specialist_efficiency,
         "shootout_efficiency": shootout_efficiency,
+        "no_shot_attack_total": _count_events(opponent_events, NO_SHOT_ATTACK_V1_EVENTS),
+        "no_shot_attack_causes": _no_shot_attack_causes(opponent_events),
+        "finalization_attempts_total": _count_events(
+            opponent_events, FINALIZATION_V1_EVENTS
+        ),
+        "finalization_efficiency_by_type": _finalization_efficiency_by_type(
+            opponent_events
+        ),
+        "points_by_technical_type": _points_by_technical_type(opponent_events),
+        "points_by_scorer_role": _points_by_scorer_role(opponent_events),
+        "specialist_shots_total": _count_specialist_shots_total(opponent_events),
+        "six_metre_throw_breakdown": _six_metre_throw_breakdown(opponent_events),
         "critical_warnings": _critical_warnings(
             events_df, taxonomy_status, event_definitions
         ),
@@ -215,8 +283,11 @@ def _events_frame(events: pd.DataFrame) -> pd.DataFrame:
         "team_side",
         "timestamp_second",
         "outcome",
+        "result_possession",
+        "scorer_role",
         "zone",
         "points_value",
+        "derived_points",
         "set_id",
         "possession_id",
     ]
@@ -251,6 +322,106 @@ def _count_events(events: pd.DataFrame, event_types: set[str]) -> int:
     if events.empty:
         return 0
     return int(events["event_type"].isin(event_types).sum())
+
+
+def _attempt_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    return events["event_type"].isin(OFFENSIVE_ATTEMPT_EVENTS)
+
+
+def _goal_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    legacy_goals = events["event_type"].isin(GOAL_EVENTS)
+    v1_goals = events["event_type"].isin(FINALIZATION_V1_EVENTS) & events[
+        "result_possession"
+    ].fillna("").eq("goal")
+    return legacy_goals | v1_goals
+
+
+def _count_attempts(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_attempt_mask(events).sum())
+
+
+def _count_goals(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_goal_mask(events).sum())
+
+
+def _two_point_attempt_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    legacy = events["event_type"].isin(TWO_POINT_ATTEMPT_EVENTS)
+    v1 = events["event_type"].isin(
+        {"spin_shot", "inflight_shot", "goalkeeper_shot", "six_metre_throw"}
+    ) | (
+        events["event_type"].eq("simple_shot")
+        & events["scorer_role"].fillna("").eq("specialist")
+    )
+    return legacy | v1
+
+
+def _two_point_goal_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    legacy = events["event_type"].isin(TWO_POINT_GOAL_EVENTS)
+    v1 = _two_point_attempt_mask(events) & events["result_possession"].fillna("").eq("goal")
+    return legacy | v1
+
+
+def _count_two_point_attempts(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_two_point_attempt_mask(events).sum())
+
+
+def _count_two_point_goals(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_two_point_goal_mask(events).sum())
+
+
+def _specialist_attempt_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    legacy = events["event_type"].isin(SPECIALIST_ATTEMPT_EVENTS)
+    v1 = events["event_type"].isin(FINALIZATION_V1_EVENTS) & events["scorer_role"].fillna(
+        ""
+    ).eq("specialist")
+    return legacy | v1
+
+
+def _specialist_goal_mask(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=bool)
+    legacy = events["event_type"].isin(SPECIALIST_GOAL_EVENTS)
+    v1 = _specialist_attempt_mask(events) & events["result_possession"].fillna("").eq("goal")
+    return legacy | v1
+
+
+def _count_specialist_attempts(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_specialist_attempt_mask(events).sum())
+
+
+def _count_specialist_goals(events: pd.DataFrame) -> int:
+    if events.empty:
+        return 0
+    return int(_specialist_goal_mask(events).sum())
+
+
+def _resolved_points(events: pd.DataFrame) -> pd.Series:
+    if events.empty:
+        return pd.Series(dtype=float)
+    resolved = events["derived_points"].where(
+        events["derived_points"].notna(), events["points_value"]
+    )
+    return pd.to_numeric(resolved, errors="coerce").fillna(0)
 
 
 def _safe_ratio(numerator: int, denominator: int) -> float | None:
@@ -308,6 +479,75 @@ def _zone_conversion(
     return result
 
 
+def _finalization_efficiency_by_type(events: pd.DataFrame) -> dict[str, float | None]:
+    if events.empty:
+        return {}
+    result: dict[str, float | None] = {}
+    for event_type in sorted(FINALIZATION_V1_EVENTS):
+        attempt_count = _count_events(events, {event_type})
+        goal_count = int(
+            (
+                events["event_type"].eq(event_type)
+                & events["result_possession"].fillna("").eq("goal")
+            ).sum()
+        )
+        result[event_type] = _safe_ratio(goal_count, attempt_count)
+    return result
+
+
+def _points_by_technical_type(events: pd.DataFrame) -> dict[str, int]:
+    if events.empty:
+        return {}
+    technical_events = events[events["event_type"].isin(FINALIZATION_V1_EVENTS)]
+    if technical_events.empty:
+        return {}
+    grouped = technical_events.groupby("event_type")["points_value"].sum().to_dict()
+    return {str(key): int(value) for key, value in grouped.items()}
+
+
+def _points_by_scorer_role(events: pd.DataFrame) -> dict[str, int]:
+    if events.empty:
+        return {}
+    scoped = events[
+        events["event_type"].isin(FINALIZATION_V1_EVENTS)
+        & events["scorer_role"].notna()
+    ]
+    if scoped.empty:
+        return {}
+    grouped = scoped.groupby("scorer_role")["points_value"].sum().to_dict()
+    return {str(key): int(value) for key, value in grouped.items()}
+
+
+def _count_specialist_shots_total(events: pd.DataFrame) -> int:
+    return _count_specialist_attempts(events)
+
+
+def _six_metre_throw_breakdown(events: pd.DataFrame) -> dict[str, int]:
+    if events.empty:
+        return {}
+    six_metre_events = events[events["event_type"].isin(SIX_METRE_THROW_EVENTS)]
+    if six_metre_events.empty:
+        return {}
+    counts = (
+        six_metre_events["result_possession"]
+        .fillna("unknown")
+        .value_counts()
+        .sort_index()
+        .to_dict()
+    )
+    return {str(key): int(value) for key, value in counts.items()}
+
+
+def _no_shot_attack_causes(events: pd.DataFrame) -> dict[str, int]:
+    if events.empty:
+        return {}
+    scoped = events[events["event_type"].isin(NO_SHOT_ATTACK_V1_EVENTS)]
+    if scoped.empty:
+        return {}
+    causes = scoped["event_subtype"].fillna(scoped["event_type"]).value_counts().sort_index()
+    return {str(key): int(value) for key, value in causes.to_dict().items()}
+
+
 def _attack_side(zone: str) -> str:
     if zone.startswith("left") or zone.startswith("6m_left"):
         return "left"
@@ -323,6 +563,21 @@ def _top_player_id(events: pd.DataFrame) -> int | None:
     if counts.empty:
         return None
     return int(counts.sort_values(ascending=False).index[0])
+
+
+def _top_two_point_scorer_player_id(events: pd.DataFrame) -> int | None:
+    if events.empty:
+        return None
+    scoped = events[
+        _goal_mask(events) & events["player_id"].notna() & _resolved_points(events).eq(2)
+    ]
+    if scoped.empty:
+        return None
+    scored_two_point_events = scoped.assign(resolved_points=_resolved_points(scoped))
+    points_by_player = scored_two_point_events.groupby("player_id")["resolved_points"].sum()
+    if points_by_player.empty:
+        return None
+    return int(points_by_player.sort_values(ascending=False).index[0])
 
 
 def _count_transition_goals_conceded(events: pd.DataFrame) -> int:

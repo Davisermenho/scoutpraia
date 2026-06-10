@@ -14,6 +14,10 @@ from scoutpraia.ui_labels import (
 def test_core_ui_labels_translate_known_internal_values() -> None:
     assert event_type_label("shot_attempt") == "Tentativa de finalização"
     assert event_type_label("goal_scored") == "Gol marcado"
+    assert event_type_label("specialist_attempt") == "Tentativa da especialista"
+    assert event_type_label("specialist_goal") == "Gol da especialista"
+    assert event_type_label("simple_shot") == "Arremesso simples"
+    assert event_type_label("ball_control_turnover") == "Perda por erro de controle"
     assert team_side_label("team") == "Equipe"
     assert team_side_label("opponent") == "Adversária"
     assert zone_label("left_wing") == "Ponta esquerda"
@@ -33,6 +37,7 @@ def test_kpi_preview_rows_use_portuguese_metric_labels() -> None:
         {
             "points_total": 5,
             "offensive_conversion_rate": 0.75,
+            "specialist_efficiency": 1.0,
             "preferred_attack_side": "left",
             "critical_warnings": ["alerta"],
         }
@@ -43,6 +48,10 @@ def test_kpi_preview_rows_use_portuguese_metric_labels() -> None:
         {
             column_label("metric"): kpi_label("offensive_conversion_rate"),
             column_label("value"): "0.75",
+        },
+        {
+            column_label("metric"): kpi_label("specialist_efficiency"),
+            column_label("value"): "1.0",
         },
         {
             column_label("metric"): kpi_label("preferred_attack_side"),
