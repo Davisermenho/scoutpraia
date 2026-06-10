@@ -21,20 +21,26 @@ Itens `hipótese` não entram em KPI final até passarem por validação.
 
 ## Governança de status taxonômico
 
-Objetivo: padronizar como cada status deve ser interpretado pelo agente, pela UI e pelos relatórios.
+### Status `draft` — exploração e ensaio
 
-| Status | O que permite | O que bloqueia | Impacto na UI | Impacto em KPIs | Impacto em relatórios | Ações para transformar em estável | Fontes e evidências verificáveis |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `draft` | marcação manual inicial, ensaio operacional, teste de fluxo e revisão exploratória | KPI final estável, interpretação conclusiva e promoção silenciosa para versão aprovada | pode aparecer na UI de marcação e edição, desde que a taxonomia usada esteja explícita | não deve sustentar KPI final sozinho | pode aparecer em prévia, mas com cautela metodológica e versão visível da taxonomia | registrar fonte, escrever definição operacional, aplicar regra de inclusão/exclusão, testar em vídeo, ajustar ambiguidade e gerar nova versão da taxonomia | `SRC-OBS-MEASUREMENT`; `docs/taxonomy_dictionary.md`; `docs/validation_protocol.md`; `docs/rag_workflow.md` |
-| `testing` | uso controlado em ensaios, comparação entre marcações, avaliação de utilidade prática e revisão por vídeo | congelamento como regra estável sem rodada de validação suficiente | pode aparecer na UI já em uso controlado, inclusive em ensaio humano com vídeo real | pode gerar indicador experimental, mas ainda não KPI final estável | pode entrar em prévia ou relatório com ressalva explícita | executar o protocolo de validação, comparar divergências, manter/ajustar/fundir/dividir/remover, repetir validação nos campos alterados | `SRC-IHF-RULES`; `SRC-NOTATIONAL-BH`; `SRC-OBS-MEASUREMENT`; `docs/validation_protocol.md` |
-| `approved` | uso oficial na taxonomia ativa, apoio a decisão de treino/jogo, KPI estável e relatório final sem ressalva metodológica central | alteração silenciosa sem nova versão, sem nova evidência e sem revalidação quando a semântica mudar | deve aparecer como opção consolidada e clara na UI | pode sustentar KPI final | pode sustentar relatório final como item confiável | congelar a versão, manter vínculo com fonte/evidência, controlar mudança por nova versão e revalidação quando necessário | `SRC-IHF-RULES`; `docs/sources/README.md`; `docs/validation_protocol.md`; `docs/rag_workflow.md` |
+- **Permite:** marcação manual, ensaio operacional, teste de fluxo, UI com taxonomia explícita
+- **Bloqueia:** KPI final estável, relatório final sem ressalva, promoção silenciosa
+- **Para avançar para `testing`:** registrar fonte + escrever definição operacional + marcação humana inicial em vídeo real
+- **Fontes:** `SRC-OBS-MEASUREMENT`; `docs/taxonomy_dictionary.md`; `docs/validation_protocol.md`
 
-### Notas operacionais sobre a tabela
+### Status `testing` — uso controlado
 
-- `draft` não significa “proibido usar”; significa “ainda não confiável como KPI final estável”.
-- `testing` existe para itens que já têm base suficiente para ensaio controlado, mas ainda dependem de prova observacional ou revisão metodológica.
-- `approved` só deve ser usado quando a definição estiver estável, a fonte estiver registrada e a validação em vídeo já tiver sido executada.
-- Se um item mudar de significado, ele não deve permanecer na mesma versão da taxonomia; a mudança deve gerar nova versão.
+- **Permite:** ensaio controlado, prévia de relatório com ressalva explícita, indicador experimental
+- **Bloqueia:** congelamento como regra estável sem rodada de validação suficiente, KPI final sem ressalva
+- **Para avançar para `approved`:** executar `docs/validation_protocol.md` → revisar divergências → congelar em nova versão da taxonomia
+- **Fontes:** `SRC-IHF-RULES`; `SRC-NOTATIONAL-BH`; `SRC-OBS-MEASUREMENT`; `docs/validation_protocol.md`
+
+### Status `approved` — uso oficial
+
+- **Permite:** KPI final estável, relatório final sem ressalva, uso em decisão de treino/jogo
+- **Bloqueia:** alteração silenciosa sem nova versão ou nova evidência
+- **Para alterar:** mudança de semântica exige nova versão de taxonomia e revalidação
+- **Fontes:** `SRC-IHF-RULES`; `docs/sources/README.md`; `docs/validation_protocol.md`
 
 ## Matriz inicial
 

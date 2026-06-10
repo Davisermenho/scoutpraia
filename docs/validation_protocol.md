@@ -155,6 +155,13 @@ review_scope=
 
 ### Bloco B — Evidência mínima para fechar `G5`
 
+Preencher antes de marcar qualquer item:
+
+```text
+operador=
+data_utc=
+```
+
 - [ ] UI carrega sem erro fatal
 - [ ] vídeo renderiza
 - [ ] `Salvar set` funciona
@@ -185,6 +192,13 @@ decision=APROVADO|REPROVADO|PARCIAL
 
 ### Bloco C — Revisão item a item para fechar `G1`
 
+Preencher antes de revisar qualquer item:
+
+```text
+operador=
+data_utc=
+```
+
 Aplicar este bloco para cada evento/campo relevante da taxonomia revisado na rodada.
 
 | Item | Status anterior | Evidência em vídeo | Divergência encontrada | Decisão | Status novo | Nova versão necessária? | Observação |
@@ -199,6 +213,13 @@ Aplicar este bloco para cada evento/campo relevante da taxonomia revisado na rod
 Se outros itens forem revisados, duplicar a linha e preencher.
 
 ### Bloco D — Gate de promoção de status
+
+Preencher antes de marcar qualquer item:
+
+```text
+operador=
+data_utc=
+```
 
 Marcar apenas quando a evidência mínima estiver satisfeita.
 
@@ -217,6 +238,13 @@ Marcar apenas quando a evidência mínima estiver satisfeita.
   - [ ] congelamento em nova versão da taxonomia
 
 ### Bloco E — Critério formal de fechamento
+
+Preencher antes de declarar fechamento:
+
+```text
+operador=
+data_utc=
+```
 
 `G5` pode ser fechado quando:
 
