@@ -55,6 +55,9 @@ ALLOWED_SUBTYPES_BY_EVENT = {
     "bad_substitution_attack": SUBSTITUTION_ERROR_SUBTYPES,
     "turnover_unclassified": frozenset({"unknown_video_quality", "unknown_obstructed_view"}),
 }
+# Backward-compatible name used by the current Streamlit tagging page/tests.
+# Keep it until the UI is fully migrated to the new terminology.
+ALLOWED_CAUSE_DETAILS_BY_EVENT = ALLOWED_SUBTYPES_BY_EVENT
 FORBIDDEN_DIRECT_CAUSES = frozenset(
     {
         "specialist_late",
