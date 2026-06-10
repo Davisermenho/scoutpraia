@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scoutpraia.local/contracts/attack_no_shot_v1.schema.json",
+  "title": "Attack No Shot Contract v1",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "project",
+    "module",
+    "version",
+    "status",
+    "semantic_source",
+    "implementation_source",
+    "runtime_source",
+    "test_source",
+    "module_rule",
+    "controlled_values",
+    "events"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_id": {"const": "attack_no_shot_v1"},
+    "project": {"const": "ScoutPraia"},
+    "module": {"const": "Ataque sem Finalização"},
+    "version": {"const": "v1.0"},
+    "status": {"enum": ["aprovado_para_implementacao", "validado_com_evidencia"]},
+    "semantic_source": {"type": "string", "minLength": 1},
+    "implementation_source": {"type": "string", "minLength": 1},
+    "runtime_source": {"type": "string", "minLength": 1},
+    "test_source": {"type": "string", "minLength": 1},
+    "module_rule": {
+      "type": "object",
+      "required": ["include_only_when", "exclude_when", "forbidden_fields", "derived_fields"],
+      "additionalProperties": false,
+      "properties": {
+        "include_only_when": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "exclude_when": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "forbidden_fields": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "derived_fields": {
+          "type": "object",
+          "required": ["result_possession_auto", "points"],
+          "additionalProperties": true,
+          "properties": {
+            "result_possession_auto": {"const": "lost_possession_no_shot"},
+            "points": {"const": 0}
+          }
+        }
+      }
+    },
+    "controlled_values": {
+      "type": "object",
+      "required": ["technical_error_subtype", "passive_play_subtype", "substitution_error_subtype"],
+      "additionalProperties": false,
+      "properties": {
+        "technical_error_subtype": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "passive_play_subtype": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "substitution_error_subtype": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {"$ref": "#/$defs/event"}
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": [
+        "code",
+        "name_ui",
+        "category",
+        "definition",
+        "include_when",
+        "exclude_when",
+        "decision_rule",
+        "allowed_points",
+        "required_fields",
+        "optional_fields",
+        "derived_fields",
+        "forbidden_fields",
+        "blocking_rules",
+        "ui_type",
+        "validation_source",
+        "status",
+        "positive_example",
+        "negative_example",
+        "common_error",
+        "acceptance_tests"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "name_ui": {"type": "string", "minLength": 1},
+        "category": {"const": "Ataque sem finalização"},
+        "definition": {"type": "string", "minLength": 1},
+        "include_when": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "exclude_when": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "decision_rule": {"type": "string", "minLength": 1},
+        "allowed_points": {"type": "array", "contains": {"const": 0}, "items": {"type": "integer"}},
+        "required_fields": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "optional_fields": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "derived_fields": {
+          "type": "object",
+          "required": ["result_possession_auto", "points"],
+          "additionalProperties": true,
+          "properties": {
+            "result_possession_auto": {"const": "lost_possession_no_shot"},
+            "points": {"const": 0}
+          }
+        },
+        "forbidden_fields": {"type": "array", "contains": {"const": "finish_type_code"}, "items": {"type": "string", "minLength": 1}},
+        "blocking_rules": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "ui_type": {"enum": ["botao_principal", "botao_secundario", "fallback_revisao"]},
+        "validation_source": {"type": "string", "minLength": 1},
+        "status": {"enum": ["novo", "revisar"]},
+        "positive_example": {"type": "string", "minLength": 1},
+        "negative_example": {"type": "string", "minLength": 1},
+        "common_error": {"type": "string", "minLength": 1},
+        "acceptance_tests": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "type"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "type": {"enum": ["PASS", "FAIL", "PASS/FAIL"]}
+            }
+          }
+        }
+      }
+    }
+  }
+}
