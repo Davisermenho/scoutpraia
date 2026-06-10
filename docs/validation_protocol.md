@@ -1,4 +1,26 @@
+---
+tipo: protocolo_validação
+G5_status: ABERTO
+G1_status: RESOLVIDO_PARCIALMENTE
+testes_passando: 110
+última_atualização: 2026-06-10
+gaps_abertos: ["G5 — validação humana com screenshots não executada"]
+nota: "MVP não pode ser declarado completo enquanto G5 estiver aberto"
+---
+
 # Protocolo de Validação do ScoutPraia
+
+## Status dos gaps de validação
+
+| Gap | Descrição | Status |
+| --- | --- | --- |
+| G1 | Taxonomia integralmente em `draft` | RESOLVIDO — `two_point_goal` promovido para `testing` em 2026-06-09 |
+| G5 | Validação humana com vídeo real e screenshots | **ABERTO** — checklist no Bloco B/E abaixo |
+| G7 | `validation_protocol.md` sem critérios numéricos | RESOLVIDO — κ > 0.81, ICC ≥ 0.90, α ≥ 0.90 registrados |
+
+**Para fechar G5:** executar o protocolo operacional na seção "Protocolo operacional repetível" abaixo e preencher todos os blocos A–E.
+
+---
 
 Objetivo: transformar a taxonomia em instrumento observacional confiável antes de usar KPIs como referência estável.
 

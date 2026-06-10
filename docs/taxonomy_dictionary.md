@@ -1,3 +1,13 @@
+---
+tipo: dicionário_taxonomia
+versão: ScoutPraia v0.1
+status_global: draft
+última_atualização: 2026-06-10
+regra_crítica: "Evento sem status approved não sustenta KPI final"
+leitura_obrigatória_para_agente: true
+nota: "Status global draft não impede marcação ou uso em testes; impede apenas KPI final estável"
+---
+
 # Dicionário Operacional da Taxonomia
 
 Versão inicial: `ScoutPraia v0.1`
@@ -9,6 +19,16 @@ Nota operacional:
 - o status acima é da versão da taxonomia como um todo;
 - itens individuais podem avançar para `testing` antes do fechamento completo da versão;
 - a versão só deve deixar de estar `draft` quando a validação observacional humana global estiver concluída.
+
+## Regra de uso por status
+
+| Status | Marcação manual | UI de marcação | KPI | Relatório |
+| --- | --- | --- | --- | --- |
+| `draft` | permitida com cautela | pode aparecer | NÃO sustenta KPI final | somente prévia com ressalva |
+| `testing` | permitida em ensaio controlado | aparece como opção em uso controlado | indicador experimental (não KPI final) | com ressalva metodológica explícita |
+| `approved` | uso oficial na taxonomia ativa | opção consolidada | sustenta KPI final estável | relatório final sem ressalva |
+
+Regra operacional: agente MUST NOT promover evento de `draft` diretamente para `approved` sem rodada de validação explícita registrada em `docs/validation_protocol.md`.
 
 ## Regra geral
 

@@ -1,4 +1,29 @@
+---
+tipo: fluxo_rag
+fase_atual: 1
+RAG_liberado: false
+critério_fase_2: "MVP funcional completo + G5 aprovado + fontes locais indexadas"
+última_atualização: 2026-06-10
+nota: "RAG (Fase 2) MUST NOT ser implementado antes do MVP funcional com G5 aprovado"
+---
+
 # Fluxo de Fontes, IA e RAG
+
+## RESTRIÇÃO CRÍTICA
+
+```
+MUST NOT: implementar RAG (Fase 2) antes do MVP estar funcional com G5 aprovado
+MUST NOT: usar RAG para decidir evento automaticamente durante marcação
+MUST NOT: inventar regra de taxonomia sem fonte registrada em docs/sources/README.md
+MUST NOT: gerar relatório sem indicar versão da taxonomia usada
+MUST NOT: alterar evento approved sem nova versão de taxonomia
+```
+
+**RAG está liberado:** NÃO — `RAG_liberado: false`
+
+**Critério para liberar Fase 2:** MVP funcional completo com G5 aprovado.
+
+---
 
 O RAG não é necessário para a marcação inicial do MVP. No ScoutPraia, ele deve funcionar como camada de auditoria e consulta de fontes.
 

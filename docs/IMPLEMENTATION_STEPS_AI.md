@@ -1,3 +1,13 @@
+---
+tipo: contrato_execução_agente
+status: REFERÊNCIA_ESTÁVEL
+fase_atual: 9
+status_fase_atual: PARCIAL
+leitura_obrigatória_para_agente: true
+última_atualização: 2026-06-10
+próxima_ação_imediata: "Executar G5 (validação humana) — ver seção 9 e docs/validation_protocol.md"
+---
+
 # ScoutPraia — Plano de Implementação para IA
 
 Este arquivo é o contrato de execução para uma IA implementar o ScoutPraia até o MVP completo. Ele deriva do `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e deve ser seguido na ordem.
@@ -6,22 +16,62 @@ A palavra "garantia" aqui significa garantia operacional por gates: a IA só pod
 
 ---
 
+## Fase atual e próxima ação
+
+**Fase atual: 9 — Validação operacional com vídeo real (PARCIAL)**
+
+Estado das fases:
+
+| Fase | Nome | Status |
+|------|------|--------|
+| 1 | Pré-implementação obrigatória | `[CONCLUÍDA]` |
+| 2 | Estrutura base do projeto | `[CONCLUÍDA]` |
+| 3 | Configuração, paths e banco | `[CONCLUÍDA]` |
+| 4 | Modelos de dados | `[CONCLUÍDA COMO BASE]` |
+| 5 | Taxonomia v0.1 | `[CONCLUÍDA]` |
+| 6 | Serviços internos | `[CONCLUÍDA COM EVIDÊNCIA]` |
+| 7 | Interface Streamlit | `[CONCLUÍDA COM EVIDÊNCIA]` |
+| 8 | Testes e fixtures | `[FUNCIONANDO — 110 testes]` |
+| 9 | Validação operacional com vídeo real | `[EM ANDAMENTO — G5 pendente]` |
+| 10 | README e operação local | `[CONCLUÍDA]` |
+| 11 | IA/RAG no ScoutPraia | `[BLOQUEADA — aguarda MVP completo]` |
+
+**Verificar estado atual antes de qualquer ação:**
+
+```bash
+scripts/verify_current_state.sh
+# resultado esperado: 110 passed
+```
+
+**Próxima ação:** executar o protocolo operacional de G5 em `docs/validation_protocol.md`.
+
+---
+
+---
+
 ## 0. Contrato de trabalho da IA
 
-### 0.1 Regras obrigatórias
+### 0.1 Restrições absolutas — ler antes de qualquer implementação
 
-- Implementar um monólito local em Python.
-- Não criar frontend React.
-- Não criar backend FastAPI separado.
-- Não criar API pública.
-- Não criar PostgreSQL.
-- Não criar autenticação.
-- Não criar multiusuário.
-- Não criar deploy.
-- Não versionar vídeos, banco local, clipes, relatórios gerados, `.env`, `.venv`, `tmp/` ou binários locais.
-- Não avançar fase se o gate de aceite da fase anterior falhar.
-- Corrigir causa raiz, não apenas silenciar erro.
-- Manter o MVP simples, local e utilizável por uma pessoa.
+```
+MUST NOT: criar frontend React
+MUST NOT: criar backend FastAPI separado
+MUST NOT: criar API pública
+MUST NOT: criar banco PostgreSQL
+MUST NOT: criar autenticação
+MUST NOT: criar suporte multiusuário
+MUST NOT: criar deploy ou infraestrutura em servidor
+MUST NOT: versionar vídeos, banco local, clipes, relatórios gerados, .env, .venv, tmp/ ou binários locais
+MUST NOT: avançar fase se o gate de aceite da fase anterior falhar
+MUST NOT: declarar MVP completo sem evidência reproduzível
+MUST NOT: iniciar RAG antes do MVP completo
+
+MUST: implementar monólito local em Python
+MUST: rodar scripts/verify_current_state.sh após cada mudança relevante
+MUST: atualizar docs/IMPLEMENTATION_PROGRESS.md a cada ciclo
+MUST: corrigir causa raiz, não apenas silenciar erro
+MUST: manter MVP simples, local e utilizável por uma pessoa
+```
 
 ### 0.2 Fontes validadoras
 

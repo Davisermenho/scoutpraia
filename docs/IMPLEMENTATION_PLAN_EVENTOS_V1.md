@@ -1,4 +1,49 @@
+---
+tipo: plano_implementação_eventos_v1
+status_geral: IMPLEMENTADO_COM_EVIDÊNCIA
+import_rule_v1: nao_importar_v1
+lote_1_contrato: CONCLUÍDO
+lote_2_finalização: CONCLUÍDO
+lote_3_ataque_sem_finalização: CONCLUÍDO
+lote_4_modelo_banco: CONCLUÍDO
+lote_5_ui_marcação: CONCLUÍDO
+lote_6_relatórios_kpis: CONCLUÍDO
+próxima_ação: "Aguardar G5; não alterar import_rule_v1 antes de G5 aprovado"
+última_atualização: 2026-06-10
+---
+
 # Plano de implementação — Eventos v1
+
+## RESTRIÇÕES CRÍTICAS (MUST NOT para agentes)
+
+```
+MUST NOT: alterar import_rule_v1 para importar_eventos_v1 sem todos os testes passando
+MUST NOT: misturar eventos de Ataque sem finalização com Finalização
+MUST NOT: misturar transição ofensiva com Ataque sem finalização
+MUST NOT: criar specialist_shot como evento separado
+MUST NOT: criar position_code=specialist
+MUST NOT: permitir pontos manuais para Finalização v1.0
+MUST NOT: liberar six_metre_throw + shot_blocked
+MUST NOT: liberar goalkeeper_shot + shot_blocked na v1.0
+MUST NOT: mover shootout_attempt para Finalização v1.0
+MUST: rodar python3 -m pytest antes de cada mudança de status
+MUST: rodar scripts/verify_current_state.sh após cada mudança relevante
+```
+
+## Status de implementação atual
+
+Todos os lotes foram concluídos. `import_rule_v1` permanece `nao_importar_v1` até G5 aprovado.
+
+| Lote | Descrição | Status |
+| --- | --- | --- |
+| Lote 1 | Contrato no código (`events_v1.py`) | CONCLUÍDO |
+| Lote 2 | Serviço de Finalização | CONCLUÍDO |
+| Lote 3 | Serviço de Ataque sem finalização | CONCLUÍDO |
+| Lote 4 | Modelo/banco (campos v1 em `event.py`) | CONCLUÍDO |
+| Lote 5 | UI de marcação (blocos v1 em `tagging.py`) | CONCLUÍDO |
+| Lote 6 | Relatórios/KPIs (analytics + templates) | CONCLUÍDO |
+
+---
 
 Este plano orienta a implementação conjunta dos módulos já contratados para o ScoutPraia:
 

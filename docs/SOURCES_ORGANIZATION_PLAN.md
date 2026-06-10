@@ -1,3 +1,27 @@
+---
+tipo: plano_organização_fontes
+versão: 2
+data_elaboração: 2026-06-08
+última_atualização: 2026-06-10
+status_ações:
+  A1_deletar_morto: CONCLUÍDO
+  A2_registrar_regras_md: CONCLUÍDO
+  A3_registrar_fontes_fortes: CONCLUÍDO
+  A4_baixar_notacional: CONCLUÍDO
+  A5_baixar_obs_measurement: CONCLUÍDO
+  A6_atualizar_readme: CONCLUÍDO
+  A7_coluna_fonte_dicionário: CONCLUÍDO
+gaps_residuais:
+  G1: RESOLVIDO
+  G2: DIFERIDO_FASE_2
+  G3: DIFERIDO_FASE_2
+  G4: RESOLVIDO
+  G5: ABERTO
+  G6: MONITORADO
+  G7: RESOLVIDO
+nota: "Plano executado; único gap ativo é G5 (validação humana)"
+---
+
 # Plano de Organização de Fontes — ScoutPraia
 
 **Versão:** 2 (corrigida após revisão crítica com evidências)

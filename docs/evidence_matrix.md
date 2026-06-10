@@ -1,3 +1,11 @@
+---
+tipo: matriz_evidência
+cobertura_atual: "11/31 eventos documentados (20 faltantes)"
+última_atualização: 2026-06-10
+gap_ativo: "G4 resolvido; G5 aberto (validação humana)"
+regra_crítica: "Evento não presente nesta matriz não pode entrar em KPI crítico"
+---
+
 # Matriz de Evidência do ScoutPraia
 
 Objetivo: registrar por que cada campo, evento ou KPI existe antes de entrar na versão aprovada da taxonomia.
@@ -44,6 +52,37 @@ Objetivo: padronizar como cada status deve ser interpretado pelo agente, pela UI
 | `technical_error` | metodologia/técnica | `SRC-OBS-MEASUREMENT` | precisa de definição observável para reduzir ambiguidade | perda de posse e correção de treino | `draft` |
 | `defensive_breakdown` | técnica | decisão do treinador | útil para feedback, mas interpretativo | relatório coletivo e clips de correção | `draft` |
 
+## Eventos pendentes de documentação na matriz
+
+Os eventos abaixo existem na taxonomia mas ainda não têm registro explícito nesta matriz.
+Nenhum deles pode entrar em KPI final até ser documentado aqui.
+
+| Evento | Categoria | Fonte esperada | Status atual |
+| --- | --- | --- | --- |
+| `shot_attempt` | ofensivo | `SRC-IHF-RULES`, `SRC-OBS-MEASUREMENT` | `draft` |
+| `goal_scored` | ofensivo | `SRC-IHF-RULES` | `draft` |
+| `shot_missed` | ofensivo | `SRC-IHF-RULES`, `SRC-OBS-MEASUREMENT` | `draft` |
+| `turnover` | ofensivo | `SRC-OBS-MEASUREMENT` | `draft` |
+| `assist` | ofensivo | `SRC-OBS-MEASUREMENT`, `coach_decision` | `draft` |
+| `two_point_attempt` | ofensivo | `SRC-IHF-RULES` | `draft` |
+| `inflight_attempt` | ofensivo | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
+| `defensive_stop` | defensivo | `SRC-OBS-MEASUREMENT`, `SRC-NOTATIONAL-BH` | `draft` |
+| `steal` | defensivo | `SRC-OBS-MEASUREMENT`, `SRC-NOTATIONAL-BH` | `draft` |
+| `block` | defensivo | `SRC-OBS-MEASUREMENT`, `SRC-NOTATIONAL-BH` | `draft` |
+| `forced_error` | defensivo | `SRC-OBS-MEASUREMENT`, `coach_decision` | `draft` |
+| `goal_conceded` | defensivo | `SRC-IHF-RULES` | `draft` |
+| `save` | goleira | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
+| `save_shootout` | goleira | `SRC-IHF-RULES` | `draft` |
+| `goalkeeper_distribution` | goleira | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
+| `fast_break_for` | transição | `SRC-NOTATIONAL-BH` | `draft` |
+| `fast_break_against` | transição | `SRC-NOTATIONAL-BH` | `draft` |
+| `transition_recovery_good` | transição | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
+| `transition_recovery_bad` | transição | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
+| `shootout_goal` | especial | `SRC-IHF-RULES` | `draft` |
+| `shootout_miss` | especial | `SRC-IHF-RULES` | `draft` |
+| `timeout` | especial | `SRC-IHF-RULES` | `draft` |
+| `set_end` | especial | `SRC-IHF-RULES` | `draft` |
+
 ## Próximo passo
 
 Antes de `ScoutPraia v1.0`, cada item deve ter:
@@ -53,3 +92,11 @@ Antes de `ScoutPraia v1.0`, cada item deve ter:
 - regra de exclusão
 - teste em vídeo
 - decisão: manter, ajustar, dividir, fundir ou remover
+
+**Critério de conclusão desta matriz:**
+
+```
+[ ] todos os 31 eventos têm linha na tabela principal
+[ ] todos os itens têm fonte registrada
+[ ] status de cada item está sincronizado com docs/taxonomy_dictionary.md
+```

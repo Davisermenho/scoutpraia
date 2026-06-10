@@ -1,4 +1,26 @@
+---
+tipo: auditoria_fluxo_agente
+data_auditoria: 2026-06-06
+status: FLUXO_CORRETO_MVP_INCOMPLETO
+ordem_execução_para_agente: "IMPLEMENTATION_STEPS_AI.md — não MVP_TECNICO isolado"
+próxima_ação: "G5 — validação humana; depois decidir import_rule_v1"
+nota: "Auditoria de 2026-06-06; estado atual tem 110 testes e Eventos v1 implementados"
+---
+
 # Auditoria do Fluxo de Implementação do MVP — ScoutPraia
+
+## INSTRUÇÕES PARA AGENTES
+
+**Ordem de leitura obrigatória:**
+1. `docs/IMPLEMENTATION_STEPS_AI.md` — contrato de execução com gates sequenciais
+2. `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` — escopo e arquitetura do produto
+3. `docs/IMPLEMENTATION_PROGRESS.md` — estado atual provado
+
+**Gate antes de avançar:** `scripts/verify_current_state.sh`
+
+**Fase atual:** G5 — validação humana (ver `docs/validation_protocol.md`)
+
+---
 
 Data: `2026-06-06`
 

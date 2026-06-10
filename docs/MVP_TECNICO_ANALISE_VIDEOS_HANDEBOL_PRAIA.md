@@ -1,4 +1,33 @@
+---
+tipo: contrato_produto
+status: REFERÊNCIA_ESTÁVEL
+não_alterar_sem: nova versão explícita do MVP
+lido_antes_de_implementar: obrigatório
+última_atualização: 2026-06-10
+escopo_proibido: "React, FastAPI, PostgreSQL, autenticação, multiusuário, deploy, API pública"
+documentos_de_execução:
+  - docs/IMPLEMENTATION_STEPS_AI.md  # ordem de execução para agentes
+  - docs/IMPLEMENTATION_PROGRESS.md  # estado atual
+  - docs/taxonomy_dictionary.md      # taxonomia operacional
+---
+
 # ScoutPraia — MVP Técnico Completo (Arquitetura Python-Only)
+
+## ESCOPO PROIBIDO — ler antes de qualquer implementação
+
+```
+MUST NOT: frontend React
+MUST NOT: backend FastAPI separado
+MUST NOT: API REST completa ou API pública
+MUST NOT: banco PostgreSQL
+MUST NOT: autenticação ou multiusuário
+MUST NOT: deploy em servidor
+MUST NOT: versionar vídeos, banco, clipes, relatórios, .env, .venv, tmp/ ou binários locais
+```
+
+Para a ordem de implementação, seguir `docs/IMPLEMENTATION_STEPS_AI.md`.
+
+---
 
 ## 1. Objetivo
 
@@ -31,7 +60,7 @@ O `ScoutPraia` deve ser um `monólito local em Python`.
 
 ## 3. Decisão de arquitetura
 
-## 3.1 O que NÃO será feito no MVP
+### 3.1 O que NÃO será feito no MVP
 
 - frontend React
 - backend FastAPI separado
@@ -41,7 +70,7 @@ O `ScoutPraia` deve ser um `monólito local em Python`.
 - multiusuário
 - deploy em servidor
 
-## 3.2 O que será feito
+### 3.2 O que será feito
 
 - interface local com `Streamlit`
 - banco local com `SQLite`

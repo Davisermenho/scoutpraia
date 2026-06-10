@@ -1,4 +1,19 @@
+---
+tipo: guia_operacional_humano
+destinatário: operador_humano
+uso_por_agente: "NÃO — este guia é para o usuário humano, não para implementação"
+última_atualização: 2026-06-10
+nota: "Agentes não devem usar este guia como referência de código; ver scoutpraia/pages/tagging.py"
+---
+
 # Guia de Preenchimento — Marcação no ScoutPraia
+
+> **AVISO PARA AGENTES:** este documento é um guia operacional para o usuário humano.
+> Não use este guia para tomar decisões de implementação ou arquitetura.
+> Para implementação: ver `docs/IMPLEMENTATION_STEPS_AI.md`.
+> Para a página de marcação: ver `scoutpraia/pages/tagging.py`.
+
+---
 
 Objetivo: explicar como usar a página `Marcação` do ScoutPraia, como preencher cada campo, como registrar eventos e como informar corretamente o tempo (`timestamp`).
 

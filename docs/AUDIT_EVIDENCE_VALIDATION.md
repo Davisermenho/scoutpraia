@@ -1,4 +1,32 @@
+---
+tipo: auditoria_evidência
+data_auditoria: 2026-06-06
+status_base_técnica: FUNCIONANDO_COM_EVIDÊNCIA
+mvp_completo: false
+testes_no_momento_da_auditoria: 10
+testes_atuais: 110
+gaps_abertos: ["G5 — validação humana com vídeo real e screenshots pendente"]
+próxima_ação: "Executar protocolo G5 (docs/validation_protocol.md)"
+nota: "Esta auditoria reflete estado de 2026-06-06; testes atuais são 110"
+---
+
 # Auditoria de Evidências e Validação — ScoutPraia
+
+## VEREDITO RÁPIDO PARA AGENTES
+
+**AUTORIZADO declarar (com base nas evidências desta auditoria, atualizadas pelo progresso atual):**
+- base técnica do ScoutPraia está implementada e funcionando
+- banco, taxonomia, seed, metadados de vídeo e testes automatizados estão provados
+- serviços internos (evento, clipe, validação, analytics, relatório) funcionam — 110 testes passando
+
+**NÃO AUTORIZADO declarar:**
+- MVP completo está implementado
+- UI Streamlit foi validada humanamente com screenshots
+- taxonomia aprovada para KPI final estável
+
+**Próximo gate obrigatório:** G5 — ver `docs/validation_protocol.md`
+
+---
 
 Data: `2026-06-06`
 
