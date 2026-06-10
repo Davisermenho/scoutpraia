@@ -18,6 +18,7 @@ storage/reports/*
 !storage/reports/.gitkeep
 storage/thumbnails/*
 !storage/thumbnails/.gitkeep
+docs/SCOUT_DESIGN_TEMPLATE.xlsx
 bin/
 
 tmp/

@@ -3766,3 +3766,55 @@ Limitações, gaps e riscos:
 
 - `tests/test_report_service.py` continua sendo um arquivo compartilhado entre relatórios coletivo, individual e de adversária; o que foi limpo aqui foi o diff residual, não a arquitetura global da suíte.
 - A prova executada nesta rodada foi direcionada ao escopo de adversária; a prova global completa deve ser rerodada antes de um futuro commit desse bloco.
+
+---
+
+## Ciclo — Script utilitário para gerar template XLSX do scout
+
+Fase atual declarada: `utilitário isolado fora da trilha de produto`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Inclusão do script `scripts/gerar_template_scout.py` como utilitário isolado para gerar um template XLSX de design do scout em múltiplas abas.
+- Inclusão de `openpyxl==3.1.5` em `requirements.txt`, pois o script depende diretamente dessa biblioteca e não havia dependência equivalente registrada no projeto.
+- Inclusão de `docs/SCOUT_DESIGN_TEMPLATE.xlsx` em `.gitignore`, pois o arquivo XLSX gerado é artefato operacional do script e não deve entrar em versionamento por padrão.
+
+Testes / provas executadas:
+
+- `python3 -m py_compile scripts/gerar_template_scout.py`
+- `python3 -m pip install --user --break-system-packages openpyxl==3.1.5`
+- `python3 scripts/gerar_template_scout.py`
+- `scripts/verify_current_state.sh`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m py_compile scripts/gerar_template_scout.py
+- sem erro
+
+python3 scripts/gerar_template_scout.py
+- Template gerado: docs/SCOUT_DESIGN_TEMPLATE.xlsx
+
+scripts/verify_current_state.sh
+- deve continuar verde após inclusão do utilitário e da dependência
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- O script é sintaticamente válido.
+- O script gera `docs/SCOUT_DESIGN_TEMPLATE.xlsx` quando `openpyxl` está instalado.
+
+O que ainda não está pronto:
+
+- O arquivo XLSX gerado é artefato operacional local; não deve entrar automaticamente em commit sem decisão explícita.
+
+Limitações, gaps e riscos:
+
+- A instalação de `openpyxl` foi feita fora de `.venv`, no ambiente atual do usuário, apenas para prova operacional do script.
+- O utilitário não faz parte do fluxo central do app Streamlit; ele é um artefato auxiliar de desenho/metodologia.
