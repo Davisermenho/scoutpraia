@@ -12,6 +12,7 @@ from dataclasses import dataclass
 IMPORT_RULE_V1_BLOCKED = "nao_importar_v1"
 IMPORT_RULE_V1_ACTIVE = "importar_v1"
 MODULE_STATUS_VALIDATED = "contrato_validado"
+MODULE_STATUS_ARCHITECTURE = "arquitetura_em_definicao"
 EVENT_STATUS_READY_FOR_TEST = "contrato_pronto_para_teste"
 EVENT_STATUS_ACTIVE = "contrato_ativo_v1"
 EVENT_STATUS_REVIEW = "revisar"
@@ -29,6 +30,17 @@ SHOT_RESULTS = frozenset(
     }
 )
 NO_SHOT_RESULT = "lost_possession_no_shot"
+SHOOTOUT_RESULTS = frozenset(
+    {
+        "goal",
+        "save",
+        "shot_wide",
+        "attacker_execution_error",
+        "launch_ground_contact",
+        "pass_intercepted",
+        "defender_foul_6m_awarded",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -299,12 +311,76 @@ DEFENSIVE_V1 = ModuleContract(
     forbidden_results=frozenset({"pressure_no_turnover_review"}),
 )
 
+SHOOTOUT_V1 = ModuleContract(
+    module_code="shootout_v1",
+    display_name="Shoot-out v1.0",
+    module_contract_status=MODULE_STATUS_ARCHITECTURE,
+    import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+    primary_events=(
+        _primary_event(
+            "shootout_attempt",
+            allowed_results=SHOOTOUT_RESULTS,
+            module_contract_status=EVENT_STATUS_READY_FOR_TEST,
+            import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ),
+    ),
+    auxiliary_fields=(
+        _auxiliary_field("shooter_id"),
+        _auxiliary_field("shootout_launcher_id"),
+        _auxiliary_field("shootout_launcher_role"),
+        _auxiliary_field("shootout_defender_id"),
+        _auxiliary_field("shootout_defender_role"),
+        _auxiliary_field("shootout_phase"),
+        _auxiliary_field("attempt_order"),
+        _auxiliary_field("pre_launch_defensive_behavior"),
+        _auxiliary_field("launch_type"),
+        _auxiliary_field("launch_result"),
+        _auxiliary_field("reception_quality"),
+        _auxiliary_field("shooter_pressure_level"),
+        _auxiliary_field("defensive_trap_type"),
+        _auxiliary_field("defender_recovery_behavior"),
+        _auxiliary_field("shootout_action_type"),
+        _auxiliary_field("trajectory_visible"),
+        _auxiliary_field("goal_zone"),
+        _auxiliary_field("execution_validity"),
+        _auxiliary_field("series_id"),
+    ),
+    review_only_events=(),
+    future_events=(),
+    forbidden_event_codes=frozenset(
+        {
+            "shootout_goal",
+            "shootout_miss",
+            "shootout_spin",
+            "shootout_double_spin",
+            "shootout_inflight",
+            "shootout_interception",
+            "goalkeeper_id",
+            "launcher_goalkeeper_id",
+            "defender_goalkeeper_id",
+            "defender_goalkeeper_role",
+            "retry_linked_attempt_id",
+            "legacy_retry_linked_attempt_id",
+            "six_metre_throw",
+        }
+    ),
+    forbidden_results=frozenset(
+        {
+            "defender_infraction_retry",
+            "goalkeeper_violation_retry",
+            "retry_ordered",
+            NO_SHOT_RESULT,
+        }
+    ),
+)
+
 
 MODULE_CONTRACTS_V1 = {
     FINALIZATION_V1.module_code: FINALIZATION_V1,
     NO_SHOT_ATTACK_V1.module_code: NO_SHOT_ATTACK_V1,
     OFFENSIVE_CREATION_V1.module_code: OFFENSIVE_CREATION_V1,
     DEFENSIVE_V1.module_code: DEFENSIVE_V1,
+    SHOOTOUT_V1.module_code: SHOOTOUT_V1,
 }
 
 # Backward-compatible alias for older code/tests that still import the interim name.
