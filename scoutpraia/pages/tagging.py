@@ -33,6 +33,7 @@ from scoutpraia.services.match_service import (
 )
 from scoutpraia.services.no_shot_attack_contract_service import (
     ALLOWED_CAUSE_DETAILS_BY_EVENT,
+    NO_SHOT_ATTACK_COMPAT_EVENT_TYPES,
     NoShotAttackContractError,
     PASSIVE_PLAY_APPROVED_SUBTYPES,
     validate_record as validate_no_shot_attack_record,
@@ -69,7 +70,10 @@ FINALIZATION_EVENT_TYPES = tuple(
     event_contract.event_code for event_contract in FINALIZATION_V1.primary_events
 )
 NO_SHOT_ATTACK_EVENT_TYPES = tuple(
-    event_contract.event_code for event_contract in NO_SHOT_ATTACK_V1.primary_events
+    dict.fromkeys(
+        [event_contract.event_code for event_contract in NO_SHOT_ATTACK_V1.primary_events]
+        + sorted(NO_SHOT_ATTACK_COMPAT_EVENT_TYPES)
+    )
 )
 RUNNING_FINALIZATION_EVENT_TYPES = frozenset(
     {"simple_shot", "spin_shot", "inflight_shot", "goalkeeper_shot"}

@@ -74,6 +74,7 @@ def test_passive_play_accepts_only_approved_subtypes() -> None:
             event_code="passive_play_turnover",
             result_possession="lost_possession_no_shot",
             team_in_possession=True,
+            system_code="SP",
             passive_subtype="forewarning_expired",
         )
         == "passive_play_turnover"
@@ -84,6 +85,7 @@ def test_passive_play_accepts_only_approved_subtypes() -> None:
             event_code="passive_play_turnover",
             result_possession="lost_possession_no_shot",
             team_in_possession=True,
+            system_code="SP",
             passive_subtype="slow_rebuild",
         )
 

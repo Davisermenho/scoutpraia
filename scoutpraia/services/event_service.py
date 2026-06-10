@@ -148,6 +148,7 @@ def _validate_no_shot_attack_v1_event(event: Event) -> None:
             event_code=event.event_type,
             result_possession=event.result_possession,
             team_in_possession=True,
+            system_code=event.event_subtype,
             turnover_cause_detail=event.event_subtype,
             technical_error_subtype=event.event_subtype,
             passive_play_subtype=passive_subtype,

@@ -53,15 +53,24 @@ def test_blocks_finalization_shootout_and_transition_events(event_code: str) -> 
 @pytest.mark.parametrize(
     "legacy_code",
     [
-        "ball_control_turnover",
-        "offensive_foul_turnover",
-        "substitution_error_turnover",
         "turnover_cause_detail",
     ],
 )
 def test_blocks_old_interim_event_codes(legacy_code: str) -> None:
     with pytest.raises(NoShotAttackContractError, match="forbidden_event_code|invalid_event_code"):
         validate_record(event_code=legacy_code, **BASE_KWARGS)
+
+
+@pytest.mark.parametrize(
+    ("legacy_code", "extra_kwargs"),
+    [
+        ("ball_control_turnover", {"turnover_cause_detail": "bad_pass"}),
+        ("offensive_foul_turnover", {}),
+        ("substitution_error_turnover", {"turnover_cause_detail": "illegal_substitution"}),
+    ],
+)
+def test_accepts_legacy_alias_event_codes(legacy_code: str, extra_kwargs: dict[str, object]) -> None:
+    assert validate_record(event_code=legacy_code, **BASE_KWARGS, **extra_kwargs) == legacy_code
 
 
 def test_requires_lost_possession_no_shot_result() -> None:
