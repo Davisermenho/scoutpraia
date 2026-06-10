@@ -1,8 +1,8 @@
 """Declarative registry for Eventos v1 modules.
 
-This module intentionally does not integrate with the active taxonomy seed, UI,
-or persistence layer yet. It only codifies the validated contract surface that
-must remain blocked from import until the later gates pass.
+This module codifies the validated contract surface. The active application seed
+still uses the legacy taxonomy unless a dedicated migration/import gate wires a
+module into the app flow.
 """
 
 from __future__ import annotations
@@ -10,8 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 IMPORT_RULE_V1_BLOCKED = "nao_importar_v1"
+IMPORT_RULE_V1_ACTIVE = "importar_v1"
 MODULE_STATUS_VALIDATED = "contrato_validado"
 EVENT_STATUS_READY_FOR_TEST = "contrato_pronto_para_teste"
+EVENT_STATUS_ACTIVE = "contrato_ativo_v1"
+EVENT_STATUS_REVIEW = "revisar"
 EVENT_STATUS_AUXILIARY = "reclassificado_auxiliar"
 
 SHOT_RESULTS = frozenset(
@@ -51,12 +54,19 @@ class ModuleContract:
         return self.primary_events + self.auxiliary_fields
 
 
-def _primary_event(event_code: str, *, allowed_results: frozenset[str]) -> EventContract:
+def _primary_event(
+    event_code: str,
+    *,
+    allowed_results: frozenset[str],
+    module_contract_status: str = EVENT_STATUS_READY_FOR_TEST,
+    import_rule_v1: str = IMPORT_RULE_V1_BLOCKED,
+    ui_type: str = "botao_principal",
+) -> EventContract:
     return EventContract(
         event_code=event_code,
-        ui_type="botao_principal",
-        module_contract_status=EVENT_STATUS_READY_FOR_TEST,
-        import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ui_type=ui_type,
+        module_contract_status=module_contract_status,
+        import_rule_v1=import_rule_v1,
         allowed_results=allowed_results,
     )
 
@@ -108,34 +118,64 @@ FINALIZATION_V1 = ModuleContract(
 )
 
 
-# Conservative coding names for the no-shot module. They stay local to the
-# contract registry until the later migration and taxonomy gates define the
-# persistent representation.
+NO_SHOT_ACTIVE_RESULT = frozenset({NO_SHOT_RESULT})
+
 NO_SHOT_ATTACK_V1 = ModuleContract(
-    module_code="no_shot_attack_v1",
+    module_code="attack_no_shot_v1",
     display_name="Ataque sem finalizacao v1.0",
     module_contract_status=MODULE_STATUS_VALIDATED,
-    import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+    import_rule_v1=IMPORT_RULE_V1_ACTIVE,
     primary_events=(
         _primary_event(
-            "ball_control_turnover",
-            allowed_results=frozenset({NO_SHOT_RESULT}),
+            "technical_error_unforced",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
-            "offensive_foul_turnover",
-            allowed_results=frozenset({NO_SHOT_RESULT}),
+            "technical_error_forced",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
+        ),
+        _primary_event(
+            "offensive_foul",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
+        ),
+        _primary_event(
+            "goal_area_invasion_attack",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
             "passive_play_turnover",
-            allowed_results=frozenset({NO_SHOT_RESULT}),
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
+            ui_type="botao_secundario",
         ),
         _primary_event(
-            "substitution_error_turnover",
-            allowed_results=frozenset({NO_SHOT_RESULT}),
+            "bad_substitution_attack",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
+            ui_type="botao_secundario",
+        ),
+        _primary_event(
+            "turnover_unclassified",
+            allowed_results=NO_SHOT_ACTIVE_RESULT,
+            module_contract_status=EVENT_STATUS_REVIEW,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
+            ui_type="fallback_revisao",
         ),
     ),
     auxiliary_fields=(
-        _auxiliary_field("turnover_cause_detail"),
+        _auxiliary_field("technical_error_subtype"),
+        _auxiliary_field("passive_play_subtype"),
+        _auxiliary_field("substitution_error_subtype"),
     ),
     forbidden_event_codes=frozenset(
         {
@@ -146,6 +186,10 @@ NO_SHOT_ATTACK_V1 = ModuleContract(
             "six_metre_throw",
             "shootout_attempt",
             "fast_break_for",
+            "ball_control_turnover",
+            "offensive_foul_turnover",
+            "substitution_error_turnover",
+            "turnover_cause_detail",
         }
     ),
     forbidden_results=SHOT_RESULTS,
@@ -157,10 +201,15 @@ MODULE_CONTRACTS_V1 = {
     NO_SHOT_ATTACK_V1.module_code: NO_SHOT_ATTACK_V1,
 }
 
+# Backward-compatible alias for older code/tests that still import the interim name.
+NO_SHOT_ATTACK_LEGACY_ALIAS = "no_shot_attack_v1"
+MODULE_ALIASES_V1 = {NO_SHOT_ATTACK_LEGACY_ALIAS: NO_SHOT_ATTACK_V1.module_code}
+
 
 def get_module_contract(module_code: str) -> ModuleContract:
+    canonical_module_code = MODULE_ALIASES_V1.get(module_code, module_code)
     try:
-        return MODULE_CONTRACTS_V1[module_code]
+        return MODULE_CONTRACTS_V1[canonical_module_code]
     except KeyError as exc:
         raise ValueError(f"Modulo de contrato v1 nao encontrado: {module_code}") from exc
 
