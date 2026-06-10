@@ -8,7 +8,7 @@ lote_3_ataque_sem_finalização: CONCLUÍDO
 lote_4_modelo_banco: CONCLUÍDO
 lote_5_ui_marcação: CONCLUÍDO
 lote_6_relatórios_kpis: CONCLUÍDO
-próxima_ação: "Aguardar G5; não alterar import_rule_v1 antes de G5 aprovado"
+próxima_ação: "Executar G5; manter offensive_creation_v1 e defensive_v1 somente como contratos registrados e bloqueados"
 última_atualização: 2026-06-10
 ---
 
@@ -42,6 +42,54 @@ Todos os lotes foram concluídos. `import_rule_v1` permanece `nao_importar_v1` a
 | Lote 4 | Modelo/banco (campos v1 em `event.py`) | CONCLUÍDO |
 | Lote 5 | UI de marcação (blocos v1 em `tagging.py`) | CONCLUÍDO |
 | Lote 6 | Relatórios/KPIs (analytics + templates) | CONCLUÍDO |
+
+## Baseline oficial G0
+
+```yaml
+baseline:
+  id: "G0_BASELINE_EVENTOS_V1_VERDE"
+  git_head: "5cf588c"
+  date: "2026-06-10"
+  tests:
+    pytest: "196 passed"
+    verify_current_state: "passed"
+    git_status: "clean"
+  modules:
+    attack_no_shot_v1:
+      status: "contrato_validado"
+      import_rule_v1: "importar_v1"
+      evidence: ["EV-001", "EV-002", "EV-003", "EV-004", "EV-005"]
+    finalization_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-006"]
+    offensive_creation_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-007"]
+    defensive_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-008"]
+```
+
+## Registry principal atual
+
+- `attack_no_shot_v1` permanece importável (`importar_v1`)
+- `finalization_v1` permanece bloqueado (`nao_importar_v1`)
+- `offensive_creation_v1` agora existe no registry principal, mas segue bloqueado
+- `defensive_v1` agora existe no registry principal, mas segue bloqueado
+- `offensive_creation_v1` no registry: núcleo ativo = `assist_to_finalization`; auxiliares = `assist_to_inflight_shot`, `pivot_feed_to_shot`; revisão = `advantage_pass_to_free_player`, `collective_action_creates_shot`
+- `defensive_v1` no registry: núcleo ativo = `line_block_shot`; revisão = `defensive_pressure_forced_error`, `steal_or_interception`; futuro = `defensive_rebound_recovery`
+
+Limite explícito:
+- este plano continua sem liberar UI, importação ativa ou comportamento operacional para `offensive_creation_v1` e `defensive_v1`
+- a próxima liberação continua dependente de G5 e de decisão explícita posterior
+- a modelagem do registry deve seguir a prioridade de fonte `SCOUT_DESIGN_TEMPLATE` > `Contrato_Operacional.md` > repositório
+
+Prova atual após o ajuste de registry:
+- `python3 -m pytest -q` => `199 passed`
+- `scripts/verify_current_state.sh` => `passed`
 
 ---
 

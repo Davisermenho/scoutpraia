@@ -8,7 +8,9 @@ from scoutpraia.contracts.events_v1 import (
     all_event_codes,
     get_module_contract,
     list_auxiliary_codes,
+    list_future_event_codes,
     list_primary_event_codes,
+    list_review_event_codes,
 )
 
 __all__ = [
@@ -19,5 +21,7 @@ __all__ = [
     "all_event_codes",
     "get_module_contract",
     "list_auxiliary_codes",
+    "list_future_event_codes",
     "list_primary_event_codes",
+    "list_review_event_codes",
 ]

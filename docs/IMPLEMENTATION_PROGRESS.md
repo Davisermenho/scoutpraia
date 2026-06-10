@@ -1,11 +1,11 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — passo 6A concluído; curadoria opponents/relatórios ajustada"
-testes_passando: 110
+fase_atual: "Eventos v1 — baseline G0 preservado; registry G1 realinhado à planilha e ao contrato"
+testes_passando: 199
 event_definitions: 31
 última_atualização: 2026-06-10
-próxima_ação: "commit do escopo opponents/relatórios, depois G5 (validação humana)"
+próxima_ação: "Executar G5 (validação humana); offensive_creation_v1 e defensive_v1 seguem bloqueados e separados por núcleo/revisão/futuro no registry"
 gaps_abertos: ["G5 — validação humana pendente"]
 mvp_completo: false
 ---
@@ -29,19 +29,17 @@ reproduzível por comando, teste ou arquivo verificável.
 
 ```bash
 scripts/verify_current_state.sh
-# resultado esperado: 110 passed
+# resultado esperado: 199 passed
 ```
 
-**Commits pendentes no workspace:**
-- `scoutpraia/pages/opponents.py` — métrica de especialista na página Adversárias
-- `tests/test_report_service.py` — cobertura de relatório de adversária com especialista
-- `tests/test_streamlit_pages.py` — prova da métrica na página Adversárias
-- `scripts/gerar_template_scout.py` — utilitário isolado fora da trilha de produto
+**Estado do workspace no baseline G0:**
+- `git status --short` limpo em `2026-06-10`
+- `git_head = 5cf588c`
 
 **Próxima ação autorizada:**
-1. Fazer commit do escopo `opponents/relatórios` curado
-2. Executar G5: validação humana com vídeo real (ver `docs/validation_protocol.md`)
-3. Decidir liberação da importação v1 (`import_rule_v1`)
+1. Executar G5: validação humana com vídeo real (ver `docs/validation_protocol.md`)
+2. Manter `offensive_creation_v1` e `defensive_v1` somente no registry até G5
+3. Decidir liberação da importação v1 (`import_rule_v1`) apenas depois de G5
 
 ---
 
@@ -58,12 +56,48 @@ contagem de event_definitions, testes automatizados, `git diff --check`.
 
 ```text
 date_utc=2026-06-10
+git_head=5cf588c
 taxonomy=ScoutPraia v0.1
 taxonomy_status=draft
 event_definitions=31
 expected_event_definitions=31
-110 passed
+199 passed
+git_status=clean
 ```
+
+---
+
+## Baseline oficial G0
+
+```yaml
+baseline:
+  id: "G0_BASELINE_EVENTOS_V1_VERDE"
+  git_head: "5cf588c"
+  date: "2026-06-10"
+  tests:
+    pytest: "196 passed"
+    verify_current_state: "passed"
+    git_status: "clean"
+  modules:
+    attack_no_shot_v1:
+      status: "contrato_validado"
+      import_rule_v1: "importar_v1"
+      evidence: ["EV-001", "EV-002", "EV-003", "EV-004", "EV-005"]
+    finalization_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-006"]
+    offensive_creation_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-007"]
+    defensive_v1:
+      status: "contrato_validado"
+      import_rule_v1: "nao_importar_v1"
+      evidence: ["EV-008"]
+```
+
+Observação: este baseline registra o estado verde anterior ao ajuste do registry G1. Os ciclos abaixo preservam esse baseline e mantêm `offensive_creation_v1` e `defensive_v1` apenas como contratos bloqueados; a estrutura interna do registry deve seguir a prioridade `SCOUT_DESIGN_TEMPLATE` > `Contrato_Operacional.md` > repositório.
 
 ---
 
@@ -78,10 +112,10 @@ expected_event_definitions=31
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 110 passed |
+| 8 — Testes | `FUNCIONANDO` | 199 passed |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
-| Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | passos 1–6A concluídos; importação bloqueada |
+| Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | baseline G0 fechado; G1 registry realinhado à planilha; importação segue bloqueada |
 
 ---
 
@@ -153,7 +187,7 @@ Pendências da fase 7:
 
 ### Fase 8 — Testes `[FUNCIONANDO]`
 
-110 testes passando. Suíte inclui:
+199 testes passando. Suíte inclui:
 - `test_smoke.py`, `test_models.py`, `test_match_service.py`
 - `test_event_service.py`, `test_clip_service.py`
 - `test_validation_service.py`, `test_analytics_service.py`
@@ -187,6 +221,7 @@ Pendente (G5):
 | Passo | Arquivo | Status |
 |-------|---------|--------|
 | 1 — Contrato | `scoutpraia/contracts/events_v1.py` | CONCLUÍDO |
+| 1B — Registry G1 | `offensive_creation_v1` + `defensive_v1` reconhecidos no registry com separação núcleo/revisão/futuro | CONCLUÍDO |
 | 2 — Serviço Finalização | `finalization_contract_service.py` | CONCLUÍDO |
 | 3 — Serviço Ataque sem finalização | `no_shot_attack_contract_service.py` | CONCLUÍDO |
 | 4 — Modelo/banco | campos v1 em `event.py` + migração leve | CONCLUÍDO |
@@ -195,6 +230,18 @@ Pendente (G5):
 | 6A — Correção KPIs | especialista + 2 pontos adversária | CONCLUÍDO |
 
 Importação bloqueada: `import_rule_v1 = nao_importar_v1`
+
+Registry principal atual:
+- `attack_no_shot_v1` — importação ativa (`importar_v1`)
+- `finalization_v1` — contrato validado, importação bloqueada
+- `offensive_creation_v1` — contrato validado no registry, importação bloqueada
+- `defensive_v1` — contrato validado no registry, importação bloqueada
+- `offensive_creation_v1` — núcleo ativo: `assist_to_finalization`; auxiliares: `assist_to_inflight_shot`, `pivot_feed_to_shot`; revisão: `advantage_pass_to_free_player`, `collective_action_creates_shot`
+- `defensive_v1` — núcleo ativo: `line_block_shot`; revisão: `defensive_pressure_forced_error`, `steal_or_interception`; futuro: `defensive_rebound_recovery`
+
+Limite explícito:
+- `offensive_creation_v1` e `defensive_v1` ainda não aparecem na UI nem na importação ativa do app
+- este ciclo não altera `tagging.py`, seed, serviços de persistência ou relatórios operacionais
 
 Para liberar: passar todos os testes v1 **E** ter evidência registrada de:
 - contrato v1 carregado no código ✓
@@ -232,10 +279,10 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 
 ## Próxima fase autorizada pelo plano
 
-1. Fazer commit do escopo `opponents/relatórios` curado (já testado)
-2. Executar `scripts/verify_current_state.sh` após o commit
-3. Executar protocolo G5 de validação humana (`docs/validation_protocol.md`)
-4. Depois de G5: decidir liberação de `import_rule_v1`
+1. Executar protocolo G5 de validação humana (`docs/validation_protocol.md`)
+2. Rodar `scripts/verify_current_state.sh` após qualquer nova mudança relevante
+3. Depois de G5: decidir liberação de `import_rule_v1`
+4. Não liberar UI/importação de `offensive_creation_v1` ou `defensive_v1` antes desse gate
 
 ---
 
@@ -248,6 +295,60 @@ Status: `CONFIGURADO`
 - Exigência de atualização deste arquivo em cada ciclo.
 - Proibição explícita de pular fases ou esconder trabalho parcial.
 - Restrições de escopo: sem React, FastAPI, PostgreSQL, API pública, auth, deploy, RAG antes do MVP funcional.
+
+---
+
+## Ciclo — G0 baseline + G1 registry
+
+- Fase declarada: `Eventos v1 — fechamento de baseline G0 e ampliação controlada do registry G1`
+- O que foi implementado:
+  - registro oficial do baseline `G0_BASELINE_EVENTOS_V1_VERDE`
+  - inclusão de `offensive_creation_v1` e `defensive_v1` em `scoutpraia/contracts/events_v1.py`
+  - atualização de `tests/test_events_v1_contract_registry.py` para o novo snapshot do registry
+- O que foi testado:
+  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
+  - `python3 -m pytest tests/test_eventos_sheet_scope.py -q`
+  - `python3 -m pytest -q`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - registry específico: `10 passed`
+  - escopo da planilha: `7 passed`
+  - suíte completa: `199 passed`
+  - `verify_current_state.sh`: verde com `event_definitions=31` e `199 passed`
+  - baseline G0 preservado como registro do estado limpo anterior (`git_head=5cf588c`, `git_status=clean`)
+- O que ainda não está pronto:
+  - `offensive_creation_v1` e `defensive_v1` não foram liberados na UI nem na importação ativa
+  - G5 continua pendente
+- Limitações, gaps e riscos:
+  - este ciclo valida somente reconhecimento contratual no registry; não prova fluxo operacional desses dois módulos no app
+  - qualquer liberação futura desses módulos ainda depende de gate posterior e evidência adicional
+
+---
+
+## Ciclo — correção de aderência planilha + contrato
+
+- Fase declarada: `Eventos v1 — correção do registry para espelhar SCOUT_DESIGN_TEMPLATE e Contrato_Operacional`
+- O que foi implementado:
+  - separação explícita em `scoutpraia/contracts/events_v1.py` entre `primary_events`, `auxiliary_fields`, `review_only_events` e `future_events`
+  - realinhamento de `offensive_creation_v1` para núcleo ativo único `assist_to_finalization`
+  - realinhamento de `defensive_v1` para núcleo ativo único `line_block_shot`
+  - atualização de `tests/test_events_v1_contract_registry.py` para provar que revisão/futuro não contam como núcleo ativo
+- O que foi testado:
+  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
+  - `python3 -m pytest -q`
+  - `scripts/verify_current_state.sh`
+- Resultado observado:
+  - registry específico: `10 passed`
+  - suíte completa: `199 passed`
+  - `verify_current_state.sh`: verde com `event_definitions=31`, `199 passed` e `git diff --check` sem erro
+- O que ainda não está pronto:
+  - `offensive_creation_v1` e `defensive_v1` continuam fora da UI e da importação ativa
+  - G5 continua pendente
+- Limitações, gaps e riscos:
+  - o registry agora espelha melhor a planilha/contrato, mas isso ainda não representa implementação operacional desses módulos no app
+  - qualquer divergência futura deve ser resolvida pela prioridade de fonte definida em `docs/Contrato_Operacional.md`
+  - `docs/Contrato_Operacional.md` passa a compor o conjunto versionável de fontes do ciclo
 
 ---
 
