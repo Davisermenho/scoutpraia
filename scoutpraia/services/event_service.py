@@ -10,6 +10,7 @@ from scoutpraia.services.finalization_contract_service import (
     validate_record as validate_finalization_record,
 )
 from scoutpraia.services.no_shot_attack_contract_service import (
+    NO_SHOT_ATTACK_COMPAT_EVENT_TYPES,
     NoShotAttackContractError,
     validate_record as validate_no_shot_attack_record,
 )
@@ -28,9 +29,7 @@ TWO_POINT_ONLY_EVENTS = {"two_point_goal", "specialist_goal"}
 FINALIZATION_V1_EVENT_TYPES = frozenset(
     event_contract.event_code for event_contract in FINALIZATION_V1.primary_events
 )
-NO_SHOT_ATTACK_V1_EVENT_TYPES = frozenset(
-    event_contract.event_code for event_contract in NO_SHOT_ATTACK_V1.primary_events
-)
+NO_SHOT_ATTACK_V1_EVENT_TYPES = frozenset(NO_SHOT_ATTACK_COMPAT_EVENT_TYPES)
 EVENT_UPDATE_FIELDS = {
     "set_id",
     "possession_id",
@@ -150,7 +149,10 @@ def _validate_no_shot_attack_v1_event(event: Event) -> None:
             result_possession=event.result_possession,
             team_in_possession=True,
             turnover_cause_detail=event.event_subtype,
+            technical_error_subtype=event.event_subtype,
+            passive_play_subtype=passive_subtype,
             passive_subtype=passive_subtype,
+            substitution_error_subtype=event.event_subtype,
             shot_attempted=False,
             is_offensive_transition=False,
         )
