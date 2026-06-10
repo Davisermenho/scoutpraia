@@ -279,7 +279,8 @@ def test_defensive_position_code_must_not_use_name_ui(name_ui: str) -> None:
         {"scorer_role": "field_player"},
         {"shot_origin_depth": "depth_3_near_area"},
     ],
-)\def test_defensive_forbids_offensive_and_finalization_fields(extra_fields: dict[str, object]) -> None:
+)
+def test_defensive_forbids_offensive_and_finalization_fields(extra_fields: dict[str, object]) -> None:
     with pytest.raises(ContractError, match="forbidden_field_for_defensive"):
         validate_defensive_record(
             event_code="line_block_shot",
