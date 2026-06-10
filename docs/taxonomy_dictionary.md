@@ -4,6 +4,12 @@ Versão inicial: `ScoutPraia v0.1`
 
 Status: `draft`
 
+Nota operacional:
+
+- o status acima é da versão da taxonomia como um todo;
+- itens individuais podem avançar para `testing` antes do fechamento completo da versão;
+- a versão só deve deixar de estar `draft` quando a validação observacional humana global estiver concluída.
+
 ## Regra geral
 
 Um evento só entra em KPI final quando tiver definição operacional e passar por revisão em vídeo.
@@ -18,8 +24,10 @@ Um evento só entra em KPI final quando tiver definição operacional e passar p
 | `technical_error` | perda de posse sem arremesso causada por erro técnico ou tomada de decisão | posse acaba por passe errado, recepção falha, condução/violação ou erro não finalizador | arremesso defendido, bola fora em finalização ou roubo claro | se a posse acaba sem arremesso e sem ação defensiva clara, marcar erro técnico | `SRC-OBS-MEASUREMENT` | `draft` |
 | `turnover` | qualquer perda de posse antes de uma nova posse da própria equipe | adversária passa a controlar a bola | fim de set, gol marcado ou bola parada sem mudança de posse | usar como categoria ampla; subtipo explica a causa | `SRC-OBS-MEASUREMENT` | `draft` |
 | `assist` | passe imediatamente relacionado ao gol | passe cria finalização convertida | passe anterior sem relação direta com o gol | marcar atleta secundária como assistente | `SRC-OBS-MEASUREMENT`, `coach_decision` | `draft` |
-| `two_point_attempt` | tentativa de ação que pode valer 2 pontos | spin, inflight, especialista/goleira ou shoot-out conforme regra aplicável | arremesso comum | separar tentativa de conversão | `SRC-IHF-RULES` | `draft` |
-| `two_point_goal` | gol válido de 2 pontos | ação especial resulta em gol confirmado | gol comum, gol anulado ou erro de pontuação | `points_value` deve ser `2` | `SRC-IHF-RULES` | `draft` |
+| `two_point_attempt` | tentativa genérica de ação que pode valer 2 pontos | há arremesso de 2 pontos sem classificação específica já identificada na taxonomia ativa | spin, inflight, especialista ou shoot-out já classificados com evento próprio; arremesso comum | usar como fallback legado quando o mecanismo exato do lance de 2 pontos não foi marcado | `SRC-IHF-RULES` | `draft` |
+| `two_point_goal` | gol genérico válido de 2 pontos | gol de 2 pontos sem classificação específica já identificada na taxonomia ativa | gol comum, gol anulado ou gol já classificado como inflight, especialista ou shoot-out | `points_value` deve ser `2`; preferir evento específico quando o mecanismo do lance estiver claro | `SRC-IHF-RULES` | `testing` |
+| `specialist_attempt` | tentativa de finalização executada pela atleta atuando como especialista | atleta com colete/uniforme de especialista finaliza, convertendo ou não | arremesso comum de atleta de linha, inflight já classificado, shoot-out ou lance sem confirmação visual da especialista | usar somente quando a função de especialista estiver visível no vídeo ou operacionalmente confirmada | `SRC-IHF-RULES`, `SRC-SYNTHESIS-BH` | `draft` |
+| `specialist_goal` | gol convertido pela atleta atuando como especialista | finalização da especialista resulta em gol válido de 2 pontos | gol comum, gol anulado, shoot-out ou gol já classificado por outra mecânica específica | `points_value` deve ser `2`; usar apenas com confirmação visual/operacional da especialista em quadra | `SRC-IHF-RULES`, `SRC-SYNTHESIS-BH` | `draft` |
 | `spin_shot` | tentativa de finalização com giro característico | atleta executa giro antes da finalização | finta com giro sem arremesso | se houver dúvida, registrar como `two_point_attempt` e revisar em vídeo | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
 | `inflight_attempt` | tentativa em que atleta recebe/controla no ar e finaliza antes de tocar o solo | finalização ocorre no ar após passe/recepção | passe alto sem finalização ou finalização após contato com o solo | contar apenas com tentativa de finalização | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
 | `inflight_goal` | `inflight_attempt` convertido em gol válido | finalização aérea resulta em gol | gol comum ou gol anulado | `points_value` deve refletir a regra aplicável | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |

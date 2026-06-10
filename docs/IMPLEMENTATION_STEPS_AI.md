@@ -275,7 +275,7 @@ Criar função ou script para inserir `ScoutPraia v0.1` com todos os eventos lis
 
 Eventos obrigatórios:
 
-- ataque: `shot_attempt`, `goal_scored`, `shot_missed`, `turnover`, `technical_error`, `assist`, `two_point_attempt`, `two_point_goal`, `spin_shot`, `inflight_attempt`, `inflight_goal`
+- ataque: `shot_attempt`, `goal_scored`, `shot_missed`, `turnover`, `technical_error`, `assist`, `two_point_attempt`, `two_point_goal`, `specialist_attempt`, `specialist_goal`, `spin_shot`, `inflight_attempt`, `inflight_goal`
 - defesa: `defensive_stop`, `steal`, `block`, `forced_error`, `goal_conceded`, `defensive_breakdown`
 - goleira: `save`, `save_shootout`, `goalkeeper_distribution`
 - transição: `fast_break_for`, `fast_break_against`, `transition_recovery_good`, `transition_recovery_bad`
@@ -382,6 +382,7 @@ Implementar KPIs coletivos:
 - stops defensivos por posse.
 - gols sofridos em transição.
 - eficiência de 2 pontos.
+- eficiência da especialista.
 - eficiência em shoot-out.
 - desempenho por set.
 
@@ -405,6 +406,7 @@ Implementar KPIs por adversária:
 - atleta que mais converte 2 pontos.
 - taxa de erro sob pressão.
 - vulnerabilidade em transição.
+- eficiência da especialista.
 - desempenho em shoot-out.
 
 Gate:

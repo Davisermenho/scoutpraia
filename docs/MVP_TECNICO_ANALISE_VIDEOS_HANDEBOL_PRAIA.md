@@ -406,6 +406,8 @@ Tipos de sessão:
 - `assist`
 - `two_point_attempt`
 - `two_point_goal`
+- `specialist_attempt`
+- `specialist_goal`
 - `spin_shot`
 - `inflight_attempt`
 - `inflight_goal`
@@ -486,6 +488,7 @@ Exemplo:
 | `event_type` | Definição | Não marcar quando | Regra de decisão |
 | --- | --- | --- | --- |
 | `technical_error` | perda de posse por erro não causado diretamente por finalização ou defesa da goleira | arremesso defendido, bola fora após finalização, gol sofrido | se a posse acaba sem arremesso e sem ação defensiva clara, marcar como erro técnico |
+| `specialist_goal` | gol convertido pela atleta atuando como especialista | gol comum, gol anulado, shoot-out ou gol já classificado por outra mecânica específica | marcar apenas com confirmação visual/operacional da especialista em quadra; `points_value=2` |
 | `inflight_goal` | gol em que a atleta recebe/controla no ar e finaliza antes de tocar o solo | passe alto sem finalização, toque sem controle, gol comum | contar apenas se houver finalização válida antes do contato com o solo |
 | `defensive_stop` | posse adversária encerrada sem gol por ação defensiva da equipe | erro adversário sem pressão clara, arremesso livre errado | marcar quando a defesa altera claramente a qualidade ou continuidade da posse |
 

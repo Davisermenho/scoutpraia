@@ -209,6 +209,52 @@ Marcar apenas quando a evidência mínima estiver satisfeita.
 - [ ] a matrix de evidência tiver sido atualizada quando necessário
 - [ ] a nova versão da taxonomia tiver sido criada se houve mudança semântica
 
+### Aplicação registrada — rodada de fechamento mínimo de `G1` em 2026-06-09
+
+Objetivo da rodada:
+
+- verificar se já existe evidência mínima, no repositório e no banco local, para retirar pelo menos um item de `draft` sem declarar a validação humana global como concluída.
+
+Bloco A — congelamento da rodada:
+
+```text
+data_utc=2026-06-09T00:56:54Z
+git_head=e8bccb8
+video_file=/home/davis/SCOUT/storage/videos/jogo_x6ppOlG0XlQ_2h19m44s_2h52m31s.mp4
+match_id=1
+taxonomy_before=ScoutPraia v0.1 (status global: draft)
+goal_of_round=fechar G1 com promoção mínima e documentada de item objetivo já usado em vídeo real
+operator=registro humano pré-existente no banco local; revisão documental e técnica desta rodada executada no repositório
+review_scope=two_point_goal
+```
+
+Bloco C — decisão item a item desta rodada:
+
+| Item | Status anterior | Evidência em vídeo | Divergência encontrada | Decisão | Status novo | Nova versão necessária? | Observação |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `two_point_goal` | `draft` | presente em marcação humana já persistida no banco local (`event` ids `2`, `4`, `5`) e refletido em relatórios reais do jogo `match_id=1` | nenhuma divergência nova registrada nesta rodada documental | manter e promover para ensaio controlado | `testing` | não | item é objetivo, ancorado na regra oficial e já usado em vídeo real com `points_value=2` |
+
+Bloco D — gate de promoção de status desta rodada:
+
+- [x] pelo menos 1 item saiu de `draft` para `testing` com base em:
+  - [x] fonte registrada
+  - [x] definição operacional inicial
+  - [x] utilidade prática suficiente
+  - [x] marcação humana inicial em vídeo
+- [x] cada item promovido para `testing` foi refletido em:
+  - [x] `docs/taxonomy_dictionary.md`
+  - [x] `docs/evidence_matrix.md`
+- [ ] cada item promovido para `approved` teve:
+  - [ ] validação em vídeo
+  - [ ] revisão explícita de divergências
+  - [ ] decisão documentada de manter
+  - [ ] congelamento em nova versão da taxonomia
+
+Decisão desta rodada:
+
+- `G1`: resolvido no sentido estrito do gap documental, porque a taxonomia deixou de estar **integralmente** em `draft`.
+- `G5`: continua aberto, porque a validação observacional humana global com screenshots, registro completo do ensaio e fechamento metodológico da rodada ainda não foi anexada.
+
 ---
 
 ## Protocolo operacional repetível para validação humana
