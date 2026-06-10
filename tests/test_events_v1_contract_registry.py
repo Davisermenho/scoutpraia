@@ -6,6 +6,7 @@ from scoutpraia.contracts.events_v1 import (
     MODULE_CONTRACTS_V1,
     NO_SHOT_ATTACK_V1,
     OFFENSIVE_CREATION_V1,
+    SHOOTOUT_V1,
     all_event_codes,
     get_module_contract,
     list_auxiliary_codes,
@@ -21,11 +22,13 @@ def test_contract_registry_exposes_v1_modules() -> None:
         "attack_no_shot_v1",
         "offensive_creation_v1",
         "defensive_v1",
+        "shootout_v1",
     }
     assert get_module_contract("finalization_v1") is FINALIZATION_V1
     assert get_module_contract("attack_no_shot_v1") is NO_SHOT_ATTACK_V1
     assert get_module_contract("offensive_creation_v1") is OFFENSIVE_CREATION_V1
     assert get_module_contract("defensive_v1") is DEFENSIVE_V1
+    assert get_module_contract("shootout_v1") is SHOOTOUT_V1
     assert get_module_contract("no_shot_attack_v1") is NO_SHOT_ATTACK_V1
 
 
@@ -59,6 +62,10 @@ def test_defensive_primary_events_match_contract_snapshot() -> None:
     assert list_primary_event_codes("defensive_v1") == ("line_block_shot",)
 
 
+def test_shootout_primary_event_matches_contract_snapshot() -> None:
+    assert list_primary_event_codes("shootout_v1") == ("shootout_attempt",)
+
+
 def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
     finalization_primary = set(list_primary_event_codes("finalization_v1"))
     finalization_auxiliary = set(list_auxiliary_codes("finalization_v1"))
@@ -72,6 +79,8 @@ def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
     defensive_auxiliary = set(list_auxiliary_codes("defensive_v1"))
     defensive_review = set(list_review_event_codes("defensive_v1"))
     defensive_future = set(list_future_event_codes("defensive_v1"))
+    shootout_primary = set(list_primary_event_codes("shootout_v1"))
+    shootout_auxiliary = set(list_auxiliary_codes("shootout_v1"))
 
     assert finalization_auxiliary == {"specialist_finish_role"}
     assert finalization_primary.isdisjoint(finalization_auxiliary)
@@ -109,6 +118,17 @@ def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
     }
     assert defensive_future == {"defensive_rebound_recovery"}
 
+    assert shootout_primary == {"shootout_attempt"}
+    assert shootout_primary.isdisjoint(shootout_auxiliary)
+    assert {
+        "shootout_launcher_id",
+        "shootout_launcher_role",
+        "shootout_defender_id",
+        "shootout_defender_role",
+        "launch_result",
+        "result_shootout",
+    }.issubset(shootout_auxiliary)
+
 
 def test_import_rules_match_module_activation_policy() -> None:
     assert FINALIZATION_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
@@ -127,6 +147,10 @@ def test_import_rules_match_module_activation_policy() -> None:
 
     assert DEFENSIVE_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
     for event_contract in DEFENSIVE_V1.event_contracts():
+        assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+
+    assert SHOOTOUT_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+    for event_contract in SHOOTOUT_V1.event_contracts():
         assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
 
 
@@ -168,6 +192,32 @@ def test_registry_adds_offensive_creation_and_defensive_without_exposing_app_imp
     assert defensive_future_results == {"rebound_recovered"}
     assert OFFENSIVE_CREATION_V1.forbidden_results == {"turnover_after_creation_error"}
     assert DEFENSIVE_V1.forbidden_results == {"pressure_no_turnover_review"}
+
+
+def test_shootout_contract_is_registered_without_app_import() -> None:
+    shootout_results = set().union(
+        *(event.allowed_results for event in SHOOTOUT_V1.primary_events)
+    )
+
+    expected_6m_result = "defender_" + "foul_6m_awarded"
+    assert shootout_results == {
+        "goal",
+        "save",
+        "shot_wide",
+        "attacker_execution_error",
+        "launch_ground_contact",
+        "pass_intercepted",
+        expected_6m_result,
+    }
+    assert SHOOTOUT_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+    assert SHOOTOUT_V1.forbidden_results == {
+        "defender_infraction_retry",
+        "goalkeeper_violation_retry",
+        "retry_ordered",
+        "lost_possession_no_shot",
+    }
+    assert "six_metre_throw" in SHOOTOUT_V1.forbidden_event_codes
+    assert "shootout_attempt" not in all_event_codes("finalization_v1")
 
 
 def test_old_interim_attack_event_codes_are_not_active() -> None:
