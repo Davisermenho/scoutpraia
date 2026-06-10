@@ -65,17 +65,17 @@ Um evento só entra em KPI final quando tiver definição operacional e passar p
 
 ## Goleira, transição e situações especiais
 
-| Evento | Definição | Regra de decisão | Fonte | Status |
-| --- | --- | --- | --- | --- |
-| `save` | defesa da goleira em finalização adversária | marcar quando a goleira altera ou impede gol em arremesso | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
-| `save_shootout` | defesa da goleira em shoot-out | só usar em situação de shoot-out | `SRC-IHF-RULES` | `draft` |
-| `goalkeeper_distribution` | reposição/passe da goleira que inicia ataque | marcar quando gerar posse organizada ou vantagem clara | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
-| `fast_break_for` | transição ofensiva rápida favorável | marcar quando posse rápida gera finalização ou vantagem clara | `SRC-NOTATIONAL-BH` | `draft` |
-| `fast_break_against` | transição ofensiva rápida da adversária | marcar quando adversária finaliza ou cria vantagem clara em transição | `SRC-NOTATIONAL-BH` | `draft` |
-| `transition_recovery_good` | recuperação defensiva eficiente na transição | marcar quando equipe impede vantagem clara da adversária | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
-| `transition_recovery_bad` | falha de recomposição na transição | marcar quando adversária obtém finalização clara por atraso defensivo | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
-| `shootout_attempt` | tentativa em shoot-out | marcar todas as tentativas, convertidas ou não | `SRC-IHF-RULES` | `draft` |
-| `shootout_goal` | shoot-out convertido | `points_value` deve refletir regra aplicável | `SRC-IHF-RULES` | `draft` |
-| `shootout_miss` | shoot-out não convertido | separar defesa da goleira com `save_shootout` quando aplicável | `SRC-IHF-RULES` | `draft` |
-| `timeout` | pedido de tempo registrado no vídeo | marcar timestamp para contexto do relatório | `SRC-IHF-RULES` | `draft` |
-| `set_end` | fim do set | marcar placar e timestamp final do set | `SRC-IHF-RULES` | `draft` |
+| Evento | Definição | Marcar quando | Não marcar quando | Regra de decisão | Fonte | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `save` | defesa da goleira em finalização adversária | goleira altera ou impede gol em arremesso | defesa de linha sem participação da goleira | se a goleira altera a trajetória, preferir `save` em vez de `block` | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
+| `save_shootout` | defesa da goleira em shoot-out | goleira defende em situação de shoot-out | defesa em jogo corrido | só usar com situação de shoot-out confirmada | `SRC-IHF-RULES` | `draft` |
+| `goalkeeper_distribution` | reposição/passe da goleira que inicia ataque | goleira lança ou passa e gera posse organizada ou vantagem | simples tiro de meta sem sequência de ataque | marcar quando gerar posse organizada ou vantagem clara | `SRC-IHF-RULES`, `SRC-NOTATIONAL-BH` | `draft` |
+| `fast_break_for` | transição ofensiva rápida favorável à equipe | equipe parte para ataque rápido com vantagem numérica ou posicional clara | ataque posicional regular | marcar quando posse rápida gera finalização ou vantagem clara | `SRC-NOTATIONAL-BH` | `draft` |
+| `fast_break_against` | transição ofensiva rápida da adversária | adversária ataca em vantagem numérica ou posicional clara | ataque posicional adversário regular | marcar quando adversária finaliza ou cria vantagem clara em transição | `SRC-NOTATIONAL-BH` | `draft` |
+| `transition_recovery_good` | recuperação defensiva eficiente na transição | equipe se reorganiza e impede vantagem clara da adversária | reorganização defensiva sem ação de transição clara | marcar quando equipe impede vantagem adversária por recomposição eficiente | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
+| `transition_recovery_bad` | falha de recomposição na transição | adversária obtém finalização clara por atraso ou falha defensiva na transição | falha em ataque posicional sem contexto de transição | marcar quando adversária se aproveita diretamente de falha de recomposição | `SRC-NOTATIONAL-BH`, `coach_decision` | `draft` |
+| `shootout_attempt` | tentativa em shoot-out | qualquer tentativa de shoot-out, convertida ou não | lances em jogo corrido | marcar todas as tentativas; usar `shootout_goal` ou `save_shootout` para desfecho | `SRC-IHF-RULES` | `draft` |
+| `shootout_goal` | shoot-out convertido em gol | shoot-out resulta em gol válido | shoot-out não convertido | `points_value` deve refletir regra aplicável; não usar para gol em jogo corrido | `SRC-IHF-RULES` | `draft` |
+| `shootout_miss` | shoot-out não convertido | shoot-out não resulta em gol (para fora, trave ou defesa) | gol marcado no shoot-out | separar defesa da goleira com `save_shootout` quando aplicável | `SRC-IHF-RULES` | `draft` |
+| `timeout` | pedido de tempo registrado no vídeo | há interrupção oficial de tempo no vídeo | pausa sem confirmação oficial | marcar timestamp para contexto do relatório; não inferir timeout sem evidência clara | `SRC-IHF-RULES` | `draft` |
+| `set_end` | fim do set | placar final do set é marcado | intervalo sem fim de set | marcar placar e timestamp final do set | `SRC-IHF-RULES` | `draft` |

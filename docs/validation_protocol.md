@@ -231,6 +231,12 @@ Marcar apenas quando a evidência mínima estiver satisfeita.
 - [ ] a matrix de evidência tiver sido atualizada quando necessário
 - [ ] a nova versão da taxonomia tiver sido criada se houve mudança semântica
 
+---
+
+## Rodadas executadas
+
+*Esta seção registra aplicações históricas do protocolo. O protocolo completo está acima.*
+
 ### Aplicação registrada — rodada de fechamento mínimo de `G1` em 2026-06-09
 
 Objetivo da rodada:

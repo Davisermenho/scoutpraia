@@ -31,6 +31,39 @@ nota: "Plano executado; único gap ativo é G5 (validação humana)"
 
 ---
 
+## Sumário de gaps ativos
+
+| Gap | Status | Próxima ação |
+| --- | --- | --- |
+| G1 — Taxonomia integralmente em `draft` | RESOLVIDO (2026-06-09) | — |
+| G2 — `SRC-RAG-LEWIS` sem arquivo local | DIFERIDO — Fase 2 | iniciar Fase 2 RAG |
+| G3 — `SRC-OPENAI-EVALS` em deprecação | DIFERIDO — Fase 2 | substituir na Fase 2 |
+| G4 — `evidence_matrix.md` sem `SRC-SYNTHESIS-BH` | RESOLVIDO | — |
+| G5 — Validação observacional humana | **ABERTO** | executar protocolo em `docs/validation_protocol.md` |
+| G6 — Distinção `SRC` vs `coach_decision` no dicionário | MONITORADO | coluna Fonte já presente; revisar na próxima rodada G1 |
+| G7 — `validation_protocol.md` sem critérios numéricos | RESOLVIDO (2026-06-08) | — |
+
+## Estrutura esperada ao final da execução
+
+```
+docs/
+├── sources/
+│   ├── README.md                                    # registro mestre (A6)
+│   ├── ihf_rules_beach_handball.pdf                 # SRC-IHF-RULES
+│   ├── regras.md                                    # derivado de SRC-IHF-RULES (A2)
+│   ├── 2024.naacl-industry.19.pdf                   # SRC-RAG-STRUCTURED
+│   ├── Scout de Handebol de Areia_ Fontes Fortes.md # SRC-SYNTHESIS-BH (A3)
+│   ├── Working-with-evals.md                        # SRC-OPENAI-EVALS
+│   ├── notational_analysis_bh_iannaccone_2022.pdf   # SRC-NOTATIONAL-BH (A4)
+│   ├── womens_bh_statistics_kazan_2022.pdf          # SRC-NOTATIONAL-BH (A4)
+│   ├── primer_observational_measurement_2017.html   # SRC-OBS-MEASUREMENT (A5)
+│   └── validation_observational_instrument_handball_2023.html  # SRC-OBS-MEASUREMENT (A5)
+```
+
+**Removido:** `docs/sources/Plano de Pesquisa para Scout Esportivo.md` (A1 — CONCLUÍDO)
+
+---
+
 ## 0. Inventário verificado
 
 ### 0.1 Arquivos em `docs/sources/`
@@ -180,7 +213,7 @@ As ações A1–A3 e A6 são independentes de downloads externos. A4 e A5 requer
 
 ---
 
-### Ação A1 — Deletar arquivo morto
+### Ação A1 — Deletar arquivo morto `[CONCLUÍDO]`
 
 **Path:** `docs/sources/Plano de Pesquisa para Scout Esportivo.md`
 
@@ -200,7 +233,7 @@ rm "docs/sources/Plano de Pesquisa para Scout Esportivo.md"
 
 ---
 
-### Ação A2 — Registrar `regras.md` como artefato derivado com limitações
+### Ação A2 — Registrar `regras.md` como artefato derivado com limitações `[CONCLUÍDO]`
 
 **Ação:** adicionar seção "Artefatos derivados" em `docs/sources/README.md`.
 
@@ -232,7 +265,7 @@ rm "docs/sources/Plano de Pesquisa para Scout Esportivo.md"
 
 ---
 
-### Ação A3 — Registrar `Scout de Handebol de Areia_ Fontes Fortes.md` como curadoria secundária
+### Ação A3 — Registrar `Scout de Handebol de Areia_ Fontes Fortes.md` como curadoria secundária `[CONCLUÍDO]`
 
 **Path:** `docs/sources/Scout de Handebol de Areia_ Fontes Fortes.md` (manter nome atual)
 
@@ -266,7 +299,7 @@ rm "docs/sources/Plano de Pesquisa para Scout Esportivo.md"
 
 ---
 
-### Ação A4 — Baixar arquivos para `SRC-NOTATIONAL-BH`
+### Ação A4 — Baixar arquivos para `SRC-NOTATIONAL-BH` `[CONCLUÍDO]`
 
 **Papel da fonte:** indicadores de finalização, zonas, eficiência e padrões de jogo no handebol de praia.
 
@@ -303,7 +336,7 @@ Atualizar linha `SRC-NOTATIONAL-BH`: adicionar coluna `Arquivo local` listando o
 
 ---
 
-### Ação A5 — Baixar arquivos para `SRC-OBS-MEASUREMENT`
+### Ação A5 — Baixar arquivos para `SRC-OBS-MEASUREMENT` `[CONCLUÍDO]`
 
 **Papel da fonte:** confiabilidade, validade e controle de ambiguidade observacional.
 
@@ -335,7 +368,7 @@ Atualizar linha `SRC-OBS-MEASUREMENT`: adicionar coluna `Arquivo local` listando
 
 ---
 
-### Ação A6 — Atualizar `docs/sources/README.md` (consolidação)
+### Ação A6 — Atualizar `docs/sources/README.md` (consolidação) `[CONCLUÍDO]`
 
 Executar após A1–A5 (ou em paralelo com A2–A3 se A4–A5 ainda não foram executadas).
 
@@ -365,7 +398,7 @@ Nova tabela (após todas as ações):
 
 ---
 
-### Ação A7 — Adicionar coluna `Fonte` em `docs/taxonomy_dictionary.md`
+### Ação A7 — Adicionar coluna `Fonte` em `docs/taxonomy_dictionary.md` `[CONCLUÍDO]`
 
 **Instrução:** adicionar coluna `Fonte` após `Regra de decisão` (antes de `Status`) em cada tabela do dicionário.
 

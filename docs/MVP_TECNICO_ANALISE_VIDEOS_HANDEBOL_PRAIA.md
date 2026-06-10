@@ -27,6 +27,16 @@ MUST NOT: versionar vídeos, banco, clipes, relatórios, .env, .venv, tmp/ ou bi
 
 Para a ordem de implementação, seguir `docs/IMPLEMENTATION_STEPS_AI.md`.
 
+## Relação com documentos de execução
+
+| Documento | Papel | Quando ler |
+| --- | --- | --- |
+| `docs/IMPLEMENTATION_STEPS_AI.md` | contrato de execução com gates sequenciais para agentes | antes de implementar qualquer coisa |
+| `docs/IMPLEMENTATION_PROGRESS.md` | estado atual provado com evidência reproduzível | para saber onde o projeto está |
+| `docs/taxonomy_dictionary.md` | dicionário operacional com definições de eventos | antes de criar ou alterar eventos |
+| `docs/evidence_matrix.md` | governa quais eventos podem entrar em KPI | antes de usar evento em relatório final |
+| `docs/validation_protocol.md` | protocolo de validação humana com vídeo real | para fechar G5 |
+
 ---
 
 ## 1. Objetivo

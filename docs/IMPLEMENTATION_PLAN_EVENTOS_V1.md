@@ -97,66 +97,7 @@ six_metre_throw + goal = 2
 não gol = 0
 ```
 
-## Diagnóstico do app atual
-
-### 1. O modelo Event ainda é genérico
-
-Atualmente o modelo `Event` tem campos como:
-
-- `event_type`
-- `event_subtype`
-- `outcome`
-- `zone`
-- `points_value`
-- `notes`
-
-Ele ainda não possui campos explícitos para:
-
-- `scorer_role`
-- `result_possession`
-- `shot_origin_depth`
-- `court_lane`
-- `goal_zone`
-- `trajectory_visible`
-- `derived_points`
-- `manual_points`
-- `review_marker`
-
-Decisão: não adicionar todos os campos de uma vez sem plano de migração. Primeiro criar uma camada de contrato/serviço capaz de validar e derivar os dados, depois decidir migração de banco.
-
-### 2. A tela de marcação ainda usa pontos manuais
-
-A tela de marcação atual exibe `Pontos` como selectbox com valores `[0, 1, 2]`.
-
-Para Finalização v1.0, isso conflita com o contrato, pois `points_value` deve ser derivado pela combinação:
-
-```text
-event_code + result_possession + scorer_role
-```
-
-Decisão: na implementação da Finalização, remover ou bloquear escolha manual de pontos para eventos do contrato v1 e exibir apenas o valor calculado.
-
-### 3. O serviço de evento ainda valida pontuação pela taxonomia antiga
-
-O serviço atual usa listas como `SCORING_EVENTS` e `TWO_POINT_ONLY_EVENTS`. Isso não cobre a modelagem nova, porque `simple_shot` pode valer 1 ou 2 dependendo de `scorer_role`.
-
-Decisão: criar serviço específico de contrato para os módulos v1 antes de alterar o comportamento global de `event_service.py`.
-
-### 4. A taxonomia seed ainda tem eventos antigos
-
-A taxonomia atual tem eventos como:
-
-- `shot_attempt`
-- `goal_scored`
-- `shot_missed`
-- `two_point_goal`
-- `spin_shot`
-- `inflight_attempt`
-- `inflight_goal`
-
-Decisão: não substituir a taxonomia antiga diretamente. Criar camada `event_contracts_v1` e importar eventos v1 somente quando `import_rule_v1` for liberado.
-
-## Arquitetura recomendada de implementação
+## Arquitetura de implementação executada
 
 ### Fase 1 — Criar camada de contrato no código
 

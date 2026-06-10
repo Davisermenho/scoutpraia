@@ -39,15 +39,24 @@ Usar enquanto há poucas fontes.
 
 ## Fase 2 — RAG local
 
-Usar quando houver muitas fontes ou necessidade de auditoria recorrente.
+**BLOQUEADA.** Critério de desbloqueio — todos os itens abaixo devem ser verdadeiros:
 
-Componentes sugeridos:
+```
+[ ] G5 aprovado (validação humana com screenshots documentada)
+[ ] taxonomia ScoutPraia v0.1 com pelo menos 1 campo approved
+[ ] marcação operacional com vídeo real funcionando
+[ ] geração real de clipes com ffmpeg funcionando
+[ ] relatórios coletivo, individual e adversária funcionando
+[ ] fontes em docs/sources/ verificadas e registradas em sources/README.md
+```
 
-- pasta de documentos fonte
-- indexador local
-- busca por trecho relevante
-- prompt de auditoria com citação obrigatória
-- registro da decisão final na matriz de evidência
+Quando desbloqueada, componentes sugeridos:
+
+- pasta de documentos fonte (já existe em `docs/sources/`)
+- indexador local (a definir)
+- busca por trecho relevante com citação obrigatória
+- prompt de auditoria com exigência de fontes, conflitos e inferências
+- registro da decisão final na `docs/evidence_matrix.md`
 
 ## Usos corretos da IA/RAG
 
@@ -67,10 +76,14 @@ Componentes sugeridos:
 
 ## Contrato mínimo para prompts
 
-Todo prompt de auditoria deve exigir:
+Todo prompt de auditoria deve exigir e retornar:
 
-- fontes usadas
-- itens sem evidência
-- conflitos encontrados
-- inferências feitas
-- recomendação de manter, ajustar, remover ou testar
+| Campo obrigatório | Exemplo de saída esperada |
+| --- | --- |
+| fontes usadas | `SRC-IHF-RULES Rule 9`, `SRC-NOTATIONAL-BH Iannaccone 2022 p.3` |
+| itens sem evidência | `spin_shot: fonte presente, sem validação em vídeo` |
+| conflitos encontrados | `defensive_breakdown: definição interpretativa conflita com critério de objetividade de SRC-OBS-MEASUREMENT` |
+| inferências feitas | `zone atribuída por posição visual — sem confirmação oficial` |
+| recomendação | `manter` \| `ajustar definição` \| `fundir com X` \| `dividir em Y/Z` \| `remover` \| `manter como hipótese` |
+
+Prompt de auditoria não deve retornar apenas recomendação sem citar as fontes e conflitos que a sustentam.

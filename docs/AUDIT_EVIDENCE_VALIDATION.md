@@ -51,28 +51,16 @@ As provas atuais não garantem MVP completo. Elas não provam marcação operaci
 
 ## Fontes usadas na auditoria
 
-| Fonte | Uso na auditoria |
-| --- | --- |
-| pytest — Get Started | sustenta que `assert` verifica expectativas e falha quando a expectativa não é atendida |
-| pytest — `tmp_path` | sustenta isolamento por diretório temporário único em testes funcionais |
-| Python `subprocess` | sustenta que `check=True` falha em código de saída diferente de zero e que `capture_output=True` captura saída |
-| ffprobe | sustenta uso de `-show_format`, `-show_streams` e saída JSON para metadados de mídia |
-| SQLModel | sustenta uso de modelos `table=True`, SQLite URL, engine e `SQLModel.metadata.create_all(engine)` |
-| Streamlit `st.video` | sustenta que Streamlit aceita caminho local de vídeo e player local, mas não prova UI sem execução visual |
-| OpenAI Evals | sustenta ciclo de descrever comportamento, rodar entradas de teste, analisar e iterar |
-| Observational Measurement / IRR | sustenta que um scout observacional exige validade/confiabilidade por codificação, não apenas testes técnicos |
+| Fonte | Código | Uso na auditoria |
+| --- | --- | --- |
+| pytest | — | `assert` verifica expectativas; `tmp_path` isola banco de teste |
+| Python `subprocess` | — | `check=True` falha em código de saída diferente de zero |
+| ffprobe | — | `-show_format`, `-show_streams` e saída JSON para metadados |
+| SQLModel | — | modelos `table=True`, SQLite URL, `create_all(engine)` |
+| Streamlit `st.video` | — | aceita caminho local de vídeo; não prova UI sem execução visual |
+| Observational Measurement / IRR | `SRC-OBS-MEASUREMENT` | scout observacional exige confiabilidade por codificação |
 
-Links:
-
-- https://pytest.org/en/8.2.x/getting-started.html
-- https://docs.pytest.org/en/7.0.x/how-to/tmp_path.html
-- https://docs.python.org/3/library/subprocess.html
-- https://ffmpeg.org/ffprobe.html
-- https://sqlmodel.tiangolo.com/tutorial/create-db-and-table/
-- https://docs.streamlit.io/develop/api-reference/media/st.video
-- https://developers.openai.com/api/docs/guides/evals
-- https://pmc.ncbi.nlm.nih.gov/articles/PMC5426358/
-- https://pmc.ncbi.nlm.nih.gov/articles/PMC3402032/
+Links de referência completos: ver `docs/sources/README.md` para todos os `SRC-*`.
 
 ## Prova executada
 
@@ -183,16 +171,16 @@ O `skip` é correto para CI/repo porque vídeos reais são dados locais ignorado
 
 ## O que não está comprovado
 
-| Área | Motivo |
-| --- | --- |
-| UI Streamlit completa | não houve `streamlit run app.py` com verificação visual/browser |
-| marcação de eventos | não existe teste criando fluxo de marcação por vídeo/jogo na UI |
-| validação observacional | não há duas codificações comparadas nem amostra intra/interobservador |
-| clipes reais | `clip_service.py` calcula janela/nome, mas não executa `ffmpeg` |
-| analytics completo | KPIs ainda são mínimos e não cobrem todo MVP |
-| relatórios finais | templates/render básico não provam geração, persistência e download final |
-| taxonomia aprovada | taxonomia está `draft`; vídeo real não validou definição operacional |
-| MVP completo | pendências fundamentais permanecem registradas em `docs/IMPLEMENTATION_PROGRESS.md` |
+*Nota: estado desta auditoria é de 2026-06-06. Serviços internos, UI e relatórios foram implementados desde então (110 testes). O bloqueio atual é G5.*
+
+| Área | Motivo | Próximo gate |
+| --- | --- | --- |
+| UI Streamlit completa | não houve `streamlit run app.py` com verificação visual/browser | G5 — `docs/validation_protocol.md` |
+| marcação de eventos (validação humana) | prova automatizada existe; falta validação humana com screenshots | G5 — `docs/validation_protocol.md` |
+| validação observacional | não há duas codificações comparadas nem amostra intra/interobservador | G5 — Bloco C de `docs/validation_protocol.md` |
+| taxonomia aprovada | taxonomia está `draft`; vídeo real não validou definição operacional | G1/G5 — `docs/taxonomy_dictionary.md` + `docs/validation_protocol.md` |
+| importação de Eventos v1 | `import_rule_v1 = nao_importar_v1` | G5 aprovado + decisão em `docs/taxonomy_dictionary.md` |
+| MVP completo | G5 pendente | G5 fechado → declarar MVP |
 
 ## Veredito sobre `AGENTS.md`
 

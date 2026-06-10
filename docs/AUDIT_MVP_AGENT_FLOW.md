@@ -87,30 +87,9 @@ Resultado:
 
 ## Estado real do repositório
 
-Comprovado por teste ou script:
+Para o estado atual completo com evidências, ver `docs/AUDIT_EVIDENCE_VALIDATION.md` e `docs/IMPLEMENTATION_PROGRESS.md`.
 
-- estrutura base do projeto
-- configuração, paths e SQLite
-- modelos SQLModel principais
-- seed idempotente da taxonomia `ScoutPraia v0.1`
-- cadastro básico de adversária, atleta e jogo com metadados de vídeo
-- associação de roster ao jogo
-- CRUD de eventos no serviço
-- validação de taxonomia, zona e `points_value`
-- geração real de clipe com `ffmpeg` sobre vídeo sintético
-- extração de metadados com `ffprobe`
-- higiene de repositório
-
-Ainda não comprovado como MVP:
-
-- tela de marcação operacional com `st.video`, histórico, edição e exclusão
-- dashboard real com KPIs
-- analytics completo coletivo, individual e adversária
-- relatório HTML salvo com registro `Report`
-- validação operacional com jogo real completo
-- comparação intra/interobservador persistida em `CodingAgreement`
-- verificação visual do Streamlit
-- README final de operação do MVP completo
+Resumo (2026-06-10): 110 testes passando; serviços, UI e relatórios implementados; G5 (validação humana) pendente.
 
 ## Ponto de atenção
 
@@ -121,25 +100,19 @@ Essas duas ordens não são idênticas, mas não conflitam:
 - o roadmap do MVP descreve a progressão funcional desejada
 - o plano da IA prioriza serviços internos testáveis antes de UI completa
 
-Para agentes, a ordem correta é:
+Para agentes, a ordem correta com precondição explícita:
 
-1. seguir `docs/IMPLEMENTATION_STEPS_AI.md`
-2. conferir o escopo contra `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
-3. atualizar `docs/IMPLEMENTATION_PROGRESS.md`
-4. rodar `scripts/verify_current_state.sh`
-5. não avançar se o gate falhar
-
-## Próxima fase correta
-
-Como `event_service.py` e `clip_service.py` já têm prova automatizada, a próxima ação técnica correta é:
-
-1. completar `validation_service.py`
-2. persistir `CodingAgreement`
-3. testar divergência artificial por evento, atleta, zona e pontos
-4. só depois avançar para analytics, relatórios e UI completa
+| Passo | Ação | Precondição |
+| --- | --- | --- |
+| 1 | Ler `docs/IMPLEMENTATION_STEPS_AI.md` completo | sempre — antes de qualquer implementação |
+| 2 | Conferir escopo em `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` | sempre |
+| 3 | Ler `docs/IMPLEMENTATION_PROGRESS.md` para estado atual | sempre |
+| 4 | Rodar `scripts/verify_current_state.sh` | após qualquer mudança relevante |
+| 5 | Atualizar `docs/IMPLEMENTATION_PROGRESS.md` | após qualquer mudança |
+| 6 | NÃO avançar se o gate falhar | invariante absoluta |
 
 ## Conclusão
 
-O fluxo documental é adequado para orientar um agente. Ele impõe escopo local, sequência por gates, prova reproduzível e registro de pendências. O MVP técnico é coerente com o objetivo do ScoutPraia.
+O fluxo documental é adequado para orientar um agente. Ele impõe escopo local, sequência por gates, prova reproduzível e registro de pendências.
 
-O MVP ainda não deve ser declarado completo. O estado atual autoriza continuar a implementação pela Fase 6.4 do plano da IA: `validation_service.py`.
+**Estado atual (2026-06-10):** 110 testes passando; Eventos v1 implementados; `import_rule_v1 = nao_importar_v1`; próxima ação: G5 (validação humana).
