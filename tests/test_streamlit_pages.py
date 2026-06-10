@@ -672,6 +672,36 @@ def test_opponents_page_renders_history_and_trends(monkeypatch, tmp_path: Path) 
                 points_value=0,
             ),
         )
+        create_event(
+            session,
+            Event(
+                match_id=fixture["match_id"],
+                set_id=fixture["set_id"],
+                possession_id=None,
+                taxonomy_version_id=fixture["taxonomy_id"],
+                event_type="specialist_attempt",
+                player_id=None,
+                team_side="opponent",
+                timestamp_second=21,
+                zone="center",
+                points_value=0,
+            ),
+        )
+        create_event(
+            session,
+            Event(
+                match_id=fixture["match_id"],
+                set_id=fixture["set_id"],
+                possession_id=None,
+                taxonomy_version_id=fixture["taxonomy_id"],
+                event_type="specialist_goal",
+                player_id=None,
+                team_side="opponent",
+                timestamp_second=22,
+                zone="center",
+                points_value=2,
+            ),
+        )
 
     at = AppTest.from_string(
         opponents_page_app_script(tmp_path / "pages.db", tmp_path / "reports")
@@ -681,6 +711,7 @@ def test_opponents_page_renders_history_and_trends(monkeypatch, tmp_path: Path) 
     assert len(at.exception) == 0
     assert any(header.value == "Adversárias" for header in at.header)
     assert any(subheader.value == "Histórico de jogos" for subheader in at.subheader)
+    assert any(metric.label == "Eficiência da especialista" for metric in at.metric)
 
 
 def selectbox_by_label(at: AppTest, label: str):

@@ -141,6 +141,36 @@ def seed_report_fixture(session: Session, tmp_path: Path) -> dict[str, int]:
             points_value=1,
         ),
     )
+    opponent_specialist_attempt = create_event(
+        session,
+        Event(
+            match_id=match.id,
+            set_id=set_segment.id,
+            possession_id=opponent_possession.id,
+            taxonomy_version_id=taxonomy.id,
+            event_type="specialist_attempt",
+            player_id=opponent_player.id,
+            team_side="opponent",
+            timestamp_second=32,
+            zone="center",
+            points_value=0,
+        ),
+    )
+    opponent_specialist_goal = create_event(
+        session,
+        Event(
+            match_id=match.id,
+            set_id=set_segment.id,
+            possession_id=opponent_possession.id,
+            taxonomy_version_id=taxonomy.id,
+            event_type="specialist_goal",
+            player_id=opponent_player.id,
+            team_side="opponent",
+            timestamp_second=33,
+            zone="center",
+            points_value=2,
+        ),
+    )
 
     team_clip_path = tmp_path / "clips" / "team_goal.mp4"
     opponent_clip_path = tmp_path / "clips" / "opponent_goal.mp4"
@@ -178,6 +208,8 @@ def seed_report_fixture(session: Session, tmp_path: Path) -> dict[str, int]:
         "opponent_player_id": opponent_player.id,
         "team_attempt_id": team_attempt.id,
         "opponent_attempt_id": opponent_attempt.id,
+        "opponent_specialist_attempt_id": opponent_specialist_attempt.id,
+        "opponent_specialist_goal_id": opponent_specialist_goal.id,
     }
 
 
@@ -223,6 +255,7 @@ def test_report_service_generates_html_and_persists_payloads(tmp_path: Path) -> 
     assert "../clips/team_goal.mp4" in individual_html
 
     assert "Adversária: Argentina" in opponent_html
+    assert "Eficiência da especialista: 1.0" in opponent_html
     assert "../clips/opponent_goal.mp4" in opponent_html
 
     collective_payload = json.loads(collective.payload_json)
@@ -233,6 +266,7 @@ def test_report_service_generates_html_and_persists_payloads(tmp_path: Path) -> 
     assert collective_payload["summary"]["clips_total"] == 2
     assert individual_payload["player_name"] == "Maria"
     assert opponent_payload["opponent_name"] == "Argentina"
+    assert opponent_payload["kpis"]["specialist_efficiency"] == 1.0
 
 
 def test_report_payload_requires_unambiguous_taxonomy(tmp_path: Path) -> None:

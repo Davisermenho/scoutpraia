@@ -3707,3 +3707,62 @@ Limitações, gaps e riscos:
 - A correção fecha a inconsistência analítica mais visível antes de qualquer promoção de v1, mas não resolve sozinha a governança de quais arquivos entram em um commit coerente.
 - O ranking de 2 pontos agora usa pontos resolvidos (`derived_points` com fallback para `points_value`); isso reduz dependência do nome do evento, mas continua assumindo que a persistência do evento v1 normaliza corretamente a pontuação.
 - Como a seed padrão não foi promovida, ainda existe diferença entre “analytics pronto para eventos v1 controlados” e “produto operando v1 por padrão”.
+
+---
+
+## Ciclo — Curadoria do escopo `opponents/relatórios`
+
+Fase atual declarada: `separação de escopo para próximo commit após os docs metodológicos`.
+
+Status: `AJUSTADO COM EVIDÊNCIA`
+
+Implementado:
+
+- Limpeza do escopo residual de `opponents/relatórios` para não misturar mudanças de tagging com a rodada da tela de adversárias.
+- Ajuste de `tests/test_report_service.py` para manter apenas a cobertura nova ligada ao relatório de adversária:
+  - seed de `specialist_attempt` e `specialist_goal` da adversária
+  - assert de `Eficiência da especialista` no HTML de adversária
+  - assert de `opponent_payload["kpis"]["specialist_efficiency"]`
+- Ajuste de `tests/test_streamlit_pages.py` para remover a parte residual de tagging da especialista desta rodada e preservar apenas a prova da métrica na página `Adversárias`.
+- Manutenção da alteração funcional de `scoutpraia/pages/opponents.py` que expõe a métrica `Eficiência da especialista`.
+
+Arquivos do escopo curado:
+
+- `scoutpraia/pages/opponents.py`
+- `tests/test_report_service.py`
+- `tests/test_streamlit_pages.py`
+
+Arquivos explicitamente fora deste escopo:
+
+- `scripts/gerar_template_scout.py`
+- qualquer documentação metodológica já tratada no commit anterior
+
+Testes executados:
+
+- `python3 -m pytest tests/test_report_service.py tests/test_streamlit_pages.py::test_opponents_page_renders_history_and_trends -q`
+- `git diff --check`
+
+Resultado observado:
+
+```text
+python3 -m pytest tests/test_report_service.py tests/test_streamlit_pages.py::test_opponents_page_renders_history_and_trends -q
+- 3 passed in 3.54s
+
+git diff --check
+- sem saída; sem erro de whitespace
+```
+
+Evidência funcional desta fase:
+
+- A página `Adversárias` agora mostra a métrica `Eficiência da especialista`.
+- O teste de relatório prova que o relatório de adversária e seu payload expõem a eficiência da especialista sem depender de asserts novos de relatório coletivo/individual.
+
+O que ainda não está pronto:
+
+- Este escopo foi apenas curado e testado; ainda não foi commitado.
+- `scripts/gerar_template_scout.py` segue fora de qualquer escopo aprovado.
+
+Limitações, gaps e riscos:
+
+- `tests/test_report_service.py` continua sendo um arquivo compartilhado entre relatórios coletivo, individual e de adversária; o que foi limpo aqui foi o diff residual, não a arquitetura global da suíte.
+- A prova executada nesta rodada foi direcionada ao escopo de adversária; a prova global completa deve ser rerodada antes de um futuro commit desse bloco.

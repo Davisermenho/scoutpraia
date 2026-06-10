@@ -66,7 +66,7 @@ def render() -> None:
         if trends is None:
             st.info("Ainda não há eventos suficientes para tendências desta adversária.")
         else:
-            cols = st.columns(3)
+            cols = st.columns(4)
             cols[0].metric(
                 "Lado preferencial",
                 direction_label(trends["preferred_attack_side"]),
@@ -81,6 +81,12 @@ def render() -> None:
                 "Eficiência shoot-out",
                 trends["shootout_efficiency"]
                 if trends["shootout_efficiency"] is not None
+                else "n/d",
+            )
+            cols[3].metric(
+                "Eficiência da especialista",
+                trends["specialist_efficiency"]
+                if trends["specialist_efficiency"] is not None
                 else "n/d",
             )
             st.dataframe(
