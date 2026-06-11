@@ -3,7 +3,7 @@ title: Contrato Operacional — Eventos v1
 project: ScoutPraia
 version: eventos_v1.0
 owner: Davi Sermenho
-last_updated: 2026-06-11
+last_updated: 2026-06-10
 status: todos_contratos_validados
 semantic_source: Contrato_Operacional.md
 implementation_source: SCOUT_DESIGN_TEMPLATE
@@ -54,8 +54,8 @@ Referência rápida para agentes. Para regras detalhadas, consultar as seções 
 
 ```yaml
 consolidated_state:
-  last_reviewed_at: "2026-06-11"
-  git_head: "aa8934c"
+  last_reviewed_at: "2026-06-10"
+  git_head: "7352846"
   modules:
     attack_no_shot_v1:
       status: "contrato_validado"
@@ -76,22 +76,6 @@ consolidated_state:
       status: "contrato_validado"
       import_rule_v1: "nao_importar_v1"
       evidence: ["EV-008"]
-      evidence_status: "passed"
-  conceptual_contracts:
-    shootout_v1:
-      status: "arquitetura_em_definicao_validada_por_teste_conceitual"
-      import_rule_v1: "nao_importar_v1"
-      ui: "nao_liberada"
-      importacao: "nao_liberada"
-      seed_operacional: "inalterado"
-      evidence_status: "passed"
-    goalkeeper_v1:
-      status: "arquitetura_em_definicao_validada_por_teste_conceitual"
-      import_rule_v1: "nao_importar_v1"
-      ui: "nao_liberada"
-      importacao: "nao_liberada"
-      seed_operacional: "inalterado"
-      evidence: ["EV-010"]
       evidence_status: "passed"
 ```
 
@@ -523,31 +507,6 @@ acceptance_tests:
     executed_at: "2026-06-10"
     commit: "7a93d7728c966f229cf253d8fc5ca3ead154138d"
     module: "defensive_v1"
-
-  EV-010:
-    module: "goalkeeper_v1"
-    status: "passed"
-    git_head: "aa8934c"
-    local_validation:
-      goalkeeper_contract: "13 passed in 0.02s"
-      registry_contract: "14 passed in 0.02s"
-      full_pytest: "226 passed in 14.19s"
-      verify_current_state: "verde; 226 passed in 13.81s"
-      git_diff_check: "sem saída"
-      git_status_short: "limpo"
-    seed:
-      taxonomy: "ScoutPraia v0.1"
-      taxonomy_status: "draft"
-      event_definitions: 31
-    import_rule_v1: "nao_importar_v1"
-
-  global_validation_after_goalkeeper:
-    command: "python3 -m pytest -q"
-    actual_result: "226 passed in 14.19s"
-    verify_current_state: "verde; 226 passed in 13.81s"
-    git_diff_check: "sem saída"
-    git_status_short: "limpo"
-    git_head: "aa8934c"
 ```
 
 
@@ -557,21 +516,17 @@ acceptance_tests:
 ```yaml
 release_rules:
   current_state: "todos_contratos_validados"
-  last_reviewed_at: "2026-06-11"
-  git_head: "aa8934c"
+  last_reviewed_at: "2026-06-10"
+  git_head: "7352846"
   app_import_ready:
     attack_no_shot_v1: "importar_v1"
     finalization_v1: "aguarda_ativacao_app"
     offensive_creation_v1: "aguarda_ativacao_app"
     defensive_v1: "aguarda_ativacao_app"
-    shootout_v1: "nao_liberado"
-    goalkeeper_v1: "nao_liberado"
   blockers_before_full_app_activation:
     - "Validar que nenhum módulo v1 é importado apenas por category."
     - "Executar testes de integração de app antes de ativar finalization_v1, offensive_creation_v1 e defensive_v1."
     - "Confirmar fluxo de app com attack_no_shot_v1 ativo antes de ativar módulos dependentes."
-    - "Não liberar UI/importação de shootout_v1 enquanto permanecer apenas como contrato conceitual validado por teste."
-    - "Não liberar UI/importação de goalkeeper_v1 enquanto permanecer apenas como contrato conceitual validado por teste."
 ```
 
 
@@ -1158,12 +1113,11 @@ goalkeeper_final_cross_audit:
 goalkeeper_repo_registration:
   date: "2026-06-10"
   module_id: "goalkeeper_v1"
-  status: "arquitetura_em_definicao_validada_por_teste_conceitual"
+  status: "arquitetura_em_definicao_pronta_para_teste_conceitual"
   import_rule_v1: "nao_importar_v1"
   app_ui_status: "nao_liberado"
   import_status: "nao_liberado"
   seed_status: "inalterado"
-  git_head: "aa8934c"
   core_events:
     - "goalkeeper_save"
     - "goalkeeper_goal_allowed"
@@ -1200,42 +1154,595 @@ goalkeeper_repo_registration:
     - "scripts/verify_current_state.sh"
     - "git diff --check"
     - "git status --short"
-  local_validation:
-    goalkeeper_contract: "13 passed in 0.02s"
-    registry_contract: "14 passed in 0.02s"
-    full_pytest: "226 passed in 14.19s"
-    verify_current_state: "verde; 226 passed in 13.81s"
-    git_diff_check: "sem saída"
-    git_status_short: "limpo"
-  evidence_status: "passed"
+  evidence_status: "pending_local_validation"
 ```
 
-### G1-GOALKEEPER-EV-010 — Evidência local do contrato conceitual (2026-06-11)
 
+## 26. Abertura de módulo — transition_v1
 ```yaml
-g1_goalkeeper_ev010:
+transition_module_opening:
   date: "2026-06-11"
-  git_head: "aa8934c"
-  executed_by: "Davi Sermenho"
-  status_after_evidence: "arquitetura_em_definicao_validada_por_teste_conceitual"
+  module_id: "transition_v1"
+  name: "Transição v1.0"
+  status: "arquitetura_em_definicao"
   import_rule_v1: "nao_importar_v1"
-  ui: "nao_liberada"
-  importacao: "nao_liberada"
-  seed_operacional: "inalterado"
-  evidence:
-    EV-010:
-      command: "python3 -m pytest tests/test_goalkeeper_contract.py -q"
-      result: "13 passed in 0.02s"
-      status: "passed"
-    registry_contract:
-      command: "python3 -m pytest tests/test_events_v1_contract_registry.py -q"
-      result: "14 passed in 0.02s"
-      status: "passed"
-    global_validation_after_goalkeeper:
-      command: "python3 -m pytest -q"
-      result: "226 passed in 14.19s"
-      verify_current_state: "verde; 226 passed in 13.81s"
-      git_diff_check: "sem saída"
-      git_status_short: "limpo"
-  seed_note: "Taxonomia operacional padrão permanece ScoutPraia v0.1 draft com 31 eventos; a evidência do goalkeeper_v1 não altera seed, UI ou importação."
+  app_ui_status: "nao_liberado"
+  import_status: "nao_liberado"
+  seed_status: "inalterado"
+  source_tabs:
+    events: "EVENTOS"
+    fields: "CAMPOS_AUXILIARES_TRANSICAO"
+    results: "RESULTADOS_TRANSICAO"
+    tests: "TESTES_TRANSICAO"
+    versioning: "VERSIONAMENTO_TRANSICAO"
+  core_candidate:
+    transition_sequence:
+      ui_type: "botao_principal"
+      rule: "Sequência observável que conecta mudança de posse, defesa, rebote, reposição ou erro adversário a uma ação ofensiva/defensiva antes do jogo estabilizar."
+      required_fields:
+        - "transition_direction"
+        - "transition_trigger"
+        - "trigger_event_id"
+        - "transition_start_zone"
+        - "transition_speed"
+        - "numerical_context"
+        - "result_transition"
+      optional_link_fields:
+        - "terminal_event_id"
+        - "terminal_event_code"
+        - "terminal_state"
+      key_rule: "Toda transição precisa de gatilho e fechamento: terminal_event_id ou terminal_state."
+  result_candidates:
+    - "transition_goal"
+    - "transition_shot_created"
+    - "transition_saved"
+    - "transition_turnover_no_shot"
+    - "transition_slowed_to_set"
+    - "defensive_recovery_success"
+    - "defensive_recovery_fail"
+    - "interrupted_review"
+    - "uncertain_review"
+  boundaries:
+    finalization_v1: "Gol/finalização em transição deve existir como evento terminal de Finalização."
+    attack_no_shot_v1: "Perda sem arremesso em transição deve vincular evento terminal de ataque sem finalização."
+    goalkeeper_v1: "Defesa da goleira pode ser gatilho, mas não terminal de transition_v1."
+    shootout_v1: "shootout_attempt fica bloqueado como gatilho ou terminal de transition_v1."
+    defensive_v1: "Retorno defensivo pode terminar em recuperação/bloqueio, vinculado quando houver evento terminal próprio."
+  forbidden_logic:
+    - "Não calcular pontos em transition_v1."
+    - "Não registrar gol de transição sem finalização terminal vinculada."
+    - "Não registrar transição sem trigger_event_id ou terminal_state/terminal_event_id."
+    - "Não usar transition_sequence para Shoot-out."
+  current_status: "Módulo aberto na planilha; ainda não validado por teste no repositório."
+```
+
+
+## 27. Auditoria inicial — transition_v1
+```yaml
+transition_initial_audit:
+  date: "2026-06-11"
+  module_id: "transition_v1"
+  status: "arquitetura_em_definicao_auditada"
+  import_rule_v1: "nao_importar_v1"
+  decisions:
+    core_event:
+      decision: "transition_sequence mantido como único núcleo inicial"
+      reason: "Transição é cadeia vinculada; não criar eventos separados para fast break, contra-ataque ou retorno defensivo nesta fase."
+    direction:
+      decision: "transição ofensiva e defensiva no mesmo evento"
+      rule: "transition_direction diferencia offensive_transition e defensive_transition."
+    trigger_event_id:
+      decision: "campo condicional"
+      rule: "Obrigatório quando o gatilho vier de evento registrado; não obrigatório para referee_restart, substitution_context ou unknown_review."
+    transition_slowed_to_set:
+      decision: "resultado válido com fechamento obrigatório"
+      rule: "result_transition=transition_slowed_to_set exige terminal_state=slowed_to_set_attack."
+    goalkeeper_boundary:
+      decision: "goalkeeper_v1 pode ser gatilho, não terminal"
+      rule: "goalkeeper_save pode iniciar transição; goalkeeper_save, goalkeeper_goal_allowed e goalkeeper_specialist_exchange não podem ser terminal_event_code."
+    transition_goal:
+      decision: "gol de transição exige finalização terminal"
+      rule: "result_transition=transition_goal exige terminal_event_code em [simple_shot, spin_shot, inflight_shot, goalkeeper_shot, six_metre_throw]."
+  current_results:
+    - "transition_goal"
+    - "transition_shot_created"
+    - "transition_saved"
+    - "transition_turnover_no_shot"
+    - "transition_slowed_to_set"
+    - "defensive_recovery_success"
+    - "defensive_recovery_fail"
+    - "interrupted_review"
+    - "uncertain_review"
+  current_status: "Arquitetura auditada na planilha; ainda sem teste no repositório."
+```
+
+
+## 28. Correção conceitual — transition_v1 baseado em substituições
+```yaml
+transition_concept_correction:
+  date: "2026-06-11"
+  module_id: "transition_v1"
+  status: "arquitetura_em_definicao_corrigida"
+  import_rule_v1: "nao_importar_v1"
+  reason: "No beach handball, o jogo de transição acontece principalmente pela troca funcional na zona de substituição, não por corrida longa de uma área à outra."
+  corrected_core_definition:
+    transition_sequence: "Cadeia de troca funcional pela linha lateral/zona de substituição que cria ou neutraliza vantagem antes da defesa adversária estabilizar."
+  offensive_transition:
+    rule: "Defensoras saem pela zona de substituição e atacantes entram próximas à área adversária."
+    objective: "Chegar rápido, antecipar trocas e impedir que a defesa adversária monte estrutura."
+    types:
+      direct_transition:
+        definition: "Goleira lança para atacante sem defensora ou goleira adversária em oposição relevante, gerando clara chance de gol."
+        required_field: "direct_lane_available"
+      indirect_superiority:
+        definition: "Atacantes entram criando superioridade 2x1, 3x2 ou 4x3 antes da defesa estabilizar."
+        tactical_system_examples:
+          - "2x1"
+          - "3x2"
+          - "4x3"
+  defensive_transition:
+    rule: "Atacantes saem pela zona de substituição e defensoras entram próximas à área da própria goleira."
+    objective: "Antecipar a troca para neutralizar transição direta e, em sequência, transição indireta adversária."
+    types:
+      defensive_neutralization_direct: "Entrada defensiva neutraliza lançamento direto/atacante livre adversária."
+      defensive_neutralization_indirect: "Entrada defensiva organiza 2x1, 3x0 ou ajuste equivalente contra superioridade adversária."
+  anticipation:
+    definition: "Atleta que não participa diretamente do lance sai antes da conclusão para permitir entrada antecipada de atleta do papel oposto."
+    attack_to_defense: "Atacante sai antes do fim do lance para defensora entrar e neutralizar transição adversária."
+    defense_to_attack: "Defensora sai antes do fim do lance para atacante entrar com vantagem ofensiva."
+  required_new_fields:
+    - "substitution_phase"
+    - "substitution_timing"
+    - "transition_type"
+    - "transition_target_zone"
+    - "defensive_stabilization_status"
+  optional_new_fields:
+    - "exiting_player_id"
+    - "entering_player_id"
+    - "exiting_role"
+    - "entering_role"
+    - "substitution_zone"
+    - "anticipation_side"
+    - "transition_system"
+    - "transition_positions"
+    - "direct_lane_available"
+  end_condition:
+    rule: "A transição termina quando ocorre evento terminal ou quando a defesa adversária estabiliza."
+    stabilized_defense: "Ação posterior deve ser tratada como ataque posicionado, não transição."
+  tactical_note: "Posições e sistemas da transição podem ser diferentes do ataque/defesa posicionados; exemplo: transição em 4:0 e ataque posicionado em 3:1."
+  current_status: "Planilha corrigida com conceito real de transição; ainda sem teste no repositório."
+```
+
+
+## 29. Auditoria cruzada final — transition_v1 corrigido
+```yaml
+transition_final_cross_audit:
+  date: "2026-06-11"
+  module_id: "transition_v1"
+  status: "arquitetura_em_definicao_pronta_para_teste_conceitual"
+  import_rule_v1: "nao_importar_v1"
+  checked_sources:
+    - "EVENTOS"
+    - "CAMPOS_AUXILIARES_TRANSICAO"
+    - "RESULTADOS_TRANSICAO"
+    - "TESTES_TRANSICAO"
+    - "VERSIONAMENTO_TRANSICAO"
+  core_event: "transition_sequence"
+  corrected_concept: "Transição no beach handball é cadeia de substituição funcional pela zona de substituição, com antecipação, criação ou neutralização de vantagem antes da estabilização defensiva."
+  required_fields:
+    - "transition_direction"
+    - "substitution_phase"
+    - "substitution_timing"
+    - "transition_type"
+    - "transition_trigger"
+    - "transition_start_zone"
+    - "transition_target_zone"
+    - "transition_speed"
+    - "numerical_context"
+    - "defensive_stabilization_status"
+    - "result_transition"
+    - "terminal_event_id ou terminal_state"
+  final_result_domain:
+    - "transition_goal"
+    - "transition_shot_created"
+    - "transition_saved"
+    - "transition_turnover_no_shot"
+    - "transition_slowed_to_set"
+    - "defensive_recovery_success"
+    - "defensive_recovery_fail"
+    - "interrupted_review"
+    - "uncertain_review"
+    - "direct_transition_chance"
+    - "indirect_superiority_created"
+    - "direct_transition_neutralized"
+    - "indirect_transition_neutralized"
+  coherence_rules:
+    substitution_phase:
+      offensive_transition: "defenders_exit_attackers_enter"
+      defensive_transition: "attackers_exit_defenders_enter"
+    transition_type:
+      direct_transition_chance: "transition_type=direct_transition"
+      indirect_superiority_created: "transition_type=indirect_superiority"
+      direct_transition_neutralized: "transition_type=defensive_neutralization_direct"
+      indirect_transition_neutralized: "transition_type=defensive_neutralization_indirect"
+    indirect_superiority:
+      allowed_systems:
+        - "2x1"
+        - "3x2"
+        - "4x3"
+    anticipation:
+      rule: "substitution_timing=anticipation_before_lance_ends exige anticipation_side."
+    direct_transition:
+      rule: "transition_type=direct_transition exige direct_lane_available."
+    end_condition:
+      rule: "defensive_stabilization_status=defense_stabilized encerra a transição; ação posterior é ataque posicionado."
+    terminal_event:
+      transition_goal: "exige terminal_event_code em Finalização v1."
+      transition_turnover_no_shot: "exige terminal_event_code em Attack No Shot v1."
+      blocked_terminal_codes:
+        - "shootout_attempt"
+        - "goalkeeper_save"
+        - "goalkeeper_goal_allowed"
+        - "goalkeeper_specialist_exchange"
+  current_status: "Arquitetura corrigida e auditada na planilha; pronta para teste conceitual no repositório."
+  next_step: "criar tests/test_transition_contract.py no repositório, sem liberar UI/importação."
+```
+
+
+## 30. Registro de repositório — transition_v1 pronto para teste conceitual
+```yaml
+transition_repo_registration:
+  date: "2026-06-11"
+  module_id: "transition_v1"
+  status: "arquitetura_em_definicao_pronta_para_teste_conceitual"
+  import_rule_v1: "nao_importar_v1"
+  app_ui_status: "nao_liberado"
+  import_status: "nao_liberado"
+  seed_status: "inalterado"
+  core_events:
+    - "transition_sequence"
+  registry_scope:
+    file: "scoutpraia/contracts/events_v1.py"
+    exported_file: "scoutpraia/contracts/__init__.py"
+    registry_test: "tests/test_events_v1_contract_registry.py"
+    contract_test: "tests/test_transition_contract.py"
+  repository_changes:
+    commits:
+      - "4c4ef79 Registra transition v1 como contrato pronto para teste"
+      - "60ddf51 Inclui transition v1 no teste de registry"
+      - "7e39fc7 Adiciona testes conceituais do contrato transition v1"
+      - "d86d7b6 Exporta contrato transition v1"
+    files:
+      - "scoutpraia/contracts/events_v1.py"
+      - "tests/test_events_v1_contract_registry.py"
+      - "tests/test_transition_contract.py"
+      - "scoutpraia/contracts/__init__.py"
+  validated_design_rules:
+    - "transition_sequence é o único núcleo inicial do transition_v1."
+    - "Transição no beach handball é cadeia de substituição funcional pela zona de substituição, com antecipação, criação ou neutralização de vantagem antes da estabilização defensiva."
+    - "transition_direction diferencia offensive_transition e defensive_transition sem criar dois módulos separados."
+    - "substitution_phase distingue defensoras saindo/atacantes entrando e atacantes saindo/defensoras entrando."
+    - "substitution_timing=anticipation_before_lance_ends exige anticipation_side."
+    - "direct_transition_chance exige transition_type=direct_transition e direct_lane_available."
+    - "indirect_superiority_created exige transition_type=indirect_superiority e transition_system em 2x1, 3x2 ou 4x3."
+    - "Neutralizações defensivas exigem transition_type defensivo correspondente."
+    - "defensive_stabilization_status=defense_stabilized encerra a transição."
+    - "transition_goal exige evento terminal de Finalização v1."
+    - "transition_turnover_no_shot exige evento terminal de Attack No Shot v1."
+    - "Shoot-out, eventos da Goleira como terminal, ataque posicionado isolado e pontos diretos ficam bloqueados em transition_v1."
+  required_local_validation:
+    - "git pull"
+    - "python3 -m pytest tests/test_transition_contract.py -q"
+    - "python3 -m pytest tests/test_events_v1_contract_registry.py -q"
+    - "python3 -m pytest -q"
+    - "scripts/verify_current_state.sh"
+    - "git diff --check"
+    - "git status --short"
+  evidence_status: "pending_local_validation"
+```
+
+
+## 31. Melhoria de governança da planilha — MODULE_INDEX e SHEET_MAP
+```yaml
+spreadsheet_governance_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "indice_arquitetural_criado"
+  reason: "Reduzir risco de ambiguidade gerado pela quantidade de abas e tornar explícita a relação entre módulos, eventos, abas de suporte, status, importação e política de uso pela IA."
+  created_sheets:
+    MODULE_INDEX:
+      purpose: "Mapa mestre dos módulos v1."
+      columns:
+        - "module_id"
+        - "module_name"
+        - "primary_events"
+        - "support_tabs"
+        - "module_contract_status"
+        - "import_rule_v1"
+        - "repo_status"
+        - "evidence_id"
+        - "ui_status"
+        - "ai_use_policy"
+        - "notes"
+      covered_modules:
+        - "finalization_v1"
+        - "attack_no_shot_v1"
+        - "offensive_creation_v1"
+        - "defensive_v1"
+        - "shootout_v1"
+        - "goalkeeper_v1"
+        - "transition_v1"
+    SHEET_MAP:
+      purpose: "Mapa das abas da planilha e suas dependências."
+      columns:
+        - "sheet_name"
+        - "sheet_type"
+        - "module_id"
+        - "owner_scope"
+        - "is_contract_source"
+        - "is_generated"
+        - "can_be_deleted"
+        - "depends_on"
+        - "notes"
+  validation_basis:
+    - "Data Carpentry: metadados claros reduzem ambiguidade em planilhas com múltiplas abas."
+    - "NIST AI RMF: governança e documentação reduzem risco no ciclo de design/desenvolvimento/uso de IA."
+    - "OWASP LLM Top 10: políticas explícitas de uso reduzem risco de saída incorreta/misinformation."
+  current_effect:
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Nenhum evento foi movido ou removido."
+    - "A mudança apenas adiciona camada de navegação, governança e redução de risco."
+  next_recommended_step: "Adicionar em EVENTOS as colunas active_contract, usable_by_ai e legacy_status para reduzir o risco de uso de eventos legados/futuros pela IA."
+```
+
+
+
+## 32. Melhoria de governança da aba EVENTOS — política explícita de uso pela IA
+```yaml
+eventos_ai_use_policy_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE!EVENTOS"
+  status: "colunas_de_controle_adicionadas"
+  reason: "Reduzir risco de a IA usar eventos legados, futuros ou bloqueados como se fossem eventos contratuais atuais."
+  added_columns:
+    active_contract:
+      purpose: "Indica se a linha pertence ao contrato atual/candidato v1 ou se é legado/futuro bloqueado."
+      values:
+        - "Sim"
+        - "Não"
+        - "Sim_com_restricao"
+    usable_by_ai:
+      purpose: "Define política explícita de uso pela IA."
+      values_examples:
+        - "usar_e_importar"
+        - "usar_e_importar_com_revisao"
+        - "usar_como_contrato_nao_importar"
+        - "usar_como_auxiliar_nao_importar"
+        - "usar_somente_revisao_nao_importar"
+        - "nao_usar_legado_futuro"
+        - "usar_apenas_como_marcador_de_qualidade"
+    legacy_status:
+      purpose: "Classifica se a linha é núcleo v1, auxiliar, revisão, futuro bloqueado, legado substituído ou marcador operacional."
+  applied_policy:
+    importable_current_module:
+      import_rule_v1: "importar_v1"
+      usable_by_ai: "usar_e_importar"
+      example: "attack_no_shot_v1"
+    non_importable_contract:
+      import_rule_v1: "nao_importar_v1"
+      usable_by_ai: "usar_como_contrato_nao_importar"
+      example: "finalization_v1, defensive_v1, shootout_v1, goalkeeper_v1, transition_v1"
+    auxiliary_contract:
+      ui_type: "campo_auxiliar"
+      usable_by_ai: "usar_como_auxiliar_nao_importar"
+    review_contract:
+      ui_type: "botao_secundario_revisao ou fallback_revisao"
+      usable_by_ai: "usar_somente_revisao_nao_importar"
+    legacy_future_events:
+      module_contract_status: "rascunho_modulo_futuro"
+      usable_by_ai: "nao_usar_legado_futuro"
+      examples:
+        - "save"
+        - "save_shootout"
+        - "goal_conceded"
+        - "fast_break_against"
+        - "transition_recovery_good"
+        - "transition_recovery_bad"
+    global_quality_marker:
+      code: "review_marker"
+      usable_by_ai: "usar_apenas_como_marcador_de_qualidade"
+  validation_basis:
+    - "Data Carpentry: significado deve ser codificado em campos explícitos, não apenas em posição/formatação visual."
+    - "OWASP LLM Top 10: políticas explícitas reduzem risco de misinformation e improper output handling."
+    - "NIST AI RMF: governança e documentação são controles de risco no ciclo de IA."
+  current_effect:
+    - "Nenhum evento foi movido ou removido."
+    - "Nenhum módulo foi liberado para importação."
+    - "A aba EVENTOS passou de 31 para 34 colunas."
+    - "Eventos legados/futuros agora estão explicitamente marcados como nao_usar_legado_futuro."
+  next_recommended_step: "Criar CROSS_MODULE_BOUNDARIES e AI_USE_POLICY para formalizar fronteiras entre módulos e regras globais de uso pela IA."
+```
+
+
+## 33. Melhoria de governança — CROSS_MODULE_BOUNDARIES e AI_USE_POLICY
+```yaml
+spreadsheet_cross_module_governance_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "fronteiras_e_politica_ia_criadas"
+  reason: "Formalizar fronteiras entre módulos e impedir que a IA misture eventos, resultados, campos e regras de módulos diferentes."
+  created_sheets:
+    CROSS_MODULE_BOUNDARIES:
+      purpose: "Fronteiras explícitas entre módulos."
+      columns:
+        - "boundary_id"
+        - "source_module"
+        - "target_module"
+        - "allowed_relation"
+        - "blocked_misuse"
+        - "required_link_or_field"
+        - "validation_rule"
+        - "ai_action"
+        - "evidence_source"
+        - "notes"
+      initial_boundaries:
+        - "shootout_v1 != goalkeeper_v1"
+        - "goalkeeper_v1 precisa vincular finalization_v1"
+        - "defensive_v1 != goalkeeper_v1"
+        - "transition_v1 -> finalization_v1 quando result_transition=transition_goal"
+        - "transition_v1 -> attack_no_shot_v1 quando result_transition=transition_turnover_no_shot"
+        - "goalkeeper_v1 pode ser gatilho de transition_v1, mas não terminal"
+        - "shootout_v1 fica fora de transition_v1"
+        - "offensive_creation_v1 cria finalization_v1, mas não substitui finalização"
+        - "finalization_v1 e attack_no_shot_v1 são mutuamente exclusivos na posse"
+        - "goalkeeper_specialist_exchange não substitui automaticamente bad_substitution_attack"
+    AI_USE_POLICY:
+      purpose: "Política explícita do que a IA pode sugerir, importar, revisar ou bloquear."
+      columns:
+        - "policy_id"
+        - "scope"
+        - "condition"
+        - "allowed_to_suggest"
+        - "allowed_to_import"
+        - "requires_human_review"
+        - "blocked_reason"
+        - "source_of_truth"
+        - "expected_ai_behavior"
+      key_rules:
+        - "usable_by_ai=usar_e_importar pode ser usado e importado respeitando required_fields/blocking_rules."
+        - "usable_by_ai=usar_como_contrato_nao_importar pode ser usado para arquitetura/teste, mas não para UI/importação."
+        - "usable_by_ai=nao_usar_legado_futuro deve ser bloqueado em nova coleta."
+        - "Módulo com import_rule_v1=nao_importar_v1 não pode gerar UI/importação sem evidência explícita."
+        - "Conflito entre EVENTOS e aba específica exige auditoria humana."
+        - "Incerteza/vídeo incompleto/regra ausente exige review_marker."
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "CROSS_MODULE_BOUNDARIES"
+        - "AI_USE_POLICY"
+  current_effect:
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Nenhum evento foi movido ou removido."
+    - "SCOUT_DESIGN_TEMPLATE agora possui 49 abas."
+    - "A governança passa a ter índice, mapa de abas, política de uso por evento, fronteiras entre módulos e política global da IA."
+  next_recommended_step: "Criar FIELD_DICTIONARY_GLOBAL e RESULT_DOMAIN_GLOBAL para consolidar campos/resultados e preparar auditoria automática planilha x repositório."
+```
+
+
+## 34. Melhoria de normalização — FIELD_DICTIONARY_GLOBAL e RESULT_DOMAIN_GLOBAL
+```yaml
+spreadsheet_normalization_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "dicionarios_globais_criados"
+  reason: "Consolidar campos auxiliares e resultados críticos de todos os módulos para reduzir duplicidade, ambiguidade e risco de divergência entre abas específicas, EVENTOS e repositório."
+  created_sheets:
+    FIELD_DICTIONARY_GLOBAL:
+      purpose: "Dicionário global de campos auxiliares e campos críticos usados por módulos."
+      columns:
+        - "field_code"
+        - "field_name_ui"
+        - "module_id"
+        - "field_type"
+        - "allowed_values_or_ref"
+        - "required_when"
+        - "source_sheet"
+        - "used_by_events"
+        - "ai_policy"
+        - "repo_symbol"
+        - "risk_note"
+        - "normalization_status"
+      initial_scope:
+        - "campos globais: athlete_id, court_location, goal_zone, position_code, system_code, review_marker"
+        - "campos de resultado: result_possession, result_shootout, result_goalkeeper, result_transition"
+        - "campos de vínculo: linked_finalization_id, linked_finalization_event_code, terminal_event_id, terminal_event_code, terminal_state"
+        - "campos de Shoot-out: shootout_launcher_id, shootout_launcher_role, shootout_defender_id, shootout_defender_origin_role"
+        - "campos de Goleira: goalkeeper_id, specialist_id, exchange_result"
+        - "campos de Transição: substitution_phase, substitution_timing, transition_type, transition_system, direct_lane_available, defensive_stabilization_status"
+    RESULT_DOMAIN_GLOBAL:
+      purpose: "Domínio global de resultados por módulo/evento."
+      columns:
+        - "result_code"
+        - "result_name_ui"
+        - "module_id"
+        - "allowed_event_code"
+        - "result_field"
+        - "points_policy"
+        - "possession_effect"
+        - "terminal_policy"
+        - "forbidden_with"
+        - "source_sheet"
+        - "repo_symbol"
+        - "normalization_status"
+      initial_scope:
+        - "Finalização: goal, save, shot_wide, shot_blocked"
+        - "Ataque sem finalização: lost_possession_no_shot"
+        - "Criação ofensiva: shot_created, clear_chance_created"
+        - "Defensivo: shot_blocked_linked, possession_won"
+        - "Goleira: save_controlled, save_out_endline, save_out_sideline, goal_allowed, exchange_successful, overlap_violation"
+        - "Transição: transition_goal, direct_transition_chance, indirect_superiority_created, direct_transition_neutralized, indirect_transition_neutralized, transition_slowed_to_set"
+        - "Shoot-out: goal, save como result_shootout"
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "FIELD_DICTIONARY_GLOBAL"
+        - "RESULT_DOMAIN_GLOBAL"
+  current_effect:
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Nenhum evento foi movido ou removido."
+    - "SCOUT_DESIGN_TEMPLATE agora possui 51 abas."
+    - "A planilha passa a ter dicionário global de campos e domínio global de resultados para apoiar auditoria automática."
+  next_recommended_step: "Criar VALIDATION_MATRIX consolidando testes por módulo, evidências EV e arquivos de teste do repositório."
+```
+
+
+## 35. Melhoria de validação — VALIDATION_MATRIX
+```yaml
+spreadsheet_validation_matrix_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "matriz_de_validacao_criada"
+  reason: "Consolidar em uma única aba a relação entre módulos, abas de teste da planilha, testes do repositório, evidências EV, git_head, regras de importação, status de UI, seed e próximas ações."
+  created_sheet:
+    VALIDATION_MATRIX:
+      purpose: "Matriz consolidada de validação, evidências, testes e bloqueios."
+      columns:
+        - "validation_id"
+        - "module_id"
+        - "scope"
+        - "sheet_test_source"
+        - "repo_test_file"
+        - "repo_test_status"
+        - "evidence_id"
+        - "git_head"
+        - "import_rule_v1"
+        - "ui_status"
+        - "seed_status"
+        - "blocking_condition"
+        - "next_action"
+        - "notes"
+      initial_scope:
+        - "attack_no_shot_v1 -> EV-001 a EV-005, importar_v1"
+        - "finalization_v1 -> contrato validado bloqueado"
+        - "offensive_creation_v1 -> contrato validado bloqueado"
+        - "defensive_v1 -> contrato validado bloqueado"
+        - "shootout_v1 -> EV-009, nao_importar_v1"
+        - "goalkeeper_v1 -> EV-010, nao_importar_v1"
+        - "transition_v1 -> pendente_EV-011, validacao_local_pendente"
+        - "governança global -> MODULE_INDEX, SHEET_MAP, EVENTOS policy, CROSS_MODULE_BOUNDARIES, AI_USE_POLICY, FIELD_DICTIONARY_GLOBAL, RESULT_DOMAIN_GLOBAL"
+        - "repositório global -> pytest completo e verify_current_state.sh"
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "VALIDATION_MATRIX"
+  current_effect:
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Nenhum evento foi movido ou removido."
+    - "SCOUT_DESIGN_TEMPLATE agora possui 52 abas."
+    - "A validação fica rastreável por módulo, teste, evidência e bloqueio."
+  next_recommended_step: "Executar validação local do transition_v1 no repositório e, se passar, registrar EV-011."
 ```
