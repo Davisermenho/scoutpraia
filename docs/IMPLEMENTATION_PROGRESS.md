@@ -422,6 +422,212 @@ Status: `CONFIGURADO`
 
 ---
 
+## Ciclo — padronização do `plano_de_acao.md`
+
+- Fase declarada: `Fase 9 — documentação operacional auxiliar (sem alterar comportamento do MVP)`
+- O que foi implementado:
+  - reestruturação completa de `plano_de_acao.md` para Markdown hierárquico consistente
+  - remoção de headings redundantes em `# **...**` e padronização para títulos Markdown nativos
+  - conversão de exemplos soltos para blocos de código (`csv`, `text`, `json`, `md`)
+  - conversão de listas com quebra manual em listas Markdown reais
+  - correção de inconsistências de hierarquia, especialmente nos exemplos internos de glossário e relatório
+- O que foi testado:
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - `git diff --check`: sem saída
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed in 13.96s`
+  - `git status --short`: `?? beach_handball_ai/` e `?? plano_de_acao.md`
+- O que ainda não está pronto:
+  - G5 continua pendente
+  - o conteúdo de `plano_de_acao.md` segue como plano auxiliar e não substitui os contratos canônicos do repositório
+- Limitações, gaps e riscos:
+  - a validação executada prova higiene do diff e integridade do estado atual do repositório, não qualidade semântica do plano além da padronização estrutural
+  - `plano_de_acao.md` permanece não rastreado no Git neste estado
+  - havia um diretório não rastreado pré-existente (`beach_handball_ai/`) no workspace durante a validação
+
+---
+
+## Ciclo — registro unificado de fontes fortes
+
+- Fase declarada: `Fase 9 — organização manual de fontes e rastreabilidade documental (sem liberar RAG)`
+- O que foi implementado:
+  - atualização de `beach_handball_ai/plano_de_acao.md` para declarar `docs/sources/` como entrada obrigatória junto com `beach_handball_ai/fontes/`
+  - substituição dos `.md` vazios em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/` e `beach_handball_ai/fontes/05_processado/IHF_RULES_BH_2026_PT_TRANSLATION.md` por placeholders explícitos de status
+  - geração de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` com 46 linhas inventariadas e colunas extras de rastreabilidade (`source_code_repo`, `origem_catalogo`, `papel_documento`, `fonte_primaria_relacionada`, `uso_mvp`, `uso_rag_fase2`)
+  - atualização de `beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx` para refletir o registro unificado e adicionar sheets auxiliares de crosswalk e resumo de status
+  - geração de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` com checksums SHA-256 para `docs/sources/` e `beach_handball_ai/fontes/`
+- O que foi testado:
+  - `python3` inline para reconstruir o registro unificado, recalcular checksums e regravar `csv`/`xlsx`/`json`
+  - `python3` inline para validar `source_id` único, existência de arquivo, checksum preenchido e zero-byte somente em status de placeholder
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - registro unificado: `46` linhas, `46` `source_id` únicos, nenhum arquivo ausente, nenhum checksum em branco
+  - pendências explícitas restantes: `4` PDFs EHF continuam `0 bytes` com status `placeholder_vazio_pendente_download`
+  - `manifest_checksums.json` passou a registrar os dois acervos (`docs/sources` e `beach_handball_ai/fontes`)
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
+  - `git diff --check`: sem saída
+  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
+- O que ainda não está pronto:
+  - RAG continua bloqueado por contrato até G5 e fase 2
+  - os 4 PDFs EHF previstos no corpus operacional ainda não foram obtidos
+  - as fontes próprias CEPRAEA continuam como `pendente_elaboracao`; agora sem ambiguidade de placeholder vazio
+- Limitações, gaps e riscos:
+  - este ciclo fecha o inventário e a rastreabilidade do item 1, mas não valida o conteúdo semântico das fontes próprias ainda não escritas
+  - os artefatos em `beach_handball_ai/fontes/05_processado/documentos_markdown/` continuam derivados intermediários (`.docx`), não markdown consolidado final
+  - a presença de fontes de IA em `docs/sources/` não altera o bloqueio de uso operacional do RAG no ScoutPraia
+
+---
+
+## Ciclo — obtenção dos 4 PDFs EHF previstos no registro
+
+- Fase declarada: `Fase 9 — organização manual de fontes e fechamento de placeholders EHF`
+- O que foi implementado:
+  - substituição dos 4 placeholders vazios em `beach_handball_ai/fontes/02_ehf_tecnico/` pelos PDFs oficiais reais da página EHF Beach Handball Publications
+  - atualização do registro em `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` com links oficiais EHF, checksums e status `obtido_oficial_ehf_pendente_leitura`
+  - atualização de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` para refletir os novos arquivos e o novo resumo de status
+- O que foi testado:
+  - `python3` inline para localizar e baixar os 4 PDFs a partir dos links oficiais da página EHF
+  - `python3` inline para atualizar `csv`/`xlsx`/`manifest` com links, checksums e status
+  - verificação de tamanho dos arquivos em `beach_handball_ai/fontes/02_ehf_tecnico`
+  - verificação de ausência de arquivos `0 bytes` restantes em `beach_handball_ai/fontes/`
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - `refereeing_beach_handball.pdf`: `2967257` bytes
+  - `shootout_psychological_pressure.pdf`: `1702276` bytes
+  - `ultimate_school_handball_2025.pdf`: `11374314` bytes
+  - `mini_beach_handball_info_sheet.pdf`: `2225349` bytes
+  - não restaram arquivos `0 bytes` em `beach_handball_ai/fontes/`
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
+  - `git diff --check`: sem saída
+  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
+- O que ainda não está pronto:
+  - os 4 PDFs EHF foram obtidos, mas seguem `pendente_leitura` no registro; o conteúdo semântico ainda não foi resumido/classificado em profundidade
+  - as fontes próprias CEPRAEA continuam `pendente_elaboracao`
+  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
+- Limitações, gaps e riscos:
+  - a obtenção dos PDFs prova disponibilidade local e rastreabilidade oficial EHF, não leitura técnica integral do conteúdo
+  - o arquivo `Understanding Psyhological Pressure...` preserva a grafia do link oficial EHF (`Psyhological`)
+  - o bloqueio de RAG permanece inalterado; obter os PDFs não libera fase 2
+
+---
+
+## Ciclo — classificação semântica dos 4 PDFs EHF
+
+- Fase declarada: `Fase 9 — organização manual de fontes e classificação temática de apoio`
+- O que foi implementado:
+  - leitura local dos 4 PDFs EHF com extração de texto por `pdftotext`
+  - conferência de metadata por `pdfinfo` para registrar datas de criação/versão quando disponíveis
+  - atualização de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para trocar `obtido_oficial_ehf_pendente_leitura` por `validado_tecnico_educacional_ehf`
+  - refinamento semântico de tema, observação e uso final para cada publicação:
+    - `Refereeing in Beach Handball` → arbitragem, preparação física e estresse térmico
+    - `Understanding Psychological Pressure in Beach Handball Shootouts` → psicologia do esporte e preparação mental para shoot-out
+    - `Ultimate School Handball 2025` → ensino escolar, metodologia e iniciação
+    - `Mini Beach Handball Info Sheet 2020` → iniciação infantil e regras adaptadas
+  - atualização do resumo de status em `beach_handball_ai/fontes/05_processado/manifest_checksums.json`
+- O que foi testado:
+  - `pdftotext` nos 4 PDFs EHF
+  - `pdfinfo` nos 4 PDFs EHF
+  - `python3` inline para atualizar `csv`/`xlsx`/`manifest`
+  - inspeção das 4 linhas EHF no registro final
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - as 4 entradas EHF passaram a `validado_tecnico_educacional_ehf`
+  - `manifest_checksums.json` agora resume `4` itens nesse status
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
+  - `git diff --check`: sem saída
+  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
+- O que ainda não está pronto:
+  - as fontes próprias CEPRAEA continuam `pendente_elaboracao`
+  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
+  - o uso das fontes EHF continua sendo de apoio técnico/educacional, não normativo
+- Limitações, gaps e riscos:
+  - a classificação feita aqui é suficiente para catalogação e uso orientado, mas não substitui leitura integral futura se alguma publicação passar a sustentar decisão crítica específica
+  - o bloqueio de RAG permanece inalterado; classificar semanticamente as fontes não libera fase 2
+
+---
+
+## Ciclo — elaboração das 4 fontes próprias CEPRAEA
+
+- Fase declarada: `Fase 9 — consolidação de fontes internas de apoio`
+- O que foi implementado:
+  - substituição dos placeholders por conteúdo base nas 4 fontes próprias em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/`
+  - elaboração de `glossario_tecnico_cepraea.md` com distinção entre termos operacionais já alinhados ao app e convenções internas ainda pendentes
+  - elaboração de `playbook_cepraea.md` com hierarquia de decisão, blocos de leitura e fluxo treinador-video-relatorio
+  - elaboração de `scout_schema.md` com o schema funcional do ScoutPraia v0.1 baseado no modelo `Event`, labels e KPIs atuais
+  - elaboração de `criterios_taticos_cepraea.md` com critérios internos para transformar evento e KPI em leitura de treino/jogo
+  - atualização do registro em `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para promover as 4 fontes de `pendente_elaboracao` para `base_interna_elaborada_v0`
+  - atualização de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` com os novos checksums e resumo de status
+- O que foi testado:
+  - inspeção dos 4 arquivos gerados
+  - `python3` inline para atualizar `csv`/`xlsx`/`manifest`
+  - verificação de status e checksum das 4 entradas no registro
+  - verificação de ausência de arquivos `0 bytes` em `beach_handball_ai/fontes/`
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - as 4 entradas internas passaram a `base_interna_elaborada_v0`
+  - os 4 arquivos internos deixaram de ser vazios: `4965` a `11177` bytes
+  - não restaram arquivos `0 bytes` em `beach_handball_ai/fontes/`
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
+  - `git diff --check`: sem saída
+  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
+- O que ainda não está pronto:
+  - as 4 fontes próprias estão em base `v0`, não em ontologia tática final congelada
+  - termos internos como `3:0`, `2:1`, `4:0` e `devolucao` continuam explicitamente marcados como convenção pendente de formalização
+  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
+- Limitações, gaps e riscos:
+  - essas fontes internas foram ancoradas no estado atual do app e da documentação, não em validação humana G5 concluída
+  - o objetivo aqui foi remover lacuna documental e alinhar linguagem interna ao que já existe no ScoutPraia, não congelar doutrina tática definitiva
+  - o bloqueio de RAG permanece inalterado
+
+---
+
+## Ciclo — consolidação dos artefatos processados em Markdown
+
+- Fase declarada: `Fase 9 — saneamento dos derivados de processamento para uso futuro no plano`
+- O que foi implementado:
+  - comparação entre os `.docx` e os `.md` correspondentes em `beach_handball_ai/fontes/05_processado/`
+  - promoção do melhor conteúdo para `.md` em 17 pares de artefatos
+  - limpeza dos escapes indevidos de Markdown (`\\#`, `\\_`, `\\---`) nos `.md` preservados
+  - criação de `chunks_jsonl/CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md` a partir do `.docx` que não tinha equivalente `.md`
+  - transformação de `IHF_RULES_BH_2026_PT_TRANSLATION.md` em índice dos `.md` consolidados
+  - remoção de todos os `.docx` intermediários de `05_processado/`
+  - atualização do registro em `fontes_oficiais.csv`/`xlsx` e do `manifest_checksums.json` para refletir somente os `.md` consolidados
+- O que foi testado:
+  - extração local de texto dos `.docx` com `python3` e leitura de `word/document.xml`
+  - inspeção manual de pares representativos (`MD_PROCESSADO__IHF_UPDATE_BH_2026_04`, `MD_PROCESSADO__IHF_PAGE_BH_RULES_2026`, `REVISAO_CHUNKING_*`)
+  - busca residual por `.docx` em `05_processado/`, no `csv` e no `manifest`
+  - verificação de existência de `.docx` via `find` e `rglob`
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Resultado observado:
+  - `docx_exists False`
+  - `05_processado/` ficou apenas com `.md` e `manifest_checksums.json`
+  - `fontes_oficiais.csv` ficou sem referências residuais a `.docx`
+  - resumo de status passou a registrar `18` itens como `derivado_markdown_consolidado`
+  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
+  - `git diff --check`: sem saída
+  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
+- O que ainda não está pronto:
+  - os artefatos processados continuam derivados de apoio, não fontes normativas primárias
+  - eventual uso futuro desses `.md` em fase 2 ainda depende do desbloqueio formal de RAG
+- Limitações, gaps e riscos:
+  - a comparação privilegiou o conteúdo semanticamente mais completo e a formatação Markdown mais utilizável, não equivalência bit a bit com o `.docx`
+  - o índice `IHF_RULES_BH_2026_PT_TRANSLATION.md` aponta para os melhores `.md` consolidados, mas a regra normativa continua sendo o PDF IHF oficial em inglês
+  - o bloqueio de RAG permanece inalterado
+
+---
+
 ## Como registrar um novo ciclo
 
 Adicionar ao final deste arquivo:
@@ -457,3 +663,43 @@ Limitações, gaps e riscos:
 
 - ...
 ```
+
+---
+
+## Ciclo — fusao das fontes internas CEPRAEA e remocao dos duplicados `*2`
+
+- Fase declarada: `Fase 9 — consolidacao semantica das fontes internas de apoio`
+- O que foi implementado:
+  - fusao do conteudo util de `glossario_tecnico_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/glossario_tecnico_cepraea.md`
+  - formalizacao no glossario dos termos internos `3:0`, `2:1`, `4:0`, `devolucao` e `ultimos 15 segundos`, mantendo o status de convencao interna e sem promover esses itens a evento ou KPI
+  - fusao do conteudo util de `playbook_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/playbook_cepraea.md`, com secao propria para sistemas e protocolos internos (`4:0`, `3:1`, `3:0`, `2:1`, `slide`, jogo passivo, ultimos 15 segundos e shoot-out)
+  - fusao do conteudo util de `criterios_taticos_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/criterios_taticos_cepraea.md`, reescrevendo as diretrizes como criterio interno condicional e nao como regra oficial ou KPI validado
+  - remocao dos arquivos duplicados `glossario_tecnico_cepraea2.md`, `playbook_cepraea2.md` e `criterios_taticos_cepraea2.md`
+- O que foi testado:
+  - inspecao manual dos trechos fundidos nos 3 arquivos canonicos
+  - verificacao de ausencia dos arquivos `*2` via `find`
+  - `git diff --check`
+  - `scripts/verify_current_state.sh`
+  - `git status --short`
+- Comandos executados:
+```bash
+find beach_handball_ai/fontes/04_fontes_proprias_cepraea -maxdepth 1 -type f | sort
+git diff --check
+scripts/verify_current_state.sh
+git status --short
+```
+- Resultado observado:
+```text
+find: permaneceram apenas criterios_taticos_cepraea.md, glossario_tecnico_cepraea.md, playbook_cepraea.md e scout_schema.md
+git diff --check: sem saida
+verify_current_state.sh: verde com git_head=63624c2, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 226 passed
+git status --short:  M docs/IMPLEMENTATION_PROGRESS.md e ?? beach_handball_ai/
+```
+- O que ainda nao esta pronto:
+  - os termos internos fundidos continuam como nomenclatura e playbook interno; nao viraram evento, KPI ou automacao do ScoutPraia
+  - a validacao humana G5 continua pendente e segue bloqueando qualquer liberacao de RAG
+  - o conteudo fundido ainda nao congela ontologia tatica final da equipe
+- Limitacoes, gaps e riscos:
+  - a fusao privilegiou o contrato metodologico do ScoutPraia e rebaixou afirmacoes absolutas dos arquivos `*2` para linguagem de convencao interna
+  - metas numericas rigidas e gatilhos automaticos dos arquivos `*2` nao foram canonizados como criterio estavel por falta de validacao observacional no repositorio
+  - o resultado melhora a consistencia documental do corpus CEPRAEA, mas nao substitui revisao tecnica humana da comissao para fechar doutrina interna definitiva
