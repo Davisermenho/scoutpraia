@@ -1,6 +1,7 @@
 from scoutpraia.contracts.events_v1 import (
     DEFENSIVE_V1,
     FINALIZATION_V1,
+    GOALKEEPER_V1,
     IMPORT_RULE_V1_ACTIVE,
     IMPORT_RULE_V1_BLOCKED,
     MODULE_CONTRACTS_V1,
@@ -23,12 +24,14 @@ def test_contract_registry_exposes_v1_modules() -> None:
         "offensive_creation_v1",
         "defensive_v1",
         "shootout_v1",
+        "goalkeeper_v1",
     }
     assert get_module_contract("finalization_v1") is FINALIZATION_V1
     assert get_module_contract("attack_no_shot_v1") is NO_SHOT_ATTACK_V1
     assert get_module_contract("offensive_creation_v1") is OFFENSIVE_CREATION_V1
     assert get_module_contract("defensive_v1") is DEFENSIVE_V1
     assert get_module_contract("shootout_v1") is SHOOTOUT_V1
+    assert get_module_contract("goalkeeper_v1") is GOALKEEPER_V1
     assert get_module_contract("no_shot_attack_v1") is NO_SHOT_ATTACK_V1
 
 
@@ -66,6 +69,14 @@ def test_shootout_primary_event_matches_contract_snapshot() -> None:
     assert list_primary_event_codes("shootout_v1") == ("shootout_attempt",)
 
 
+def test_goalkeeper_primary_events_match_contract_snapshot() -> None:
+    assert list_primary_event_codes("goalkeeper_v1") == (
+        "goalkeeper_save",
+        "goalkeeper_goal_allowed",
+        "goalkeeper_specialist_exchange",
+    )
+
+
 def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
     finalization_primary = set(list_primary_event_codes("finalization_v1"))
     finalization_auxiliary = set(list_auxiliary_codes("finalization_v1"))
@@ -81,6 +92,8 @@ def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
     defensive_future = set(list_future_event_codes("defensive_v1"))
     shootout_primary = set(list_primary_event_codes("shootout_v1"))
     shootout_auxiliary = set(list_auxiliary_codes("shootout_v1"))
+    goalkeeper_primary = set(list_primary_event_codes("goalkeeper_v1"))
+    goalkeeper_auxiliary = set(list_auxiliary_codes("goalkeeper_v1"))
 
     assert finalization_auxiliary == {"specialist_finish_role"}
     assert finalization_primary.isdisjoint(finalization_auxiliary)
@@ -125,9 +138,30 @@ def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
         "shootout_launcher_role",
         "shootout_defender_id",
         "shootout_defender_role",
+        "shootout_defender_origin_role",
         "launch_result",
         "result_shootout",
     }.issubset(shootout_auxiliary)
+
+    assert goalkeeper_primary == {
+        "goalkeeper_save",
+        "goalkeeper_goal_allowed",
+        "goalkeeper_specialist_exchange",
+    }
+    assert goalkeeper_primary.isdisjoint(goalkeeper_auxiliary)
+    assert {
+        "goalkeeper_id",
+        "linked_finalization_id",
+        "linked_finalization_event_code",
+        "result_goalkeeper",
+        "possession_after_save",
+        "restart_after_save",
+        "specialist_id",
+        "exchange_phase",
+        "exchange_result",
+        "court_overlap_detected",
+        "punishment_applied",
+    }.issubset(goalkeeper_auxiliary)
 
 
 def test_import_rules_match_module_activation_policy() -> None:
@@ -151,6 +185,10 @@ def test_import_rules_match_module_activation_policy() -> None:
 
     assert SHOOTOUT_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
     for event_contract in SHOOTOUT_V1.event_contracts():
+        assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+
+    assert GOALKEEPER_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+    for event_contract in GOALKEEPER_V1.event_contracts():
         assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
 
 
@@ -217,7 +255,35 @@ def test_shootout_contract_is_registered_without_app_import() -> None:
         "lost_possession_no_shot",
     }
     assert "six_metre_throw" in SHOOTOUT_V1.forbidden_event_codes
+    assert "goalkeeper_save" in SHOOTOUT_V1.forbidden_event_codes
     assert "shootout_attempt" not in all_event_codes("finalization_v1")
+
+
+def test_goalkeeper_contract_is_registered_without_app_import() -> None:
+    goalkeeper_results = set().union(
+        *(event.allowed_results for event in GOALKEEPER_V1.primary_events)
+    )
+
+    assert goalkeeper_results == {
+        "save_controlled",
+        "save_rebound_live",
+        "save_out_endline",
+        "save_out_sideline",
+        "uncertain_review",
+        "goal_allowed",
+        "exchange_successful",
+        "goalkeeper_late_exit",
+        "specialist_late_entry",
+        "overlap_violation",
+        "empty_goal_risk",
+        "exchange_turnover",
+        "unknown_review",
+    }
+    assert GOALKEEPER_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
+    assert "shootout_attempt" in GOALKEEPER_V1.forbidden_event_codes
+    assert "line_block_shot" in GOALKEEPER_V1.forbidden_event_codes
+    assert "goal_allowed_review" in GOALKEEPER_V1.forbidden_results
+    assert "six_metre_throw" in all_event_codes("finalization_v1")
 
 
 def test_old_interim_attack_event_codes_are_not_active() -> None:
