@@ -45,7 +45,7 @@ Referência rápida para agentes. Para regras detalhadas, consultar as seções 
 ```yaml
 consolidated_state:
   last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  git_head: "c4afac9"
   modules:
     attack_no_shot_v1:
       status: "contrato_validado"
@@ -67,6 +67,15 @@ consolidated_state:
       import_rule_v1: "nao_importar_v1"
       evidence: ["EV-008"]
       evidence_status: "passed"
+  conceptual_contracts:
+    shootout_v1:
+      status: "arquitetura_em_definicao_validada_por_teste_conceitual"
+      import_rule_v1: "nao_importar_v1"
+      ui: "nao_liberada"
+      importacao: "nao_liberada"
+      evidence: ["EV-009"]
+      evidence_status: "passed"
+      seed_operacional: "inalterado"
 ```
 
 ## 3. Status dos módulos
@@ -468,6 +477,24 @@ acceptance_tests:
     executed_at: "2026-06-10"
     commit: "7a93d7728c966f229cf253d8fc5ca3ead154138d"
     module: "defensive_v1"
+
+  EV-009:
+    command: "python3 -m pytest tests/test_shootout_contract.py -q"
+    expected_result: "10 passed"
+    actual_result: "10 passed in 0.02s"
+    status: "passed"
+    executed_by: "Davi Sermenho"
+    executed_at: "2026-06-10"
+    git_head: "c4afac9"
+    module: "shootout_v1"
+
+  global_validation_after_shootout:
+    command: "python3 -m pytest -q"
+    actual_result: "211 passed in 14.49s"
+    verify_current_state: "verde; 211 passed in 13.59s"
+    git_diff_check: "sem saída"
+    git_status_short: "limpo"
+    git_head: "c4afac9"
 ```
 
 ## 11. Regras de liberação
@@ -476,16 +503,18 @@ acceptance_tests:
 release_rules:
   current_state: "todos_contratos_validados"
   last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  git_head: "c4afac9"
   app_import_ready:
     attack_no_shot_v1: "importar_v1"
     finalization_v1: "aguarda_ativacao_app"
     offensive_creation_v1: "aguarda_ativacao_app"
     defensive_v1: "aguarda_ativacao_app"
+    shootout_v1: "nao_liberado"
   blockers_before_full_app_activation:
     - "Validar que nenhum módulo v1 é importado apenas por category."
     - "Executar testes de integração de app antes de ativar finalization_v1, offensive_creation_v1 e defensive_v1."
     - "Confirmar fluxo de app com attack_no_shot_v1 ativo antes de ativar módulos dependentes."
+    - "Não liberar UI ou importação de shootout_v1 enquanto permanecer apenas como contrato conceitual validado por teste."
 ```
 
 ## 12. Histórico de alterações
@@ -559,4 +588,29 @@ g1_fix_summary:
     - "Seção 2-bis (Estado consolidado) adicionada como referência rápida para agentes."
     - "last_reviewed_at e git_head adicionados às seções de módulos 6 a 9."
     - "Seções 12-13 convertidas para Histórico de alterações com marcação explícita."
+```
+
+### G1-SHOOTOUT-EV-009 — Evidência local do contrato conceitual (2026-06-10)
+
+```yaml
+g1_shootout_ev009:
+  date: "2026-06-10"
+  git_head: "c4afac9"
+  executed_by: "Davi Sermenho"
+  status_after_evidence: "arquitetura_em_definicao_validada_por_teste_conceitual"
+  import_rule_v1: "nao_importar_v1"
+  ui: "nao_liberada"
+  importacao: "nao_liberada"
+  evidence:
+    EV-009:
+      command: "python3 -m pytest tests/test_shootout_contract.py -q"
+      result: "10 passed in 0.02s"
+      status: "passed"
+    global_validation_after_shootout:
+      command: "python3 -m pytest -q"
+      result: "211 passed in 14.49s"
+      verify_current_state: "verde; 211 passed in 13.59s"
+      git_diff_check: "sem saída"
+      git_status_short: "limpo"
+  seed_note: "Taxonomia operacional padrão permanece ScoutPraia v0.1 draft com 31 eventos; a evidência do shootout_v1 não altera seed, UI ou importação."
 ```

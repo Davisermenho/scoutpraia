@@ -1,11 +1,11 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — baseline G0 preservado; registry G1 realinhado à planilha e ao contrato"
-testes_passando: 199
+fase_atual: "Eventos v1 — baseline G0 preservado; registry G1 realinhado; EV-009 de shootout_v1 registrado sem liberar seed/UI/importação"
+testes_passando: 211
 event_definitions: 31
 última_atualização: 2026-06-10
-próxima_ação: "Executar G5 (validação humana); offensive_creation_v1 e defensive_v1 seguem bloqueados e separados por núcleo/revisão/futuro no registry"
+próxima_ação: "Executar G5 (validação humana); offensive_creation_v1, defensive_v1 e shootout_v1 seguem sem liberação operacional"
 gaps_abertos: ["G5 — validação humana pendente"]
 mvp_completo: false
 ---
@@ -29,17 +29,18 @@ reproduzível por comando, teste ou arquivo verificável.
 
 ```bash
 scripts/verify_current_state.sh
-# resultado esperado: 199 passed
+# resultado esperado: 211 passed
 ```
 
 **Estado do workspace no baseline G0:**
 - `git status --short` limpo em `2026-06-10`
-- `git_head = 5cf588c`
+- `git_head = c4afac9`
 
 **Próxima ação autorizada:**
 1. Executar G5: validação humana com vídeo real (ver `docs/validation_protocol.md`)
 2. Manter `offensive_creation_v1` e `defensive_v1` somente no registry até G5
-3. Decidir liberação da importação v1 (`import_rule_v1`) apenas depois de G5
+3. Manter `shootout_v1` como contrato conceitual validado por teste, sem seed/UI/importação
+4. Decidir liberação da importação v1 (`import_rule_v1`) apenas depois de G5
 
 ---
 
@@ -56,12 +57,12 @@ contagem de event_definitions, testes automatizados, `git diff --check`.
 
 ```text
 date_utc=2026-06-10
-git_head=5cf588c
+git_head=c4afac9
 taxonomy=ScoutPraia v0.1
 taxonomy_status=draft
 event_definitions=31
 expected_event_definitions=31
-199 passed
+211 passed
 git_status=clean
 ```
 
@@ -112,7 +113,7 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 199 passed |
+| 8 — Testes | `FUNCIONANDO` | 211 passed |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
 | Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | baseline G0 fechado; G1 registry realinhado à planilha; importação segue bloqueada |
@@ -187,7 +188,7 @@ Pendências da fase 7:
 
 ### Fase 8 — Testes `[FUNCIONANDO]`
 
-199 testes passando. Suíte inclui:
+211 testes passando. Suíte inclui:
 - `test_smoke.py`, `test_models.py`, `test_match_service.py`
 - `test_event_service.py`, `test_clip_service.py`
 - `test_validation_service.py`, `test_analytics_service.py`
@@ -236,11 +237,13 @@ Registry principal atual:
 - `finalization_v1` — contrato validado, importação bloqueada
 - `offensive_creation_v1` — contrato validado no registry, importação bloqueada
 - `defensive_v1` — contrato validado no registry, importação bloqueada
+- `shootout_v1` — contrato conceitual validado por teste, sem seed/UI/importação
 - `offensive_creation_v1` — núcleo ativo: `assist_to_finalization`; auxiliares: `assist_to_inflight_shot`, `pivot_feed_to_shot`; revisão: `advantage_pass_to_free_player`, `collective_action_creates_shot`
 - `defensive_v1` — núcleo ativo: `line_block_shot`; revisão: `defensive_pressure_forced_error`, `steal_or_interception`; futuro: `defensive_rebound_recovery`
 
 Limite explícito:
 - `offensive_creation_v1` e `defensive_v1` ainda não aparecem na UI nem na importação ativa do app
+- `shootout_v1` permanece fora do seed operacional, da UI e da importação
 - este ciclo não altera `tagging.py`, seed, serviços de persistência ou relatórios operacionais
 
 Para liberar: passar todos os testes v1 **E** ter evidência registrada de:
@@ -349,6 +352,38 @@ Status: `CONFIGURADO`
   - o registry agora espelha melhor a planilha/contrato, mas isso ainda não representa implementação operacional desses módulos no app
   - qualquer divergência futura deve ser resolvida pela prioridade de fonte definida em `docs/Contrato_Operacional.md`
   - `docs/Contrato_Operacional.md` passa a compor o conjunto versionável de fontes do ciclo
+
+---
+
+## Ciclo — evidência local EV-009 do shootout_v1
+
+- Fase declarada: `Eventos v1 — registro documental da evidência local do contrato conceitual de shootout`
+- O que foi implementado:
+  - atualização de `docs/Contrato_Operacional.md` para registrar `EV-009`
+  - consolidação do estado de `shootout_v1` como `arquitetura_em_definicao_validada_por_teste_conceitual`
+  - registro explícito de que seed operacional, UI e importação permanecem inalterados
+- O que foi testado:
+  - `python3 -m pytest tests/test_shootout_contract.py -q`
+  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
+  - `python3 -m pytest -q`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+  - `git status --short`
+- Resultado observado:
+  - shootout específico: `10 passed in 0.02s`
+  - registry específico: `12 passed in 0.02s`
+  - suíte completa: `211 passed in 14.49s`
+  - `verify_current_state.sh`: verde com `git_head=c4afac9`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `211 passed in 13.59s`
+  - `git diff --check`: sem saída
+  - `git status --short`: limpo antes da atualização documental deste ciclo
+- O que ainda não está pronto:
+  - `shootout_v1` não foi promovido para seed operacional
+  - `shootout_v1` não foi liberado na UI nem na importação
+  - G5 continua pendente
+- Limitações, gaps e riscos:
+  - a evidência fecha apenas o contrato conceitual e sua compatibilidade com a base atual
+  - esta validação não prova fluxo operacional de marcação de shoot-out no app
+  - qualquer liberação operacional continua bloqueada até gate posterior explícito
 
 ---
 

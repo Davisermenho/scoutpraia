@@ -4,10 +4,10 @@ data_auditoria: 2026-06-06
 status_base_técnica: FUNCIONANDO_COM_EVIDÊNCIA
 mvp_completo: false
 testes_no_momento_da_auditoria: 10
-testes_atuais: 110
+testes_atuais: 211
 gaps_abertos: ["G5 — validação humana com vídeo real e screenshots pendente"]
 próxima_ação: "Executar protocolo G5 (docs/validation_protocol.md)"
-nota: "Esta auditoria reflete estado de 2026-06-06; testes atuais são 110"
+nota: "Esta auditoria reflete estado de 2026-06-06; testes atuais são 211"
 ---
 
 # Auditoria de Evidências e Validação — ScoutPraia
@@ -17,7 +17,7 @@ nota: "Esta auditoria reflete estado de 2026-06-06; testes atuais são 110"
 **AUTORIZADO declarar (com base nas evidências desta auditoria, atualizadas pelo progresso atual):**
 - base técnica do ScoutPraia está implementada e funcionando
 - banco, taxonomia, seed, metadados de vídeo e testes automatizados estão provados
-- serviços internos (evento, clipe, validação, analytics, relatório) funcionam — 110 testes passando
+- serviços internos (evento, clipe, validação, analytics, relatório) funcionam — 211 testes passando
 
 **NÃO AUTORIZADO declarar:**
 - MVP completo está implementado
@@ -171,7 +171,7 @@ O `skip` é correto para CI/repo porque vídeos reais são dados locais ignorado
 
 ## O que não está comprovado
 
-*Nota: estado desta auditoria é de 2026-06-06. Serviços internos, UI e relatórios foram implementados desde então (110 testes). O bloqueio atual é G5.*
+*Nota: estado desta auditoria é de 2026-06-06. Serviços internos, UI e relatórios foram implementados desde então (211 testes). O bloqueio atual é G5.*
 
 | Área | Motivo | Próximo gate |
 | --- | --- | --- |
