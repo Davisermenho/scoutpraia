@@ -31,7 +31,7 @@ Estado das fases:
 | 5 | Taxonomia v0.1 | `[CONCLUÍDA]` |
 | 6 | Serviços internos | `[CONCLUÍDA COM EVIDÊNCIA]` |
 | 7 | Interface Streamlit | `[CONCLUÍDA COM EVIDÊNCIA]` |
-| 8 | Testes e fixtures | `[FUNCIONANDO — 228 testes]` |
+| 8 | Testes e fixtures | `[FUNCIONANDO — 247 testes]` |
 | 9 | Validação operacional com vídeo real | `[EM ANDAMENTO — G5 pendente]` |
 | 10 | README e operação local | `[CONCLUÍDA]` |
 | 11 | IA/RAG no ScoutPraia | `[BLOQUEADA — aguarda MVP completo]` |
@@ -40,7 +40,7 @@ Estado das fases:
 
 ```bash
 scripts/verify_current_state.sh
-# resultado esperado: 228 passed
+# resultado esperado: 247 passed
 ```
 
 **Próxima ação:** executar o protocolo operacional de G5 em `docs/validation_protocol.md`.

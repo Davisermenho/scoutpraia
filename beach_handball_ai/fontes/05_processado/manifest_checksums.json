@@ -14,14 +14,17 @@
     "apoio_operacional_pt_traducao_literal": 1,
     "apoio_regional_conteudo_lido": 2,
     "auditoria_auxiliar_historica": 1,
+    "auditoria_chunking_etapa_4_atualizada": 1,
     "base_interna_elaborada_v0": 4,
     "catalogada_fase2_bloqueada": 2,
     "catalogo_canonico_repo": 1,
+    "chunks_etapa_4_gerados": 1,
     "conteudo_lido_origem_privada_whatsapp": 1,
     "copia_trabalho_da_fonte_canonica": 1,
-    "derivado_markdown_consolidado": 3,
+    "derivado_markdown_consolidado": 2,
     "derivado_textual_repo": 1,
     "duplicata_linguistica_conferencia_nao_prioritaria": 2,
+    "historico_convertido_para_jsonl_etapa_4": 1,
     "manifest_atualizado": 1,
     "metadata_pre_chunking_atualizada": 1,
     "rascunho_historico_bloqueado": 13,
@@ -92,13 +95,13 @@
     },
     {
       "path": "beach_handball_ai/fontes/00_registro/fontes_oficiais.csv",
-      "size_bytes": 43035,
-      "sha256": "772bff4415fb957356c0a1a979aec9d6ccff85c3555ada1a602dd3c15beef4f1"
+      "size_bytes": 44213,
+      "sha256": "230695da2ff5e336b56111835a1f6dcceb24ca0569d4ebd1fcb43c2018248d0d"
     },
     {
       "path": "beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx",
-      "size_bytes": 41432,
-      "sha256": "9446e78e0f1d46e276e7a3f7d197ae91da946bd3729f38b0633dcc313f80988f"
+      "size_bytes": 50014,
+      "sha256": "1f28b6721209818ec50da7f292b2f7f57c555fefd8762f40be48203194258742"
     },
     {
       "path": "beach_handball_ai/fontes/01_ihf_regras/Esclarecimentos regras de jogo.pdf",
@@ -199,6 +202,16 @@
       "path": "beach_handball_ai/fontes/05_processado/audit_md_corpus.py",
       "size_bytes": 16546,
       "sha256": "b1f124de8aab0e576099eda603262f6bb95bf2454a304b3a2172cefc96e1a40b"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_AUDITORIA.md",
+      "size_bytes": 773,
+      "sha256": "d43bc580382355d5c72e97e37fc65aa0651adff4061b91ded3f8f4b4135d662e"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_CORPUS.jsonl",
+      "size_bytes": 999204,
+      "sha256": "def8f47aa92f3f62a0ea11d02d9e2367a8d778a47e401131ab8cdc59467d186d"
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md",
@@ -367,7 +380,7 @@
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/manifest_checksums.json",
-      "size_bytes": 16724,
+      "size_bytes": 17261,
       "sha256": "AUTOREFERENCIA_EXCLUIDA_DO_HASH"
     }
   ]
