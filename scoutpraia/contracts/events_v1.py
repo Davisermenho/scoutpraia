@@ -71,6 +71,23 @@ GOALKEEPER_ALLOWED_LINKED_FINALIZATIONS = frozenset(
         "six_metre_throw",
     }
 )
+TRANSITION_RESULTS = frozenset(
+    {
+        "transition_goal",
+        "transition_shot_created",
+        "transition_saved",
+        "transition_turnover_no_shot",
+        "transition_slowed_to_set",
+        "defensive_recovery_success",
+        "defensive_recovery_fail",
+        "interrupted_review",
+        "uncertain_review",
+        "direct_transition_chance",
+        "indirect_superiority_created",
+        "direct_transition_neutralized",
+        "indirect_transition_neutralized",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -480,6 +497,75 @@ GOALKEEPER_V1 = ModuleContract(
     ),
 )
 
+TRANSITION_V1 = ModuleContract(
+    module_code="transition_v1",
+    display_name="Transicao v1.0",
+    module_contract_status=MODULE_STATUS_ARCHITECTURE,
+    import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+    primary_events=(
+        _primary_event(
+            "transition_sequence",
+            allowed_results=TRANSITION_RESULTS,
+            module_contract_status=EVENT_STATUS_READY_FOR_TEST,
+            import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ),
+    ),
+    auxiliary_fields=(
+        _auxiliary_field("transition_direction"),
+        _auxiliary_field("substitution_phase"),
+        _auxiliary_field("substitution_timing"),
+        _auxiliary_field("transition_type"),
+        _auxiliary_field("transition_trigger"),
+        _auxiliary_field("trigger_event_id"),
+        _auxiliary_field("trigger_event_code"),
+        _auxiliary_field("transition_start_zone"),
+        _auxiliary_field("transition_target_zone"),
+        _auxiliary_field("transition_speed"),
+        _auxiliary_field("numerical_context"),
+        _auxiliary_field("defensive_stabilization_status"),
+        _auxiliary_field("terminal_event_id"),
+        _auxiliary_field("terminal_event_code"),
+        _auxiliary_field("terminal_state"),
+        _auxiliary_field("result_transition"),
+        _auxiliary_field("exiting_player_id"),
+        _auxiliary_field("entering_player_id"),
+        _auxiliary_field("exiting_role"),
+        _auxiliary_field("entering_role"),
+        _auxiliary_field("substitution_zone"),
+        _auxiliary_field("anticipation_side"),
+        _auxiliary_field("transition_system"),
+        _auxiliary_field("transition_positions"),
+        _auxiliary_field("direct_lane_available"),
+        _auxiliary_field("first_action"),
+        _auxiliary_field("first_passer_id"),
+        _auxiliary_field("first_receiver_id"),
+        _auxiliary_field("lane_used"),
+        _auxiliary_field("pass_count"),
+        _auxiliary_field("duration_band"),
+        _auxiliary_field("pressure_level"),
+        _auxiliary_field("review_marker"),
+    ),
+    review_only_events=(),
+    future_events=(),
+    forbidden_event_codes=frozenset(
+        {
+            "shootout_attempt",
+            "goalkeeper_save",
+            "goalkeeper_goal_allowed",
+            "goalkeeper_specialist_exchange",
+            "isolated_goal",
+            "positioned_attack_only",
+        }
+    ),
+    forbidden_results=frozenset(
+        {
+            "result_shootout",
+            "result_goalkeeper",
+            "points",
+        }
+    ),
+)
+
 
 MODULE_CONTRACTS_V1 = {
     FINALIZATION_V1.module_code: FINALIZATION_V1,
@@ -488,6 +574,7 @@ MODULE_CONTRACTS_V1 = {
     DEFENSIVE_V1.module_code: DEFENSIVE_V1,
     SHOOTOUT_V1.module_code: SHOOTOUT_V1,
     GOALKEEPER_V1.module_code: GOALKEEPER_V1,
+    TRANSITION_V1.module_code: TRANSITION_V1,
 }
 
 # Backward-compatible alias for older code/tests that still import the interim name.
