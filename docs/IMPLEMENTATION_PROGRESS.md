@@ -1,11 +1,11 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — baseline G0 preservado; registry G1 realinhado; EV-009 de shootout_v1 registrado sem liberar seed/UI/importação"
-testes_passando: 211
+fase_atual: "Eventos v1 — EV-009 de shootout_v1 e EV-010 de goalkeeper_v1 registrados sem liberar seed/UI/importação"
+testes_passando: 226
 event_definitions: 31
-última_atualização: 2026-06-10
-próxima_ação: "Executar G5 (validação humana); offensive_creation_v1, defensive_v1 e shootout_v1 seguem sem liberação operacional"
+última_atualização: 2026-06-11
+próxima_ação: "Executar G5 (validação humana); offensive_creation_v1, defensive_v1, shootout_v1 e goalkeeper_v1 seguem sem liberação operacional"
 gaps_abertos: ["G5 — validação humana pendente"]
 mvp_completo: false
 ---
@@ -29,18 +29,19 @@ reproduzível por comando, teste ou arquivo verificável.
 
 ```bash
 scripts/verify_current_state.sh
-# resultado esperado: 211 passed
+# resultado esperado: 226 passed
 ```
 
 **Estado do workspace no baseline G0:**
 - `git status --short` limpo em `2026-06-10`
-- `git_head = c4afac9`
+- `git_head = aa8934c`
 
 **Próxima ação autorizada:**
 1. Executar G5: validação humana com vídeo real (ver `docs/validation_protocol.md`)
 2. Manter `offensive_creation_v1` e `defensive_v1` somente no registry até G5
 3. Manter `shootout_v1` como contrato conceitual validado por teste, sem seed/UI/importação
-4. Decidir liberação da importação v1 (`import_rule_v1`) apenas depois de G5
+4. Manter `goalkeeper_v1` como contrato conceitual validado por teste, sem seed/UI/importação
+5. Decidir liberação da importação v1 (`import_rule_v1`) apenas depois de G5
 
 ---
 
@@ -56,13 +57,13 @@ contagem de event_definitions, testes automatizados, `git diff --check`.
 **Última execução registrada:**
 
 ```text
-date_utc=2026-06-10
-git_head=c4afac9
+date_utc=2026-06-11
+git_head=aa8934c
 taxonomy=ScoutPraia v0.1
 taxonomy_status=draft
 event_definitions=31
 expected_event_definitions=31
-211 passed
+226 passed
 git_status=clean
 ```
 
@@ -113,7 +114,7 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 211 passed |
+| 8 — Testes | `FUNCIONANDO` | 226 passed |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
 | Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | baseline G0 fechado; G1 registry realinhado à planilha; importação segue bloqueada |
@@ -188,7 +189,7 @@ Pendências da fase 7:
 
 ### Fase 8 — Testes `[FUNCIONANDO]`
 
-211 testes passando. Suíte inclui:
+226 testes passando. Suíte inclui:
 - `test_smoke.py`, `test_models.py`, `test_match_service.py`
 - `test_event_service.py`, `test_clip_service.py`
 - `test_validation_service.py`, `test_analytics_service.py`
@@ -238,12 +239,14 @@ Registry principal atual:
 - `offensive_creation_v1` — contrato validado no registry, importação bloqueada
 - `defensive_v1` — contrato validado no registry, importação bloqueada
 - `shootout_v1` — contrato conceitual validado por teste, sem seed/UI/importação
+- `goalkeeper_v1` — contrato conceitual validado por teste, sem seed/UI/importação
 - `offensive_creation_v1` — núcleo ativo: `assist_to_finalization`; auxiliares: `assist_to_inflight_shot`, `pivot_feed_to_shot`; revisão: `advantage_pass_to_free_player`, `collective_action_creates_shot`
 - `defensive_v1` — núcleo ativo: `line_block_shot`; revisão: `defensive_pressure_forced_error`, `steal_or_interception`; futuro: `defensive_rebound_recovery`
 
 Limite explícito:
 - `offensive_creation_v1` e `defensive_v1` ainda não aparecem na UI nem na importação ativa do app
 - `shootout_v1` permanece fora do seed operacional, da UI e da importação
+- `goalkeeper_v1` permanece fora do seed operacional, da UI e da importação
 - este ciclo não altera `tagging.py`, seed, serviços de persistência ou relatórios operacionais
 
 Para liberar: passar todos os testes v1 **E** ter evidência registrada de:
@@ -285,7 +288,7 @@ Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
 1. Executar protocolo G5 de validação humana (`docs/validation_protocol.md`)
 2. Rodar `scripts/verify_current_state.sh` após qualquer nova mudança relevante
 3. Depois de G5: decidir liberação de `import_rule_v1`
-4. Não liberar UI/importação de `offensive_creation_v1` ou `defensive_v1` antes desse gate
+4. Não liberar UI/importação de `offensive_creation_v1`, `defensive_v1`, `shootout_v1` ou `goalkeeper_v1` antes desse gate
 
 ---
 
@@ -383,6 +386,38 @@ Status: `CONFIGURADO`
 - Limitações, gaps e riscos:
   - a evidência fecha apenas o contrato conceitual e sua compatibilidade com a base atual
   - esta validação não prova fluxo operacional de marcação de shoot-out no app
+  - qualquer liberação operacional continua bloqueada até gate posterior explícito
+
+---
+
+## Ciclo — evidência local EV-010 do goalkeeper_v1
+
+- Fase declarada: `Eventos v1 — registro documental da evidência local do contrato conceitual de goalkeeper`
+- O que foi implementado:
+  - atualização de `docs/Contrato_Operacional.md` para registrar `EV-010`
+  - consolidação do estado de `goalkeeper_v1` como `arquitetura_em_definicao_validada_por_teste_conceitual`
+  - registro explícito de que seed operacional, UI e importação permanecem inalterados
+- O que foi testado:
+  - `python3 -m pytest tests/test_goalkeeper_contract.py -q`
+  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
+  - `python3 -m pytest -q`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+  - `git status --short`
+- Resultado observado:
+  - goalkeeper específico: `13 passed in 0.02s`
+  - registry específico: `14 passed in 0.02s`
+  - suíte completa: `226 passed in 14.19s`
+  - `verify_current_state.sh`: verde com `git_head=aa8934c`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed in 13.81s`
+  - `git diff --check`: sem saída
+  - `git status --short`: limpo antes da atualização documental deste ciclo
+- O que ainda não está pronto:
+  - `goalkeeper_v1` não foi promovido para seed operacional
+  - `goalkeeper_v1` não foi liberado na UI nem na importação
+  - G5 continua pendente
+- Limitações, gaps e riscos:
+  - a evidência fecha apenas o contrato conceitual e sua compatibilidade com a base atual
+  - esta validação não prova fluxo operacional de marcação de goleira no app
   - qualquer liberação operacional continua bloqueada até gate posterior explícito
 
 ---

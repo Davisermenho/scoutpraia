@@ -2,7 +2,7 @@
 tipo: protocolo_validação
 G5_status: ABERTO
 G1_status: RESOLVIDO_PARCIALMENTE
-testes_passando: 211
+testes_passando: 226
 última_atualização: 2026-06-10
 gaps_abertos: ["G5 — validação humana com screenshots não executada"]
 nota: "MVP não pode ser declarado completo enquanto G5 estiver aberto"

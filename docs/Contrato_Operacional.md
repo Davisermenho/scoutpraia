@@ -3,7 +3,7 @@ title: Contrato Operacional — Eventos v1
 project: ScoutPraia
 version: eventos_v1.0
 owner: Davi Sermenho
-last_updated: 2026-06-10
+last_updated: 2026-06-11
 status: todos_contratos_validados
 semantic_source: Contrato_Operacional.md
 implementation_source: SCOUT_DESIGN_TEMPLATE
@@ -54,8 +54,8 @@ Referência rápida para agentes. Para regras detalhadas, consultar as seções 
 
 ```yaml
 consolidated_state:
-  last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  last_reviewed_at: "2026-06-11"
+  git_head: "aa8934c"
   modules:
     attack_no_shot_v1:
       status: "contrato_validado"
@@ -76,6 +76,22 @@ consolidated_state:
       status: "contrato_validado"
       import_rule_v1: "nao_importar_v1"
       evidence: ["EV-008"]
+      evidence_status: "passed"
+  conceptual_contracts:
+    shootout_v1:
+      status: "arquitetura_em_definicao_validada_por_teste_conceitual"
+      import_rule_v1: "nao_importar_v1"
+      ui: "nao_liberada"
+      importacao: "nao_liberada"
+      seed_operacional: "inalterado"
+      evidence_status: "passed"
+    goalkeeper_v1:
+      status: "arquitetura_em_definicao_validada_por_teste_conceitual"
+      import_rule_v1: "nao_importar_v1"
+      ui: "nao_liberada"
+      importacao: "nao_liberada"
+      seed_operacional: "inalterado"
+      evidence: ["EV-010"]
       evidence_status: "passed"
 ```
 
@@ -507,6 +523,31 @@ acceptance_tests:
     executed_at: "2026-06-10"
     commit: "7a93d7728c966f229cf253d8fc5ca3ead154138d"
     module: "defensive_v1"
+
+  EV-010:
+    module: "goalkeeper_v1"
+    status: "passed"
+    git_head: "aa8934c"
+    local_validation:
+      goalkeeper_contract: "13 passed in 0.02s"
+      registry_contract: "14 passed in 0.02s"
+      full_pytest: "226 passed in 14.19s"
+      verify_current_state: "verde; 226 passed in 13.81s"
+      git_diff_check: "sem saída"
+      git_status_short: "limpo"
+    seed:
+      taxonomy: "ScoutPraia v0.1"
+      taxonomy_status: "draft"
+      event_definitions: 31
+    import_rule_v1: "nao_importar_v1"
+
+  global_validation_after_goalkeeper:
+    command: "python3 -m pytest -q"
+    actual_result: "226 passed in 14.19s"
+    verify_current_state: "verde; 226 passed in 13.81s"
+    git_diff_check: "sem saída"
+    git_status_short: "limpo"
+    git_head: "aa8934c"
 ```
 
 
@@ -516,17 +557,21 @@ acceptance_tests:
 ```yaml
 release_rules:
   current_state: "todos_contratos_validados"
-  last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  last_reviewed_at: "2026-06-11"
+  git_head: "aa8934c"
   app_import_ready:
     attack_no_shot_v1: "importar_v1"
     finalization_v1: "aguarda_ativacao_app"
     offensive_creation_v1: "aguarda_ativacao_app"
     defensive_v1: "aguarda_ativacao_app"
+    shootout_v1: "nao_liberado"
+    goalkeeper_v1: "nao_liberado"
   blockers_before_full_app_activation:
     - "Validar que nenhum módulo v1 é importado apenas por category."
     - "Executar testes de integração de app antes de ativar finalization_v1, offensive_creation_v1 e defensive_v1."
     - "Confirmar fluxo de app com attack_no_shot_v1 ativo antes de ativar módulos dependentes."
+    - "Não liberar UI/importação de shootout_v1 enquanto permanecer apenas como contrato conceitual validado por teste."
+    - "Não liberar UI/importação de goalkeeper_v1 enquanto permanecer apenas como contrato conceitual validado por teste."
 ```
 
 
@@ -1113,11 +1158,12 @@ goalkeeper_final_cross_audit:
 goalkeeper_repo_registration:
   date: "2026-06-10"
   module_id: "goalkeeper_v1"
-  status: "arquitetura_em_definicao_pronta_para_teste_conceitual"
+  status: "arquitetura_em_definicao_validada_por_teste_conceitual"
   import_rule_v1: "nao_importar_v1"
   app_ui_status: "nao_liberado"
   import_status: "nao_liberado"
   seed_status: "inalterado"
+  git_head: "aa8934c"
   core_events:
     - "goalkeeper_save"
     - "goalkeeper_goal_allowed"
@@ -1154,5 +1200,42 @@ goalkeeper_repo_registration:
     - "scripts/verify_current_state.sh"
     - "git diff --check"
     - "git status --short"
-  evidence_status: "pending_local_validation"
+  local_validation:
+    goalkeeper_contract: "13 passed in 0.02s"
+    registry_contract: "14 passed in 0.02s"
+    full_pytest: "226 passed in 14.19s"
+    verify_current_state: "verde; 226 passed in 13.81s"
+    git_diff_check: "sem saída"
+    git_status_short: "limpo"
+  evidence_status: "passed"
+```
+
+### G1-GOALKEEPER-EV-010 — Evidência local do contrato conceitual (2026-06-11)
+
+```yaml
+g1_goalkeeper_ev010:
+  date: "2026-06-11"
+  git_head: "aa8934c"
+  executed_by: "Davi Sermenho"
+  status_after_evidence: "arquitetura_em_definicao_validada_por_teste_conceitual"
+  import_rule_v1: "nao_importar_v1"
+  ui: "nao_liberada"
+  importacao: "nao_liberada"
+  seed_operacional: "inalterado"
+  evidence:
+    EV-010:
+      command: "python3 -m pytest tests/test_goalkeeper_contract.py -q"
+      result: "13 passed in 0.02s"
+      status: "passed"
+    registry_contract:
+      command: "python3 -m pytest tests/test_events_v1_contract_registry.py -q"
+      result: "14 passed in 0.02s"
+      status: "passed"
+    global_validation_after_goalkeeper:
+      command: "python3 -m pytest -q"
+      result: "226 passed in 14.19s"
+      verify_current_state: "verde; 226 passed in 13.81s"
+      git_diff_check: "sem saída"
+      git_status_short: "limpo"
+  seed_note: "Taxonomia operacional padrão permanece ScoutPraia v0.1 draft com 31 eventos; a evidência do goalkeeper_v1 não altera seed, UI ou importação."
 ```
