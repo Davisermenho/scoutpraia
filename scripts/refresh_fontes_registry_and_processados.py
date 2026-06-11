@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 import subprocess
 from collections import Counter
 from datetime import date
@@ -17,9 +18,18 @@ REGISTRY_CSV = ROOT / "beach_handball_ai/fontes/00_registro/fontes_oficiais.csv"
 REGISTRY_XLSX = ROOT / "beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx"
 MANIFEST_JSON = ROOT / "beach_handball_ai/fontes/05_processado/manifest_checksums.json"
 PROCESSADOS_DIR = ROOT / "beach_handball_ai/fontes/05_processado/documentos_markdown"
+CHUNKS_DIR = ROOT / "beach_handball_ai/fontes/05_processado/chunks_jsonl"
+STAGE3_METADATA_JSONL = CHUNKS_DIR / "METADADOS_TEMATICOS_ETAPA_3.jsonl"
+STAGE4_CHUNKS_JSONL = CHUNKS_DIR / "CHUNKS_ETAPA_4_CORPUS.jsonl"
+STAGE4_CHUNKS_AUDIT_MD = CHUNKS_DIR / "CHUNKS_ETAPA_4_AUDITORIA.md"
+LEGACY_IHF_CHUNKS_MD = CHUNKS_DIR / "CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md"
 TODAY = date.today().isoformat()
 CONTROL_ARTIFACT_CHECKSUM = "CONTROLE_CICLICO_VER_MANIFESTO"
 MANIFEST_SELF_SHA = "AUTOREFERENCIA_EXCLUIDA_DO_HASH"
+CHUNK_MIN_TOKENS = 500
+CHUNK_TARGET_TOKENS = 700
+CHUNK_MAX_TOKENS = 900
+CHUNK_OVERLAP_TOKENS = 100
 
 CATALOG_ROOTS = [ROOT / "docs/sources", ROOT / "beach_handball_ai/fontes"]
 
@@ -207,15 +217,443 @@ def infer_version(row: dict[str, str]) -> str:
 
 
 def load_stage3_metadata() -> list[dict[str, object]]:
-    metadata_path = ROOT / "beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl"
-    if not metadata_path.exists():
+    if not STAGE3_METADATA_JSONL.exists():
         return []
 
     records = []
-    for line in metadata_path.read_text(encoding="utf-8").splitlines():
+    for line in STAGE3_METADATA_JSONL.read_text(encoding="utf-8").splitlines():
         if line.strip():
             records.append(json.loads(line))
     return records
+
+
+def load_stage4_chunks() -> list[dict[str, object]]:
+    if not STAGE4_CHUNKS_JSONL.exists():
+        return []
+
+    records = []
+    for line in STAGE4_CHUNKS_JSONL.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            records.append(json.loads(line))
+    return records
+
+
+def token_count(text: str) -> int:
+    return len(re.findall(r"\S+", text))
+
+
+def slugify(text: str) -> str:
+    normalized = text.lower()
+    replacements = {
+        "á": "a",
+        "à": "a",
+        "â": "a",
+        "ã": "a",
+        "é": "e",
+        "ê": "e",
+        "í": "i",
+        "ó": "o",
+        "ô": "o",
+        "õ": "o",
+        "ú": "u",
+        "ç": "c",
+    }
+    for source, target in replacements.items():
+        normalized = normalized.replace(source, target)
+    normalized = re.sub(r"[^a-z0-9]+", "_", normalized)
+    return normalized.strip("_")
+
+
+def strip_frontmatter(text: str) -> str:
+    if not text.startswith("---\n"):
+        return text
+    marker = "\n---\n"
+    end = text.find(marker, 4)
+    if end == -1:
+        return text
+    return text[end + len(marker) :].lstrip()
+
+
+def extract_title_line(text: str, fallback: str) -> str:
+    for line in strip_frontmatter(text).splitlines():
+        cleaned = line.strip()
+        if cleaned.startswith("#"):
+            return cleaned.lstrip("#").strip()
+    return fallback
+
+
+def extract_overlap_text(text: str, overlap_tokens: int) -> str:
+    words = re.findall(r"\S+", text)
+    if len(words) <= overlap_tokens:
+        return text
+    return " ".join(words[-overlap_tokens:])
+
+
+def split_long_paragraph(paragraph: str, target_tokens: int) -> list[str]:
+    if token_count(paragraph) <= CHUNK_MAX_TOKENS:
+        return [paragraph]
+
+    sentences = re.split(r"(?<=[.!?])\s+", paragraph.strip())
+    chunks = []
+    current = []
+    current_tokens = 0
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        sentence_tokens = token_count(sentence)
+        if current and current_tokens + sentence_tokens > target_tokens:
+            chunks.append(" ".join(current).strip())
+            current = [sentence]
+            current_tokens = sentence_tokens
+        else:
+            current.append(sentence)
+            current_tokens += sentence_tokens
+    if current:
+        chunks.append(" ".join(current).strip())
+    return [chunk for chunk in chunks if chunk]
+
+
+def split_into_paragraphs(text: str) -> list[str]:
+    cleaned = re.sub(r"\n{3,}", "\n\n", text.strip())
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", cleaned):
+        normalized = block.strip()
+        if not normalized:
+            continue
+        paragraphs.extend(split_long_paragraph(normalized, CHUNK_TARGET_TOKENS))
+    return paragraphs
+
+
+def extract_anchor_slice(text: str, anchor: str, sibling_anchors: list[str]) -> str:
+    if not anchor:
+        return text
+    start = text.find(anchor)
+    if start == -1:
+        return text
+
+    end = len(text)
+    for sibling in sibling_anchors:
+        if sibling == anchor:
+            continue
+        sibling_start = text.find(sibling, start + len(anchor))
+        if sibling_start != -1:
+            end = min(end, sibling_start)
+
+    heading_start = text.rfind("\n#", 0, start)
+    if heading_start != -1:
+        start = heading_start + 1
+    return text[start:end].strip()
+
+
+def source_row_index(rows: list[dict[str, str]]) -> dict[str, dict[str, str]]:
+    return {row["source_id"]: row for row in rows}
+
+
+def infer_chunk_status(record: dict[str, object], source_rows: dict[str, dict[str, str]]) -> str:
+    source_row = source_rows.get(str(record["source_id"]))
+    source_status = (source_row or {}).get("status", "")
+    if "_rascunhos/" in str(record["arquivo"]):
+        return "deprecated"
+    if "lacunas_visuais" in source_status or "figuras_com_ressalva" in source_status:
+        return "ativo_com_ressalva"
+    if "duplicata_linguistica" in source_status:
+        return "ativo_com_ressalva"
+    return "ativo"
+
+
+def infer_chunk_usage(record: dict[str, object], status: str) -> str:
+    if status == "deprecated":
+        return "nao_usar_em_ingestao"
+    if status.startswith("bloqueado"):
+        return "responder_nao_encontrado_ou_consultar_pdf"
+    return chunking_usage(record)
+
+
+def build_chunk_text(record: dict[str, object], title: str, body: str) -> str:
+    anchor = str(record.get("ancora", "")).strip()
+    parts = [f"# {title}"]
+    if anchor and anchor not in title and anchor in body:
+        parts.extend(["", f"Trecho-guia: {anchor}"])
+    parts.extend(["", body.strip()])
+    return "\n".join(parts).strip()
+
+
+def window_paragraph_chunks(base_text: str, chunk_title: str) -> list[tuple[str, int]]:
+    paragraphs = split_into_paragraphs(base_text)
+    if not paragraphs:
+        return []
+
+    chunks = []
+    current: list[str] = []
+    current_tokens = 0
+    previous_chunk_text = ""
+    overlap_tokens = 0
+
+    for paragraph in paragraphs:
+        paragraph_tokens = token_count(paragraph)
+        if current and current_tokens >= CHUNK_MIN_TOKENS and current_tokens + paragraph_tokens > CHUNK_MAX_TOKENS:
+            chunk_body = "\n\n".join(current).strip()
+            chunk_text = "\n".join([chunk_title, "", chunk_body]).strip()
+            chunks.append((chunk_text, overlap_tokens))
+            previous_chunk_text = chunk_body
+            overlap_excerpt = extract_overlap_text(previous_chunk_text, CHUNK_OVERLAP_TOKENS)
+            current = [overlap_excerpt, paragraph]
+            current_tokens = token_count(overlap_excerpt) + paragraph_tokens
+            overlap_tokens = min(CHUNK_OVERLAP_TOKENS, token_count(overlap_excerpt))
+        else:
+            current.append(paragraph)
+            current_tokens += paragraph_tokens
+
+    if current:
+        chunk_body = "\n\n".join(current).strip()
+        chunk_text = "\n".join([chunk_title, "", chunk_body]).strip()
+        chunks.append((chunk_text, overlap_tokens))
+
+    return chunks
+
+
+def parse_legacy_ihf_chunks() -> tuple[list[dict[str, object]], dict[str, list[str]]]:
+    if not LEGACY_IHF_CHUNKS_MD.exists():
+        return [], {}
+
+    text = LEGACY_IHF_CHUNKS_MD.read_text(encoding="utf-8")
+    sections = re.split(r"\n## ", text)
+    records = []
+    replacement_map: dict[str, list[str]] = {}
+    part_to_registro = {
+        "P01": "ihf_rules_revision_part_01",
+        "P02": "ihf_rules_revision_part_02",
+        "P03": "ihf_rules_revision_part_03",
+        "P04": "ihf_rules_revision_part_04",
+        "P05": "ihf_rules_revision_part_05",
+        "P06": "ihf_rules_revision_part_06",
+    }
+
+    for section in sections:
+        section = section.strip()
+        if not section.startswith("CHUNK_"):
+            continue
+        lines = section.splitlines()
+        heading = lines[0].strip()
+        match = re.match(r"^(CHUNK_[A-Z0-9_]+)\s+—\s+(.*)$", heading)
+        if not match:
+            continue
+        chunk_id, title = match.groups()
+        status_match = re.search(r"\nstatus:\s*(.+)", "\n" + section)
+        status_raw = status_match.group(1).strip() if status_match else "liberado"
+        if "BLOQUEADO VISUAL" in title.upper():
+            status = "bloqueado_visual"
+        elif status_raw == "liberado":
+            status = "ativo"
+        elif status_raw == "liberado_com_ressalva":
+            status = "ativo_com_ressalva"
+        elif status_raw == "bloqueado":
+            status = "bloqueado"
+        else:
+            status = slugify(status_raw)
+
+        uso_match = re.search(r"\nuso_no_agente:\s*(.+)", "\n" + section)
+        uso_no_agente = uso_match.group(1).strip() if uso_match else "normativo_prioritario"
+        ressalva_match = re.search(r"\nressalva:\s*(.+)", "\n" + section)
+        ressalva = ressalva_match.group(1).strip() if ressalva_match else ""
+        content_match = re.search(r"\nConteúdo:\s*(.+)", "\n" + section, re.DOTALL)
+        decision_match = re.search(r"\ndecisao:\s*(.+)", "\n" + section, re.DOTALL)
+        body = ""
+        if content_match:
+            body = content_match.group(1).strip()
+        elif decision_match:
+            body = decision_match.group(1).strip()
+
+        part_match = re.search(r"CHUNK_(P\d{2})", chunk_id)
+        part_code = part_match.group(1) if part_match else "P00"
+        registro_id = part_to_registro.get(part_code, "ihf_legacy_chunks")
+        replacement_map.setdefault(registro_id, []).append(chunk_id)
+
+        tema = "arbitragem" if part_code == "P05" else "regra"
+        record = {
+            "chunk_id": chunk_id,
+            "registro_id_origem": registro_id,
+            "source_id": "IHF_RULES_BH_2026_EN",
+            "source_id_operacional": "IHF_RULES_BH_2026_PT_TRANSLATION",
+            "tema": tema,
+            "subtema": slugify(title),
+            "organizacao": "IHF",
+            "versao": "2026",
+            "confiabilidade": "A",
+            "arquivo_origem": str(LEGACY_IHF_CHUNKS_MD.relative_to(ROOT)),
+            "status": status,
+            "metodo_chunking": "curadoria_legada_convertida",
+            "uso_no_agente": uso_no_agente,
+            "overlap_tokens_aprox": 0,
+            "token_count_aprox": token_count(body),
+            "observacao": ressalva or "Chunk curado legado convertido para estrutura JSONL da Etapa 4.",
+            "texto": body,
+        }
+        records.append(record)
+
+    return records, replacement_map
+
+
+def build_deprecated_stage3_chunk_records(
+    metadata_records: list[dict[str, object]],
+    replacement_map: dict[str, list[str]],
+) -> list[dict[str, object]]:
+    deprecated = []
+    for record in metadata_records:
+        registro_id = str(record["registro_id"])
+        if not registro_id.startswith("ihf_rules_revision_part_"):
+            continue
+        replacements = replacement_map.get(registro_id, [])
+        deprecated_text = (
+            "Rascunho historico substituido na Etapa 4. "
+            "Nao ingerir no banco principal; usar apenas para auditoria do processo."
+        )
+        deprecated.append(
+            {
+                "chunk_id": f"DEPRECATED_{registro_id.upper()}",
+                "registro_id_origem": registro_id,
+                "source_id": str(record["source_id"]),
+                "source_id_operacional": str(record.get("source_id_operacional", "")),
+                "tema": str(record["tema"]),
+                "subtema": str(record["subtema"]),
+                "organizacao": str(record["organizacao"]),
+                "versao": str(record["versao"]),
+                "confiabilidade": str(record["confiabilidade"]),
+                "arquivo_origem": str(record["arquivo"]),
+                "status": "deprecated",
+                "metodo_chunking": "placeholder_deprecated",
+                "uso_no_agente": "nao_usar_em_ingestao",
+                "overlap_tokens_aprox": 0,
+                "token_count_aprox": token_count(deprecated_text),
+                "observacao": (
+                    "Rascunho historico substituido pelos chunks estruturados "
+                    + ", ".join(replacements)
+                    if replacements
+                    else "Rascunho historico mantido apenas para auditoria do processo."
+                ),
+                "replacement_chunk_ids": replacements,
+                "texto": deprecated_text,
+            }
+        )
+    return deprecated
+
+
+def build_source_text_map(metadata_records: list[dict[str, object]]) -> dict[str, str]:
+    source_text = {}
+    for record in metadata_records:
+        arquivo = str(record["arquivo"])
+        if arquivo in source_text:
+            continue
+        source_text[arquivo] = strip_frontmatter((ROOT / arquivo).read_text(encoding="utf-8"))
+    return source_text
+
+
+def build_stage4_generated_chunks(rows: list[dict[str, str]]) -> list[dict[str, object]]:
+    metadata_records = load_stage3_metadata()
+    source_rows = source_row_index(rows)
+    source_text = build_source_text_map(metadata_records)
+    grouped_by_file: dict[str, list[dict[str, object]]] = {}
+    for record in metadata_records:
+        grouped_by_file.setdefault(str(record["arquivo"]), []).append(record)
+
+    generated: list[dict[str, object]] = []
+    chunk_sequence = 1
+
+    for record in metadata_records:
+        registro_id = str(record["registro_id"])
+        if registro_id.startswith("ihf_rules_revision_part_"):
+            continue
+
+        arquivo = str(record["arquivo"])
+        body = source_text[arquivo]
+        siblings = grouped_by_file[arquivo]
+        sibling_anchors = [str(sibling.get("ancora", "")).strip() for sibling in siblings if sibling.get("ancora")]
+        body = extract_anchor_slice(body, str(record.get("ancora", "")).strip(), sibling_anchors)
+        title = extract_title_line(body, registro_id)
+        status = infer_chunk_status(record, source_rows)
+        base_chunk_title = f"# {title}"
+        chunk_windows = window_paragraph_chunks(body, base_chunk_title)
+        if not chunk_windows:
+            chunk_windows = [(build_chunk_text(record, title, body), 0)]
+
+        for index, (chunk_text, overlap_tokens) in enumerate(chunk_windows, start=1):
+            generated.append(
+                {
+                    "chunk_id": f"ETAPA4_{chunk_sequence:03d}_{slugify(registro_id)[:36]}",
+                    "registro_id_origem": registro_id,
+                    "source_id": str(record["source_id"]),
+                    "source_id_operacional": str(record.get("source_id_operacional", "")),
+                    "tema": str(record["tema"]),
+                    "subtema": str(record["subtema"]),
+                    "organizacao": str(record["organizacao"]),
+                    "versao": str(record["versao"]),
+                    "confiabilidade": str(record["confiabilidade"]),
+                    "arquivo_origem": arquivo,
+                    "status": status,
+                    "metodo_chunking": (
+                        "janela_unica_sem_split" if len(chunk_windows) == 1 else "janela_paragrafos_com_overlap"
+                    ),
+                    "uso_no_agente": infer_chunk_usage(record, status),
+                    "overlap_tokens_aprox": overlap_tokens,
+                    "token_count_aprox": token_count(chunk_text),
+                    "observacao": (
+                        str(record.get("observacao", ""))
+                        if len(chunk_windows) == 1
+                        else f"{record.get('observacao', '')} | parte {index}/{len(chunk_windows)}"
+                    ),
+                    "texto": chunk_text.strip(),
+                }
+            )
+            chunk_sequence += 1
+
+    return generated
+
+
+def sync_stage4_chunks(rows: list[dict[str, str]]) -> None:
+    metadata_records = load_stage3_metadata()
+    legacy_records, replacement_map = parse_legacy_ihf_chunks()
+    generated_records = build_stage4_generated_chunks(rows)
+    deprecated_records = build_deprecated_stage3_chunk_records(metadata_records, replacement_map)
+
+    all_records = sorted(
+        legacy_records + generated_records + deprecated_records,
+        key=lambda record: (str(record["status"]) == "deprecated", str(record["chunk_id"])),
+    )
+    STAGE4_CHUNKS_JSONL.write_text(
+        "\n".join(json.dumps(record, ensure_ascii=False) for record in all_records) + "\n",
+        encoding="utf-8",
+    )
+
+    status_counts = Counter(str(record["status"]) for record in all_records)
+    tema_counts = Counter(str(record["tema"]) for record in all_records)
+    lines = [
+        "# Auditoria Etapa 4",
+        "",
+        f"gerado_em: {TODAY}",
+        f"arquivo_jsonl: {STAGE4_CHUNKS_JSONL.relative_to(ROOT)}",
+        f"chunks_totais: {len(all_records)}",
+        "",
+        "## Status",
+        "",
+    ]
+    for status, count in sorted(status_counts.items()):
+        lines.append(f"- {status}: {count}")
+    lines.extend(["", "## Temas", ""])
+    for tema, count in sorted(tema_counts.items()):
+        lines.append(f"- {tema}: {count}")
+    lines.extend(
+        [
+            "",
+            "## Regras operacionais",
+            "",
+            "- chunks derivados de `_rascunhos/` ficam com `status=deprecated` e nao entram na ingestao principal.",
+            "- chunks normativos IHF convertidos do artefato legado continuam separados de CEPRAEA por `tema`, `organizacao` e `source_id`.",
+            "- a Etapa 4 continua documental; embeddings/Chroma seguem bloqueados ate o gate global do ScoutPraia.",
+            "",
+        ]
+    )
+    STAGE4_CHUNKS_AUDIT_MD.write_text("\n".join(lines), encoding="utf-8")
 
 
 def expected_operational_folder(row: dict[str, str]) -> str:
@@ -352,36 +790,68 @@ def build_auditoria_organizacao_rows(rows: list[dict[str, str]]) -> tuple[list[s
 
 def build_proxima_acao_rows() -> tuple[list[str], list[list[str]]]:
     header = ["ordem", "acao", "criterio_de_conclusao", "responsavel", "status"]
-    rows = [
-        [
-            "1",
-            "Tratar checksums ciclicos dos artefatos de controle (CSV/XLSX/manifest) sem autoreferencia.",
-            "Registro e workbook exibem sentinela controlada; manifest preserva hash real de CSV/XLSX e nao tenta hashear a si mesmo.",
-            "Execucao tecnica",
-            "concluido_neste_ciclo",
-        ],
-        [
-            "2",
-            "Manter auditoria_organizacao, revisao_cruzada e matriz_chunks_final como visoes derivadas do estado canonico atual.",
-            "As abas nao apontam para arquivos removidos ou caminhos inexistentes do repo.",
-            "Execucao tecnica",
-            "concluido_neste_ciclo",
-        ],
-        [
-            "3",
-            "Executar a Etapa 4 do plano: gerar chunks reais de 500-900 tokens com sobreposicao controlada e source_id obrigatorio.",
-            "Cada chunk fica compreensivel sozinho, separado por precedencia (IHF/CBHb/EHF/CEPRAEA) e marcado como deprecated quando historico.",
-            "Proxima execucao",
-            "acao_recomendada_imediata",
-        ],
-        [
-            "4",
-            "Nao iniciar embeddings, Chroma ou avaliacao do agente textual antes do gate global do ScoutPraia.",
-            "G5 aprovado e criterios de docs/rag_workflow.md satisfeitos antes das Etapas 5-8.",
-            "Governanca do projeto",
-            "bloqueado_ate_G5",
-        ],
-    ]
+    if STAGE4_CHUNKS_JSONL.exists():
+        rows = [
+            [
+                "1",
+                "Tratar checksums ciclicos dos artefatos de controle (CSV/XLSX/manifest) sem autoreferencia.",
+                "Registro e workbook exibem sentinela controlada; manifest preserva hash real de CSV/XLSX e nao tenta hashear a si mesmo.",
+                "Execucao tecnica",
+                "concluido",
+            ],
+            [
+                "2",
+                "Manter auditoria_organizacao, revisao_cruzada e matriz_chunks_final como visoes derivadas do estado canonico atual.",
+                "As abas nao apontam para arquivos removidos ou caminhos inexistentes do repo.",
+                "Execucao tecnica",
+                "concluido",
+            ],
+            [
+                "3",
+                "Etapa 4 executada: chunks reais do corpus gerados com status por unidade e historicos deprecated.",
+                "CHUNKS_ETAPA_4_CORPUS.jsonl cobre o inventario aprovado da Etapa 3 com source_id, tema, confiabilidade e separacao CEPRAEA x regra oficial.",
+                "Execucao tecnica",
+                "concluido_neste_ciclo",
+            ],
+            [
+                "4",
+                "Etapa 5 permanece bloqueada: nao gerar embeddings nem Chroma antes do gate global do ScoutPraia.",
+                "G5 aprovado e criterios de docs/rag_workflow.md satisfeitos antes das Etapas 5-8.",
+                "Governanca do projeto",
+                "bloqueado_ate_G5",
+            ],
+        ]
+    else:
+        rows = [
+            [
+                "1",
+                "Tratar checksums ciclicos dos artefatos de controle (CSV/XLSX/manifest) sem autoreferencia.",
+                "Registro e workbook exibem sentinela controlada; manifest preserva hash real de CSV/XLSX e nao tenta hashear a si mesmo.",
+                "Execucao tecnica",
+                "concluido_neste_ciclo",
+            ],
+            [
+                "2",
+                "Manter auditoria_organizacao, revisao_cruzada e matriz_chunks_final como visoes derivadas do estado canonico atual.",
+                "As abas nao apontam para arquivos removidos ou caminhos inexistentes do repo.",
+                "Execucao tecnica",
+                "concluido_neste_ciclo",
+            ],
+            [
+                "3",
+                "Executar a Etapa 4 do plano: gerar chunks reais de 500-900 tokens com sobreposicao controlada e source_id obrigatorio.",
+                "Cada chunk fica compreensivel sozinho, separado por precedencia (IHF/CBHb/EHF/CEPRAEA) e marcado como deprecated quando historico.",
+                "Proxima execucao",
+                "acao_recomendada_imediata",
+            ],
+            [
+                "4",
+                "Nao iniciar embeddings, Chroma ou avaliacao do agente textual antes do gate global do ScoutPraia.",
+                "G5 aprovado e criterios de docs/rag_workflow.md satisfeitos antes das Etapas 5-8.",
+                "Governanca do projeto",
+                "bloqueado_ate_G5",
+            ],
+        ]
     return header, rows
 
 
@@ -424,6 +894,40 @@ def build_revisao_cruzada_rows() -> tuple[list[str], list[list[str]]]:
 
 
 def build_matriz_chunks_rows() -> tuple[list[str], list[list[str]]]:
+    stage4_chunks = load_stage4_chunks()
+    if stage4_chunks:
+        header = [
+            "chunk_id",
+            "registro_id_origem",
+            "source_id",
+            "tema",
+            "subtema",
+            "status",
+            "arquivo_origem",
+            "uso_no_agente",
+            "acao_necessaria",
+        ]
+        rows = []
+        for chunk in stage4_chunks:
+            rows.append(
+                [
+                    str(chunk["chunk_id"]),
+                    str(chunk["registro_id_origem"]),
+                    str(chunk["source_id"]),
+                    str(chunk["tema"]),
+                    str(chunk["subtema"]),
+                    str(chunk["status"]),
+                    str(chunk["arquivo_origem"]),
+                    str(chunk["uso_no_agente"]),
+                    (
+                        "Nao ingerir; mantido apenas para auditoria."
+                        if str(chunk["status"]) == "deprecated"
+                        else "Pode sustentar Etapa 5 apenas quando o gate global do ScoutPraia liberar RAG."
+                    ),
+                ]
+            )
+        return header, rows
+
     header = [
         "chunk_planejado_id",
         "registro_id_origem",
@@ -647,6 +1151,75 @@ def required_artifact_rows() -> list[dict[str, str]]:
             "uso_mvp": "nao",
             "uso_rag_fase2": "bloqueado_ate_fase2",
         },
+        {
+            "source_id": "CHUNKS_ETAPA_4_CORPUS_JSONL",
+            "título": "Chunks Estruturados da Etapa 4",
+            "organização": "ScoutPraia/CEPRAEA",
+            "tipo": "Artefato de processamento",
+            "data": TODAY,
+            "versão": TODAY,
+            "link": "",
+            "uso_permitido": "uso interno operacional",
+            "tema": "chunking/corpus_final",
+            "nível_de_confiabilidade": "derivado",
+            "observação": "Corpus estruturado de chunks da Etapa 4 com metadados por unidade, separacao de precedencia e historicos deprecated.",
+            "arquivo_local": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_CORPUS.jsonl",
+            "status": "chunks_etapa_4_gerados",
+            "checksum_sha256": "",
+            "data_coleta": TODAY,
+            "source_code_repo": "",
+            "origem_catalogo": "beach_handball_ai/fontes",
+            "papel_documento": "artefato_processado_consolidado",
+            "fonte_primaria_relacionada": "",
+            "uso_mvp": "nao",
+            "uso_rag_fase2": "bloqueado_ate_fase2_global",
+        },
+        {
+            "source_id": "CHUNKS_ETAPA_4_AUDITORIA_MD",
+            "título": "Auditoria da Etapa 4",
+            "organização": "ScoutPraia/CEPRAEA",
+            "tipo": "Artefato de auditoria",
+            "data": TODAY,
+            "versão": TODAY,
+            "link": "",
+            "uso_permitido": "uso interno operacional",
+            "tema": "chunking/auditoria",
+            "nível_de_confiabilidade": "derivado",
+            "observação": "Resumo de auditoria do corpus estruturado da Etapa 4 com contagens por status e tema.",
+            "arquivo_local": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_AUDITORIA.md",
+            "status": "auditoria_chunking_etapa_4_atualizada",
+            "checksum_sha256": "",
+            "data_coleta": TODAY,
+            "source_code_repo": "",
+            "origem_catalogo": "beach_handball_ai/fontes",
+            "papel_documento": "artefato_processado_consolidado",
+            "fonte_primaria_relacionada": "CHUNKS_ETAPA_4_CORPUS_JSONL",
+            "uso_mvp": "nao",
+            "uso_rag_fase2": "bloqueado_ate_fase2_global",
+        },
+        {
+            "source_id": "CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT_MD",
+            "título": "CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT",
+            "organização": "ScoutPraia/CEPRAEA",
+            "tipo": "Artefato processado markdown",
+            "data": TODAY,
+            "versão": TODAY,
+            "link": "",
+            "uso_permitido": "uso interno operacional",
+            "tema": "chunking/revisao_final",
+            "nível_de_confiabilidade": "derivado",
+            "observação": "Artefato legado de curadoria IHF convertido para o JSONL estruturado da Etapa 4; manter apenas como base historica auditavel.",
+            "arquivo_local": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md",
+            "status": "historico_convertido_para_jsonl_etapa_4",
+            "checksum_sha256": "",
+            "data_coleta": TODAY,
+            "source_code_repo": "",
+            "origem_catalogo": "beach_handball_ai/fontes",
+            "papel_documento": "artefato_processado_consolidado",
+            "fonte_primaria_relacionada": "IHF_RULES_BH_2026_PT_TRANSLATION",
+            "uso_mvp": "nao",
+            "uso_rag_fase2": "bloqueado_ate_fase2_global",
+        },
     ]
 
 
@@ -828,6 +1401,8 @@ def main() -> None:
         processed_source_id = f"MD_PROCESSADO_{source_row['source_id']}"
         rows_by_source[processed_source_id] = base_processed_row(source_row, output_rel)
         rows_by_file[output_rel] = rows_by_source[processed_source_id]
+
+    sync_stage4_chunks(rows)
 
     for row in required_artifact_rows():
         rows_by_source[row["source_id"]] = row

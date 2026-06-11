@@ -32,6 +32,10 @@ def test_registry_workbook_views_follow_repo_reality() -> None:
         repo_root
         / "beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl"
     )
+    stage4_chunks_path = (
+        repo_root
+        / "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_CORPUS.jsonl"
+    )
 
     registry_rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
     registry_by_source = {row["source_id"]: row for row in registry_rows}
@@ -42,6 +46,12 @@ def test_registry_workbook_views_follow_repo_reality() -> None:
         if line.strip()
     ]
     metadata_by_id = {record["registro_id"]: record for record in metadata_records}
+    stage4_records = [
+        json.loads(line)
+        for line in stage4_chunks_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    stage4_by_id = {record["chunk_id"]: record for record in stage4_records}
 
     wb = load_workbook(xlsx_path, read_only=True)
 
@@ -91,18 +101,14 @@ def test_registry_workbook_views_follow_repo_reality() -> None:
         assert row["status_revisao"] == record["status_pre_chunking"]
 
     chunk_rows = sheet_rows(wb["matriz_chunks_final"])
-    assert len(chunk_rows) == len(metadata_records)
-    assert len({row["chunk_planejado_id"] for row in chunk_rows}) == len(chunk_rows)
+    assert len(chunk_rows) == len(stage4_records)
+    assert len({row["chunk_id"] for row in chunk_rows}) == len(chunk_rows)
     for row in chunk_rows:
-        record = metadata_by_id[row["registro_id_origem"]]
+        record = stage4_by_id[row["chunk_id"]]
+        assert row["registro_id_origem"] == record["registro_id_origem"]
         assert row["source_id"] == record["source_id"]
-        assert row["arquivo_base"] == record["arquivo"]
-        assert (repo_root / row["arquivo_base"]).exists()
-        expected_status = (
-            "pronto_para_etapa_4"
-            if record["pronto_para_chunking"]
-            else "bloqueado_pre_chunking"
-        )
-        assert row["status_atual"] == expected_status
-        assert row["uso_no_agente"]
+        assert row["arquivo_origem"] == record["arquivo_origem"]
+        assert (repo_root / row["arquivo_origem"]).exists()
+        assert row["status"] == record["status"]
+        assert row["uso_no_agente"] == record["uso_no_agente"]
         assert row["acao_necessaria"]
