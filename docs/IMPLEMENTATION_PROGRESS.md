@@ -2,7 +2,7 @@
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
 fase_atual: "Eventos v1 — EV-009 de shootout_v1 e EV-010 de goalkeeper_v1 registrados sem liberar seed/UI/importação"
-testes_passando: 226
+testes_passando: 229
 event_definitions: 31
 última_atualização: 2026-06-11
 próxima_ação: "Executar G5 (validação humana); offensive_creation_v1, defensive_v1, shootout_v1 e goalkeeper_v1 seguem sem liberação operacional"
@@ -29,7 +29,7 @@ reproduzível por comando, teste ou arquivo verificável.
 
 ```bash
 scripts/verify_current_state.sh
-# resultado esperado: 226 passed
+# resultado esperado: 229 passed
 ```
 
 **Estado do workspace no baseline G0:**
@@ -57,14 +57,14 @@ contagem de event_definitions, testes automatizados, `git diff --check`.
 **Última execução registrada:**
 
 ```text
-date_utc=2026-06-11
-git_head=aa8934c
+date_utc=2026-06-11T18:36:25Z
+git_head=891abdb
 taxonomy=ScoutPraia v0.1
 taxonomy_status=draft
 event_definitions=31
 expected_event_definitions=31
-226 passed
-git_status=clean
+229 passed
+working_tree=documental_dirty_registro_e_corpus_em_andamento
 ```
 
 ---
@@ -114,7 +114,7 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 226 passed |
+| 8 — Testes | `FUNCIONANDO` | 229 passed |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
 | Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | baseline G0 fechado; G1 registry realinhado à planilha; importação segue bloqueada |
@@ -189,7 +189,7 @@ Pendências da fase 7:
 
 ### Fase 8 — Testes `[FUNCIONANDO]`
 
-226 testes passando. Suíte inclui:
+229 testes passando. Suíte inclui:
 - `test_smoke.py`, `test_models.py`, `test_match_service.py`
 - `test_event_service.py`, `test_clip_service.py`
 - `test_validation_service.py`, `test_analytics_service.py`
@@ -199,7 +199,8 @@ Pendências da fase 7:
 - `test_finalization_contract_service.py`, `test_no_shot_attack_contract_service.py`
 - `test_event_model_v1_fields.py`, `test_tagging_finalization_v1_ui.py`
 - `test_tagging_no_shot_attack_v1_ui.py`, `test_reports_events_v1.py`
-- `test_real_video_integration.py`
+- `test_real_video_integration.py`, `test_stage1_stage2_sources_registry.py`
+- `test_stage3_thematic_metadata.py`, `test_stage_registry_workbook_views.py`
 
 ### Fase 9 — Validação operacional com vídeo real `[PARCIAL]`
 
@@ -767,3 +768,253 @@ whitespace residual removido do csv e dos markdowns auditados
   - o push do corpus ainda depende do fechamento do commit local correspondente
 - Limitacoes, gaps e riscos:
   - a normalizacao alterou apenas terminadores de linha e espacos finais; nao houve mudanca semantica do conteudo
+
+---
+
+## Ciclo — Etapa 3 do plano de acao: metadados tematicos pre-chunking
+
+- Fase declarada: `Fase 9 — preparacao documental da Etapa 3 sem liberar RAG`
+- O que foi implementado:
+  - criacao de `beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl` com inventario de registros pre-chunking
+  - atribuicao dos campos obrigatorios `source_id`, `tema`, `subtema`, `organizacao`, `versao`, `confiabilidade` e `arquivo` para trechos/fontes do corpus atual
+  - cobertura dos temas normalizados `regra`, `arbitragem`, `tecnica`, `tatica`, `treino`, `scout`, `nomenclatura`, `analise_de_adversario` e `cepraea_playbook`
+  - marcacao explicita de `pronto_para_chunking=true` para trechos ja processados e `pronto_para_chunking=false` para fontes ainda bloqueadas pela Etapa 2
+  - atualizacao de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` para incluir o novo artefato
+  - adicao de `tests/test_stage3_thematic_metadata.py` para validar esquema, cobertura tematica e existencia dos arquivos referenciados
+- O que foi testado:
+  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
+  - `python3 -m pytest`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+  - `git status --short`
+- Comandos executados:
+```bash
+python3 -m pytest tests/test_stage3_thematic_metadata.py -q
+python3 -m pytest
+scripts/verify_current_state.sh
+git diff --check
+git status --short
+```
+- Resultado observado:
+```text
+teste dedicado de metadata: 1 passed in 0.02s
+suite completa: 227 passed in 14.68s
+verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 227 passed in 13.39s
+git diff --check: sem saida
+git status --short: M beach_handball_ai/fontes/05_processado/manifest_checksums.json; ?? beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl; ?? tests/test_stage3_thematic_metadata.py
+```
+- O que ainda nao esta pronto:
+  - a Etapa 3 ficou `PARCIAL`, porque parte das fontes EHF ainda nao passou integralmente pela Etapa 2 de conversao para markdown/txt
+  - a Etapa 4 de chunking ainda nao foi iniciada
+  - embeddings, Chroma, teste de recuperacao e agente textual continuam fora do escopo deste ciclo
+- Limitacoes, gaps e riscos:
+  - os registros de EHF em `METADADOS_TEMATICOS_ETAPA_3.jsonl` estao como `pendente_etapa_2_conversao_texto`; eles organizam a fila semantica, mas nao sustentam chunking ainda
+  - os trechos IHF liberados foram mapeados a partir dos arquivos de revisao de chunking, nao de chunks finais ja cortados
+  - este ciclo prepara a base de metadados e de priorizacao tematica, mas nao cumpre sozinho o criterio de aceite final da Etapa 3 do plano para um banco vetorial operacional
+
+---
+
+## Ciclo — Etapa 1 e Etapa 2 do plano de acao: registro real de fontes e conversao PDF para markdown
+
+- Fase declarada: `Fase 9 — governanca documental do corpus sem liberar RAG`
+- O que foi implementado:
+  - criacao de `scripts/refresh_fontes_registry_and_processados.py` para reconstruir o registro, recalcular checksums, sincronizar a planilha e gerar markdown processado para cada PDF com `source_id` no frontmatter
+  - atualizacao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para cobrir integralmente `docs/sources/` e `beach_handball_ai/fontes/`
+  - geracao ou atualizacao de `beach_handball_ai/fontes/05_processado/manifest_checksums.json`
+  - geracao de markdowns diretos `MD_PROCESSADO__{source_id}.md` em `beach_handball_ai/fontes/05_processado/documentos_markdown/` para todos os PDFs catalogados
+  - adicao de `tests/test_stage1_stage2_sources_registry.py` para validar cobertura do registro, unicidade de `source_id`, campos obrigatorios e rastreabilidade dos PDFs convertidos
+  - correcao do gerador CSV para escrever com `LF`, eliminando a falha de `git diff --check`
+- O que foi testado:
+  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
+  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
+  - `python3 -m pytest`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+  - revisao manual de amostras em `MD_PROCESSADO__IHF_RULES_BH_2026_EN.md` e `MD_PROCESSADO__CBHB_REGULAMENTO_BH_2026.md`
+- Comandos executados:
+```bash
+python3 scripts/refresh_fontes_registry_and_processados.py
+python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
+python3 -m pytest tests/test_stage3_thematic_metadata.py -q
+python3 -m pytest
+scripts/verify_current_state.sh
+git diff --check
+```
+- Resultado observado:
+```text
+registro consolidado: 65 source_id unicos
+cobertura do catalogo: 100% dos arquivos de docs/sources e beach_handball_ai/fontes registrados
+pdfs catalogados: 16
+markdowns processados rastreaveis em 05_processado/documentos_markdown: 31
+teste dedicado Etapa 1/2: 1 passed
+teste dedicado Etapa 3: 1 passed
+suite completa: 228 passed
+git diff --check: sem saida
+```
+- O que ainda nao esta pronto:
+  - a Etapa 1 ficou `FUNCIONANDO COM EVIDENCIA`
+  - a Etapa 2 ficou `PARCIAL`, porque a conversao estrutural dos PDFs foi concluida, mas a revisao manual integral das tabelas importantes e de todos os apendices ainda nao foi encerrada
+  - o corpus processado continua bloqueado para RAG principal quando o registro marca artefato derivado, fonte D/secundaria ou item ainda pendente de revisao manual
+- Limitacoes, gaps e riscos:
+  - os arquivos `MD_PROCESSADO__*.md` preservam rastreabilidade e estrutura basica, mas ainda podem carregar artefatos tipicos de `pdftotext -layout` em tabelas complexas e seções graficas
+  - parte dos artefatos antigos de `05_processado/` continua no catalogo como derivado historico do fluxo anterior; isso e intencional para auditoria, nao para promover esses artefatos a fonte primaria
+  - a proxima acao correta dentro deste subplano e concluir a revisao manual das tabelas/apendices criticos da Etapa 2 antes de tratar a Etapa 2 como aprovada sem ressalvas
+
+---
+
+## Ciclo — revisao manual assistida da Etapa 2 e realinhamento da Etapa 3
+
+- Fase declarada: `Fase 9 — consolidacao documental do corpus processado sem liberar RAG`
+- O que foi implementado:
+  - revisao manual assistida dos markdowns processados mais criticos da Etapa 2, com atualizacao de status e observacao no registro e no frontmatter dos arquivos gerados
+  - promocao de `11` processados para estados `revisado_manual_*` no registro:
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_EN`
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_WORKING_COPY`
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_PT_TRANSLATION`
+    - `MD_PROCESSADO_SRC_IHF_RULES_FILE`
+    - `MD_PROCESSADO_FHERJ_MUDANCAS_REGRAS_BH_2026`
+    - `MD_PROCESSADO_FHERJ_ESCLARECIMENTOS_REGRAS_2025`
+    - `MD_PROCESSADO_CBHB_REGULAMENTO_BH_2026`
+    - `MD_PROCESSADO_REFEREEING_BEACH_HANDBALL`
+    - `MD_PROCESSADO_SHOOTOUT_PSYCHOLOGICAL_PRESSURE`
+    - `MD_PROCESSADO_ULTIMATE_SCHOOL_HANDBALL_2025`
+    - `MD_PROCESSADO_MINI_BEACH_HANDBALL_INFO_SHEET`
+  - manutencao de `5` processados como pendentes de revisao manual integral:
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_DE`
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_FR`
+    - `MD_PROCESSADO_SRC_NOTATIONAL_BH_IANNACCONE_2022`
+    - `MD_PROCESSADO_SRC_RAG_STRUCTURED_FILE`
+    - `MD_PROCESSADO_SRC_WOMENS_BH_STATISTICS_2022`
+  - endurecimento de `tests/test_stage1_stage2_sources_registry.py` com anchors criticos para regras IHF, FHERJ, CBHb e materiais EHF revisados
+  - realinhamento de `METADADOS_TEMATICOS_ETAPA_3.jsonl` para apontar caminhos existentes, incluindo `_rascunhos/` historicos e os markdowns EHF agora processados
+  - ajuste de `tests/test_stage3_thematic_metadata.py` para validar consistencia do inventario sem pressupor que sempre exista pelo menos um item pendente
+- O que foi testado:
+  - `python3 scripts/refresh_fontes_registry_and_processados.py`
+  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
+  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
+  - `python3 -m pytest`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+- Comandos executados:
+```bash
+python3 scripts/refresh_fontes_registry_and_processados.py
+python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
+python3 -m pytest tests/test_stage3_thematic_metadata.py -q
+python3 -m pytest
+scripts/verify_current_state.sh
+git diff --check
+```
+- Resultado observado:
+```text
+teste Etapa 1/2: 1 passed in 0.04s
+teste Etapa 3: 1 passed in 0.07s
+suite completa: 228 passed in 20.81s
+verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 228 passed in 20.81s
+git diff --check: sem saida
+```
+- O que ainda nao esta pronto:
+  - a Etapa 2 continua `PARCIAL`, porque a revisao manual integral ainda nao cobriu as versoes IHF em alemao e frances nem os PDFs cientificos de `docs/sources`
+  - a Etapa 3 continua `PARCIAL`, porque o inventario tematico foi corrigido e ampliado, mas a Etapa 4 de chunking ainda nao foi iniciada
+  - o RAG segue bloqueado por contrato global do ScoutPraia, independentemente do estado do corpus processado
+- Limitacoes, gaps e riscos:
+  - mesmo nos itens promovidos para `revisado_manual_*`, figuras, fotos de sinais de arbitragem, layouts visuais de uniforme e graficos continuam dependendo do PDF original
+  - os arquivos em `documentos_markdown/_rascunhos/` permanecem como historico de processo e nao devem ser tratados como fonte final preferencial
+  - o workspace continua documentalmente sujo porque este ciclo apenas consolidou evidencia e artefatos; nao houve commit neste turno
+
+---
+
+## Ciclo — fechamento da revisao manual dos 5 processados pendentes da Etapa 2
+
+- Fase declarada: `Fase 9 — fechamento documental da Etapa 2 com evidencia`
+- O que foi implementado:
+  - revisao manual assistida dos 5 processados restantes:
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_DE`
+    - `MD_PROCESSADO_IHF_RULES_BH_2026_FR`
+    - `MD_PROCESSADO_SRC_NOTATIONAL_BH_IANNACCONE_2022`
+    - `MD_PROCESSADO_SRC_RAG_STRUCTURED_FILE`
+    - `MD_PROCESSADO_SRC_WOMENS_BH_STATISTICS_2022`
+  - promocao dos 5 para status `revisado_manual_*` no `fontes_oficiais.csv`/`.xlsx`
+  - inclusao de notas de revisao manual no frontmatter dos markdowns correspondentes
+  - ampliacao de `tests/test_stage1_stage2_sources_registry.py` com anchors criticos para as versoes IHF DE/FR e para os 3 artigos cientificos
+  - atualizacao de `METADADOS_TEMATICOS_ETAPA_3.jsonl` para incluir esses documentos como `ready_for_chunking`
+- O que foi testado:
+  - `python3 scripts/refresh_fontes_registry_and_processados.py`
+  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
+  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
+  - `python3 -m pytest`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+- Comandos executados:
+```bash
+python3 scripts/refresh_fontes_registry_and_processados.py
+python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
+python3 -m pytest tests/test_stage3_thematic_metadata.py -q
+python3 -m pytest
+scripts/verify_current_state.sh
+git diff --check
+```
+- Resultado observado:
+```text
+processados revisados manualmente: 16
+processados ainda pendentes de revisao manual: 0
+teste Etapa 1/2: 1 passed in 0.11s
+teste Etapa 3: 1 passed in 0.04s
+suite completa: 228 passed in 20.60s
+verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 228 passed in 20.60s
+git diff --check: sem saida
+```
+- O que ainda nao esta pronto:
+  - a Etapa 2 pode ser tratada como `CONCLUIDA COM EVIDENCIA` no escopo documental do plano de acao
+  - a Etapa 3 continua `PARCIAL`, mas nao mais por falta de conversao/revisao dos PDFs; o pendente real agora e o chunking da Etapa 4 e o restante da fase RAG
+  - o RAG segue bloqueado pelo contrato global do ScoutPraia enquanto G5 e os gates do MVP principal nao forem fechados
+- Limitacoes, gaps e riscos:
+  - fechamento da Etapa 2 nao elimina a preferencia pelo PDF original quando a pergunta depender de figura, layout visual, diagrama ou detalhe grafico fino
+  - as versoes linguisticas DE/FR da IHF foram revisadas como copias normativas de conferencia, nao como fonte operacional principal acima da versao EN/PT
+
+---
+
+## Ciclo — coerencia final do registro CSV/XLSX e abas auxiliares
+
+- Fase declarada: `Fase 9 — governanca documental do corpus sem liberar RAG`
+- O que foi implementado:
+  - correcao do tratamento de checksum ciclico em `scripts/refresh_fontes_registry_and_processados.py` para `fontes_oficiais.csv`, `fontes_oficiais.xlsx` e `manifest_checksums.json`
+  - adocao da sentinela `CONTROLE_CICLICO_VER_MANIFESTO` no registro e `AUTOREFERENCIA_EXCLUIDA_DO_HASH` no manifest para impedir falso hash autoreferencial
+  - regeneracao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv`
+  - regeneracao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx`
+  - atualizacao programatica das abas `auditoria_organizacao`, `proxima_acao`, `revisao_cruzada` e `matriz_chunks_final` a partir do estado canonico do repo e do `METADADOS_TEMATICOS_ETAPA_3.jsonl`
+  - adicao de `tests/test_stage_registry_workbook_views.py` para validar a coerencia das abas auxiliares e do manifest
+- O que foi testado:
+  - `python3 scripts/refresh_fontes_registry_and_processados.py`
+  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
+  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
+  - `python3 -m pytest tests/test_stage_registry_workbook_views.py -q`
+  - `python3 -m pytest`
+  - `scripts/verify_current_state.sh`
+  - `git diff --check`
+- Comandos executados:
+```bash
+python3 scripts/refresh_fontes_registry_and_processados.py
+python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
+python3 -m pytest tests/test_stage3_thematic_metadata.py -q
+python3 -m pytest tests/test_stage_registry_workbook_views.py -q
+python3 -m pytest
+scripts/verify_current_state.sh
+git diff --check
+```
+- Resultado observado:
+```text
+teste Etapa 1/2: 1 passed in 0.09s
+teste Etapa 3: 1 passed in 0.03s
+teste workbook/manifest: 1 passed in 0.60s
+suite completa: 229 passed in 22.43s
+verify_current_state.sh: verde com date_utc=2026-06-11T18:36:25Z, git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 229 passed in 23.75s
+git diff --check: sem saida
+```
+- O que ainda nao esta pronto:
+  - a Etapa 4 do plano de acao ainda nao foi executada; a aba `matriz_chunks_final` agora e uma matriz honesta de chunking planejado, nao chunks finais gerados
+  - embeddings, Chroma, prompt do agente textual e avaliacao de 30 perguntas continuam bloqueados pelo gate global do ScoutPraia ate G5
+  - o workspace segue documentalmente sujo por mudancas anteriores do corpus processado que nao foram versionadas neste turno
+- Limitacoes, gaps e riscos:
+  - os hashes reais de `fontes_oficiais.csv` e `fontes_oficiais.xlsx` devem ser auditados pelo `manifest_checksums.json`; o proprio registro nao pode carregar esse valor sem reintroduzir ciclo
+  - as abas auxiliares passam a refletir o estado atual do repo, mas dependem de reexecucao do script de refresh sempre que o corpus ou o JSONL da Etapa 3 mudar
+  - a proxima acao recomendada dentro deste subplano e executar a Etapa 4 de chunking mantendo separacao estrita entre IHF, CBHb, EHF e CEPRAEA

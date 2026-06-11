@@ -1,0 +1,500 @@
+{
+  "resumo": {
+    "data_auditoria": "2026-06-11",
+    "total_arquivos": 18,
+    "por_severidade": {
+      "OK": 4,
+      "MEDIO": 14
+    },
+    "total_flags": 23,
+    "documentos_sem_tabelas_markdown": [
+      "MD_PROCESSADO__FHERJ_ESCLARECIMENTOS_REGRAS_2025.md",
+      "MD_PROCESSADO__FHERJ_MUDANCAS_REGRAS_BH_2026.md",
+      "MD_PROCESSADO__IHF_RULES_BH_2026_DE.md",
+      "MD_PROCESSADO__IHF_RULES_BH_2026_FR.md",
+      "MD_PROCESSADO__REFEREEING_BEACH_HANDBALL.md",
+      "MD_PROCESSADO__SHOOTOUT_PSYCHOLOGICAL_PRESSURE.md"
+    ],
+    "documentos_status_pendente": [
+      "MD_PROCESSADO__FHERJ_ESCLARECIMENTOS_REGRAS_2025.md",
+      "MD_PROCESSADO__FHERJ_MUDANCAS_REGRAS_BH_2026.md",
+      "MD_PROCESSADO__MINI_BEACH_HANDBALL_INFO_SHEET.md",
+      "MD_PROCESSADO__REFEREEING_BEACH_HANDBALL.md",
+      "MD_PROCESSADO__SHOOTOUT_PSYCHOLOGICAL_PRESSURE.md",
+      "MD_PROCESSADO__SRC_NOTATIONAL_BH_IANNACCONE_2022.md",
+      "MD_PROCESSADO__SRC_RAG_STRUCTURED_FILE.md",
+      "MD_PROCESSADO__SRC_WOMENS_BH_STATISTICS_2022.md",
+      "MD_PROCESSADO__ULTIMATE_SCHOOL_HANDBALL_2025.md"
+    ],
+    "alertas_globais": []
+  },
+  "arquivos": [
+    {
+      "arquivo": "MD_PROCESSADO__CBHB_REGULAMENTO_BH_2026.md",
+      "source_id": "CBHB_REGULAMENTO_BH_2026",
+      "organizacao": "CBHb",
+      "tipo": "Regulamento nacional",
+      "nivel_de_confiabilidade": "A interno / não público",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 436,
+        "linhas_substantivas": 344,
+        "blocos_branco_3mais": 9,
+        "celulas_tabela_markdown": 13,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 11,
+        "presentes": 11,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [],
+      "severidade": "OK"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__FHERJ_ESCLARECIMENTOS_REGRAS_2025.md",
+      "source_id": "FHERJ_ESCLARECIMENTOS_REGRAS_2025",
+      "organizacao": "FHERJ",
+      "tipo": "Esclarecimento regional",
+      "nivel_de_confiabilidade": "C",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 103,
+        "linhas_substantivas": 60,
+        "blocos_branco_3mais": 4,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "SEM_TABELAS: nenhuma tabela markdown detectada em documento normativo",
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__FHERJ_MUDANCAS_REGRAS_BH_2026.md",
+      "source_id": "FHERJ_MUDANCAS_REGRAS_BH_2026",
+      "organizacao": "FHERJ",
+      "tipo": "Circular regional",
+      "nivel_de_confiabilidade": "C",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 170,
+        "linhas_substantivas": 97,
+        "blocos_branco_3mais": 5,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_PAGE_BH_RULES_2026.md",
+      "source_id": "IHF_PAGE_BH_RULES_2026",
+      "organizacao": "IHF",
+      "tipo": "Pagina oficial",
+      "nivel_de_confiabilidade": "A",
+      "status": "texto_extraido_validado_checksum_pendente",
+      "metricas": {
+        "total_linhas": 37,
+        "linhas_substantivas": 15,
+        "blocos_branco_3mais": 0,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 0,
+        "presentes": 0,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [],
+      "severidade": "OK"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_RULES_BH_2026_DE.md",
+      "source_id": "IHF_RULES_BH_2026_DE",
+      "organizacao": "IHF",
+      "tipo": "Regra oficial",
+      "nivel_de_confiabilidade": "A",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 2593,
+        "linhas_substantivas": 1793,
+        "blocos_branco_3mais": 62,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 1
+      },
+      "secoes": {
+        "esperadas": 7,
+        "presentes": 7,
+        "ausentes": []
+      },
+      "lacunas_doc": [
+        "[LACUNA DE EXTRAÇÃO — Ilustrações dos Sinais dos Árbitros]"
+      ],
+      "flags": [
+        "MEDIO: 62 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)",
+        "SEM_TABELAS: nenhuma tabela markdown detectada em documento normativo"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_RULES_BH_2026_EN.md",
+      "source_id": "IHF_RULES_BH_2026_EN",
+      "organizacao": "IHF",
+      "tipo": "Regra oficial",
+      "nivel_de_confiabilidade": "A",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 2514,
+        "linhas_substantivas": 1700,
+        "blocos_branco_3mais": 62,
+        "celulas_tabela_markdown": 12,
+        "lacunas_documentadas": 2
+      },
+      "secoes": {
+        "esperadas": 23,
+        "presentes": 23,
+        "ausentes": []
+      },
+      "lacunas_doc": [
+        "[LACUNA DE EXTRAÇÃO — Ilustrações dos Sinais dos Árbitros]",
+        "[LACUNA DE EXTRAÇÃO — Gráficos do Uniforme dos Atletas]"
+      ],
+      "flags": [
+        "MEDIO: 62 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_RULES_BH_2026_FR.md",
+      "source_id": "IHF_RULES_BH_2026_FR",
+      "organizacao": "IHF",
+      "tipo": "Regra oficial",
+      "nivel_de_confiabilidade": "A",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 2659,
+        "linhas_substantivas": 1817,
+        "blocos_branco_3mais": 66,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 1
+      },
+      "secoes": {
+        "esperadas": 7,
+        "presentes": 7,
+        "ausentes": []
+      },
+      "lacunas_doc": [
+        "[LACUNA DE EXTRAÇÃO — Ilustrações dos Sinais dos Árbitros]"
+      ],
+      "flags": [
+        "MEDIO: 66 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)",
+        "SEM_TABELAS: nenhuma tabela markdown detectada em documento normativo"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_RULES_BH_2026_PT_TRANSLATION.md",
+      "source_id": "IHF_RULES_BH_2026_PT_TRANSLATION",
+      "organizacao": "Tradução técnica - Luiz Filipe Galvão da Silva Caldas",
+      "tipo": "Tradução técnica",
+      "nivel_de_confiabilidade": "B operacional / apoio em português",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 2509,
+        "linhas_substantivas": 1817,
+        "blocos_branco_3mais": 49,
+        "celulas_tabela_markdown": 30,
+        "lacunas_documentadas": 1
+      },
+      "secoes": {
+        "esperadas": 22,
+        "presentes": 22,
+        "ausentes": []
+      },
+      "lacunas_doc": [
+        "[LACUNA DE EXTRAÇÃO — Ilustrações Fotográficas dos Sinais]"
+      ],
+      "flags": [],
+      "severidade": "OK"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_RULES_BH_2026_WORKING_COPY.md",
+      "source_id": "IHF_RULES_BH_2026_WORKING_COPY",
+      "organizacao": "IHF",
+      "tipo": "Regra oficial",
+      "nivel_de_confiabilidade": "A-auxiliar",
+      "status": "revisado_hierarquia_lacunas_tabelas_convertidas",
+      "metricas": {
+        "total_linhas": 2517,
+        "linhas_substantivas": 1700,
+        "blocos_branco_3mais": 62,
+        "celulas_tabela_markdown": 12,
+        "lacunas_documentadas": 2
+      },
+      "secoes": {
+        "esperadas": 23,
+        "presentes": 23,
+        "ausentes": []
+      },
+      "lacunas_doc": [
+        "[LACUNA DE EXTRAÇÃO — Ilustrações dos Sinais dos Árbitros]",
+        "[LACUNA DE EXTRAÇÃO — Gráficos do Uniforme dos Atletas]"
+      ],
+      "flags": [
+        "MEDIO: 62 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__IHF_UPDATE_BH_2026_04.md",
+      "source_id": "IHF_UPDATE_BH_2026_04",
+      "organizacao": "IHF",
+      "tipo": "Atualizacao oficial",
+      "nivel_de_confiabilidade": "A",
+      "status": "texto_extraido_validado_checksum_pendente",
+      "metricas": {
+        "total_linhas": 60,
+        "linhas_substantivas": 25,
+        "blocos_branco_3mais": 0,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 0,
+        "presentes": 0,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [],
+      "severidade": "OK"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__MINI_BEACH_HANDBALL_INFO_SHEET.md",
+      "source_id": "MINI_BEACH_HANDBALL_INFO_SHEET",
+      "organizacao": "EHF",
+      "tipo": "Ficha educacional oficial",
+      "nivel_de_confiabilidade": "B",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 79,
+        "linhas_substantivas": 48,
+        "blocos_branco_3mais": 2,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "MEDIO: 2 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)",
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__REFEREEING_BEACH_HANDBALL.md",
+      "source_id": "REFEREEING_BEACH_HANDBALL",
+      "organizacao": "EHF",
+      "tipo": "Publicação técnica oficial",
+      "nivel_de_confiabilidade": "B",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 475,
+        "linhas_substantivas": 324,
+        "blocos_branco_3mais": 25,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 1,
+        "ausentes": [
+          "signal"
+        ]
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "SEM_TABELAS: nenhuma tabela markdown detectada em documento normativo",
+        "SECOES_AUSENTES: 1 seção(ões) esperada(s) não encontrada(s)",
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__SHOOTOUT_PSYCHOLOGICAL_PRESSURE.md",
+      "source_id": "SHOOTOUT_PSYCHOLOGICAL_PRESSURE",
+      "organizacao": "EHF",
+      "tipo": "Publicação técnica oficial",
+      "nivel_de_confiabilidade": "B",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 1857,
+        "linhas_substantivas": 1467,
+        "blocos_branco_3mais": 45,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 1,
+        "ausentes": [
+          "shoot-out"
+        ]
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "SEM_TABELAS: nenhuma tabela markdown detectada em documento normativo",
+        "SECOES_AUSENTES: 1 seção(ões) esperada(s) não encontrada(s)",
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__SRC_IHF_RULES_FILE.md",
+      "source_id": "SRC_IHF_RULES_FILE",
+      "organizacao": "IHF",
+      "tipo": "Arquivo historico",
+      "nivel_de_confiabilidade": "C",
+      "status": "extracao_corrompida_nao_usar",
+      "metricas": {
+        "total_linhas": 2660,
+        "linhas_substantivas": 1615,
+        "blocos_branco_3mais": 165,
+        "celulas_tabela_markdown": 10,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 0,
+        "presentes": 0,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "MEDIO: 165 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__SRC_NOTATIONAL_BH_IANNACCONE_2022.md",
+      "source_id": "SRC_NOTATIONAL_BH_IANNACCONE_2022",
+      "organizacao": "Human Movement",
+      "tipo": "Literatura científica",
+      "nivel_de_confiabilidade": "B científico revisado por pares",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 701,
+        "linhas_substantivas": 581,
+        "blocos_branco_3mais": 13,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__SRC_RAG_STRUCTURED_FILE.md",
+      "source_id": "SRC_RAG_STRUCTURED_FILE",
+      "organizacao": "NAACL Industry Track",
+      "tipo": "Referência de IA/RAG",
+      "nivel_de_confiabilidade": "C conceitual / fase 2",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 662,
+        "linhas_substantivas": 597,
+        "blocos_branco_3mais": 2,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "MEDIO: 2 blocos com 3+ linhas em branco — verificar (artefato pdftotext esperado)",
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__SRC_WOMENS_BH_STATISTICS_2022.md",
+      "source_id": "SRC_WOMENS_BH_STATISTICS_2022",
+      "organizacao": "Kinesiology",
+      "tipo": "Literatura científica",
+      "nivel_de_confiabilidade": "B científico revisado por pares",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 503,
+        "linhas_substantivas": 420,
+        "blocos_branco_3mais": 11,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    },
+    {
+      "arquivo": "MD_PROCESSADO__ULTIMATE_SCHOOL_HANDBALL_2025.md",
+      "source_id": "ULTIMATE_SCHOOL_HANDBALL_2025",
+      "organizacao": "EHF",
+      "tipo": "Publicação educacional oficial",
+      "nivel_de_confiabilidade": "B",
+      "status": "texto_extraido_layout_pendente_revisao_manual_tabelas",
+      "metricas": {
+        "total_linhas": 587,
+        "linhas_substantivas": 396,
+        "blocos_branco_3mais": 26,
+        "celulas_tabela_markdown": 0,
+        "lacunas_documentadas": 0
+      },
+      "secoes": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": []
+      },
+      "lacunas_doc": [],
+      "flags": [
+        "STATUS_PENDENTE: revisão manual de tabelas ainda não realizada"
+      ],
+      "severidade": "MEDIO"
+    }
+  ]
+}

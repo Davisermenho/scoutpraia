@@ -219,8 +219,8 @@ Aprovado se:
 - toda fonte tiver arquivo local
 - nenhuma fonte D ou rejeitada entrar no RAG principal
 
-* Registrar as fontes em `docs/sources`
-* Registrar as fontes em `beach_handball_ai/fontes/`
+* Registro MUST ter as fontes `docs/sources`
+* Registro MUST ter as fontes `beach_handball_ai/fontes/`
 
 ### Etapa 2 - Converter documentos para texto limpo
 
@@ -243,6 +243,7 @@ Aprovado se:
 - cada trecho mantém o `source_id` original
 - documentos antigos ficam marcados como desatualizados
 
+Utilizar os aqruivos em:
 * `beach_handball_ai/fontes/01_ihf_regras/`
 * `beach_handball_ai/fontes/02_ehf_tecnico/`
 * `beach_handball_ai/fontes/03_cbhb_brasil/`

@@ -8,23 +8,36 @@
   "notes": [
     "Registro unificado inclui catálogo canônico do repositório e corpus operacional de trabalho.",
     "RAG segue bloqueado pela política atual do ScoutPraia; este manifest não libera fase 2.",
-    "Artefatos DOCX intermediários de 05_processado foram promovidos para Markdown consolidado quando continham o melhor conteúdo disponível."
+    "PDFs catalogados foram convertidos para Markdown com pdftotext -layout em 05_processado/documentos_markdown quando aplicável."
   ],
   "status_summary": {
-    "apoio_regional_conteudo_lido": 2,
     "apoio_operacional_pt_traducao_literal": 1,
-    "validado": 3,
-    "copia_trabalho_da_fonte_canonica": 1,
-    "duplicata_linguistica_conferencia_nao_prioritaria": 2,
-    "validado_tecnico_educacional_ehf": 4,
-    "conteudo_lido_origem_privada_whatsapp": 1,
+    "apoio_regional_conteudo_lido": 2,
+    "auditoria_auxiliar_historica": 1,
     "base_interna_elaborada_v0": 4,
-    "derivado_markdown_consolidado": 18,
     "catalogada_fase2_bloqueada": 2,
     "catalogo_canonico_repo": 1,
+    "conteudo_lido_origem_privada_whatsapp": 1,
+    "copia_trabalho_da_fonte_canonica": 1,
+    "derivado_markdown_consolidado": 3,
+    "derivado_textual_repo": 1,
+    "duplicata_linguistica_conferencia_nao_prioritaria": 2,
+    "manifest_atualizado": 1,
+    "metadata_pre_chunking_atualizada": 1,
+    "rascunho_historico_bloqueado": 13,
+    "registro_canonico_atualizado": 2,
+    "revisado_manual_artigo_tabelas_principais_ok": 3,
+    "revisado_manual_hierarquia_capitulos_ok": 1,
+    "revisado_manual_hierarquia_ok_apendices_identificaveis_lacunas_visuais": 6,
+    "revisado_manual_texto_narrativo_ok": 2,
+    "revisado_manual_texto_narrativo_ok_figuras_com_ressalva": 1,
+    "revisado_manual_texto_normativo_ok": 2,
+    "revisado_manual_texto_ok_box_lateral_inline": 1,
+    "script_auxiliar_historico": 1,
     "secundaria_nao_citar_como_primaria": 1,
+    "validado": 3,
     "validado_canonico_repo": 5,
-    "derivado_textual_repo": 1
+    "validado_tecnico_educacional_ehf": 4
   },
   "files": [
     {
@@ -78,6 +91,16 @@
       "sha256": "af30bbd3236be1b1a9a0425054656f1d3bbfd1a5a38b37c8e717f27eb7bf4783"
     },
     {
+      "path": "beach_handball_ai/fontes/00_registro/fontes_oficiais.csv",
+      "size_bytes": 43035,
+      "sha256": "772bff4415fb957356c0a1a979aec9d6ccff85c3555ada1a602dd3c15beef4f1"
+    },
+    {
+      "path": "beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx",
+      "size_bytes": 41432,
+      "sha256": "9446e78e0f1d46e276e7a3f7d197ae91da946bd3729f38b0633dcc313f80988f"
+    },
+    {
       "path": "beach_handball_ai/fontes/01_ihf_regras/Esclarecimentos regras de jogo.pdf",
       "size_bytes": 147695,
       "sha256": "5e8beeeb6a9ad58990d5abadcae9dfca3a970c269b290b637ad9a405b09225db"
@@ -94,13 +117,13 @@
     },
     {
       "path": "beach_handball_ai/fontes/01_ihf_regras/atualizacoes_ihf_2026.md",
-      "size_bytes": 11803,
-      "sha256": "968bd91c986028ad0a896cb30d3db718a3d7ad3e5ded875a933d19d008afb2f0"
+      "size_bytes": 11721,
+      "sha256": "f6e08e8e4f91a8cd48014a071b537d5d5fc77d5beee85b815633691af02fcd8e"
     },
     {
       "path": "beach_handball_ai/fontes/01_ihf_regras/pagina_ihf_rules_beach_handball.md",
-      "size_bytes": 768,
-      "sha256": "9135dff643a140d6a95465c844aae35ae6f1d2c096b8e9c53b3e76fde2f873c5"
+      "size_bytes": 735,
+      "sha256": "72eb10a525f96d6bf6936e9b2ca8e63aa8174b0f308132371bf6b5372f4d9d3a"
     },
     {
       "path": "beach_handball_ai/fontes/01_ihf_regras/regras_ihf_beach_handball_2026.pdf",
@@ -149,18 +172,18 @@
     },
     {
       "path": "beach_handball_ai/fontes/04_fontes_proprias_cepraea/criterios_taticos_cepraea.md",
-      "size_bytes": 5620,
-      "sha256": "c931ba4b2528662d4f98541e4a91638fd84411b756be33f8373e175b773741c8"
+      "size_bytes": 8614,
+      "sha256": "511d793dc96dc993fc39ae3a8683491196fc62264c083a8ad5070c40d033e1bb"
     },
     {
       "path": "beach_handball_ai/fontes/04_fontes_proprias_cepraea/glossario_tecnico_cepraea.md",
-      "size_bytes": 11177,
-      "sha256": "2f8154c80c15b2ad09e8f6aedf5384eb262e50ca33f1c646f07832543a8b5deb"
+      "size_bytes": 15511,
+      "sha256": "c2a5d84b1d68ddf20926cd5bec87fc75c90fa183701bbf1aab4624ca2345117b"
     },
     {
       "path": "beach_handball_ai/fontes/04_fontes_proprias_cepraea/playbook_cepraea.md",
-      "size_bytes": 5583,
-      "sha256": "4f66f908837ccd093bcaa46c7cade24e7e6026c54e4716553ac318a99af02a02"
+      "size_bytes": 8767,
+      "sha256": "31e04e0ea11c5502398d5fed3e6c816cbb1986c23f587a868cfac88d4f9c9b3e"
     },
     {
       "path": "beach_handball_ai/fontes/04_fontes_proprias_cepraea/scout_schema.md",
@@ -168,9 +191,14 @@
       "sha256": "01ddec79fff47038267c2adb8e2ac72e4096e07ef5949380490bb04e417f87d1"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/IHF_RULES_BH_2026_PT_TRANSLATION.md",
-      "size_bytes": 1671,
-      "sha256": "564dd2f6443f7305a85a4e8d3da0eb284277cb378419e33d0c5051e00a9f89fe"
+      "path": "beach_handball_ai/fontes/05_processado/AUDITORIA_CORPUS_2026-06-11.json",
+      "size_bytes": 16070,
+      "sha256": "107d4cd43f9a86bd8ad5c38443f4951300240eee41d327119a792cd5f798db95"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/audit_md_corpus.py",
+      "size_bytes": 16546,
+      "sha256": "b1f124de8aab0e576099eda603262f6bb95bf2454a304b3a2172cefc96e1a40b"
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md",
@@ -178,34 +206,24 @@
       "sha256": "f6015898a52e227ac5034ab07935ac58c058686ad6e7ee5cd765179d03fafff2"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_02.md",
-      "size_bytes": 5170,
-      "sha256": "d57b8d74fae75ac24edd730c362002f6754a530d0c050a0f73f98fa08f748be5"
-    },
-    {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_03.md",
-      "size_bytes": 4925,
-      "sha256": "3eef223d18c31834431ca856a33e2cc7562a035f2317105cbc904e1b597f5e57"
-    },
-    {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_04.md",
-      "size_bytes": 4369,
-      "sha256": "e662e7e02ab33688db18d218b89255177a1df625450175d0642bdbae2cf32748"
-    },
-    {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_05.md",
-      "size_bytes": 5300,
-      "sha256": "d909e269001920ee70b2ef9013020bb4f6bd293258415865fd68beddd8876c4c"
-    },
-    {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_06.md",
-      "size_bytes": 5727,
-      "sha256": "cd6ea46792e4494c9f0e8667adbd2eba7c0ccaacf02833732e67aa95efffbf2e"
+      "path": "beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl",
+      "size_bytes": 15262,
+      "sha256": "0426395ca3a5add387054ac0c5a6335f16372b89595ea8516a8edab8fd6df34c"
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__CBHB_REGULAMENTO_BH_2026.md",
-      "size_bytes": 4895,
-      "sha256": "7e68b18ef2054272900ccf17dcd927cc3a8c6e5320190d8228a91194252a034b"
+      "size_bytes": 27116,
+      "sha256": "838800ab46957bfac4e3d393c24b2baee79ab44c05c6c60f2c3e106edb31bb7e"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__FHERJ_ESCLARECIMENTOS_REGRAS_2025.md",
+      "size_bytes": 5265,
+      "sha256": "1fb0e06631c89515e8b98278e51a40e648fc4ccdbc6b2476fa6e26106989f2cb"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__FHERJ_MUDANCAS_REGRAS_BH_2026.md",
+      "size_bytes": 7777,
+      "sha256": "21b668cd1ba3587b425027602db91843e8e1129341180a8b15c324b44a3bb15a"
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_PAGE_BH_RULES_2026.md",
@@ -213,9 +231,29 @@
       "sha256": "60fcb47c38beadb000407ee74e2c8d825cb3f3b845aedd34491c6bf51c7a2460"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_PT_TRANSLATION__PARTE_01.md",
-      "size_bytes": 8590,
-      "sha256": "e084a044c76b6cac3950420ef21d6525919cc56992ac05b8caf22cf70e41a572"
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_DE.md",
+      "size_bytes": 171126,
+      "sha256": "84b3b404eae49e9c52c2ba69dadc4925b94f2f0360d6cce62c0ba114525bc5c8"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_EN.md",
+      "size_bytes": 161207,
+      "sha256": "8945b72d46e5d8cbede3cdf1bdca0110a804a7d31496cc1556c3ef89b0f49829"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_FR.md",
+      "size_bytes": 182178,
+      "sha256": "cd940328b02c3b40497766c439c385f0eb26e14f5d66a0477e20d4e053f40f35"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_PT_TRANSLATION.md",
+      "size_bytes": 141110,
+      "sha256": "40791d1eed377d3dd674d2ac84b14e76958b039d278be3a6447322b33895aa53"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_RULES_BH_2026_WORKING_COPY.md",
+      "size_bytes": 161207,
+      "sha256": "9b0f8d834225be142cb5eea8ed26ebfb733f35c47178f2d0db31c72909be0c5a"
     },
     {
       "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__IHF_UPDATE_BH_2026_04.md",
@@ -223,34 +261,114 @@
       "sha256": "dd43748e46ade89102ff0913b64e31c291839dbba1d51d568a55a96a2bca0c14"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_01.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__MINI_BEACH_HANDBALL_INFO_SHEET.md",
+      "size_bytes": 4672,
+      "sha256": "ebb3c230ca751fed2cac492b693521aa21a26e1cb855f7d42c177b78e84b1123"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__REFEREEING_BEACH_HANDBALL.md",
+      "size_bytes": 28126,
+      "sha256": "641a1ec7580ef0dad70452cc0d3bb42fb7c44700cbe877f8aef6cc988b1de6ec"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__SHOOTOUT_PSYCHOLOGICAL_PRESSURE.md",
+      "size_bytes": 113631,
+      "sha256": "745612b36b570db4867594137d217b46d57b8096cfe38750b77f065f9d375a21"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__SRC_IHF_RULES_FILE.md",
+      "size_bytes": 129062,
+      "sha256": "334bf7b4a53a251b3d16c77b424a3f76495f65fd2c3ff5541bcc6bb5a9b62ffe"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__SRC_NOTATIONAL_BH_IANNACCONE_2022.md",
+      "size_bytes": 62651,
+      "sha256": "6dba791b9dbfd28f60dade8f87471b63ae514b376d3743306ccc5461529b0ac0"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__SRC_RAG_STRUCTURED_FILE.md",
+      "size_bytes": 54944,
+      "sha256": "983ecd31c0dc57e08b31fff5e36bcec2344f266ba7b5ca75af73b8cb29ed46b0"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__SRC_WOMENS_BH_STATISTICS_2022.md",
+      "size_bytes": 43561,
+      "sha256": "5ad67884b30dade25c4644ab1b0a4aad919e8e087d8f93ee078df27476828647"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/MD_PROCESSADO__ULTIMATE_SCHOOL_HANDBALL_2025.md",
+      "size_bytes": 28972,
+      "sha256": "4426b18fa48679c1ea1061dccfc4866a45d6e859d2efcebda1f3f3da7e8f1a63"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_02.md",
+      "size_bytes": 5170,
+      "sha256": "d57b8d74fae75ac24edd730c362002f6754a530d0c050a0f73f98fa08f748be5"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_03.md",
+      "size_bytes": 4925,
+      "sha256": "3eef223d18c31834431ca856a33e2cc7562a035f2317105cbc904e1b597f5e57"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_04.md",
+      "size_bytes": 4369,
+      "sha256": "e662e7e02ab33688db18d218b89255177a1df625450175d0642bdbae2cf32748"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_05.md",
+      "size_bytes": 5300,
+      "sha256": "d909e269001920ee70b2ef9013020bb4f6bd293258415865fd68beddd8876c4c"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO_IHF_RULES_BH_2026_PT_PARTE_06.md",
+      "size_bytes": 5727,
+      "sha256": "cd6ea46792e4494c9f0e8667adbd2eba7c0ccaacf02833732e67aa95efffbf2e"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/MD_PROCESSADO__IHF_RULES_BH_2026_PT_TRANSLATION__PARTE_01.md",
+      "size_bytes": 8590,
+      "sha256": "e084a044c76b6cac3950420ef21d6525919cc56992ac05b8caf22cf70e41a572"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_01.md",
       "size_bytes": 11886,
       "sha256": "2a583f702d92ac7f9748c7317a39c6111ecfffb2c3aab54942f4729053554595"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_02.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_02.md",
       "size_bytes": 8838,
       "sha256": "1e8c29596d617bf2a1da99c5bad8d4e6a04b721acda3569acd22eb4f72560c84"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_03.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_03.md",
       "size_bytes": 8988,
       "sha256": "5b22c90930753e0919815a486529b34a2cd572c4ff930556d86506c7e1ddf41b"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_04.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_04.md",
       "size_bytes": 9513,
       "sha256": "f46ed5d5da5d5444779236c4f22bb69b09abfe7be89d8b2f0469a55edecc486e"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_05.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_05.md",
       "size_bytes": 14457,
       "sha256": "8381c9685633bf01cebd9003935ab1abf4cc75ef44881e90aedded1f03f7203d"
     },
     {
-      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_06.md",
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/REVISAO_CHUNKING_IHF_RULES_BH_2026_PT_PARTE_06.md",
       "size_bytes": 5128,
       "sha256": "7d72d5912384af0e4af4f5029c5493d0c718ac6dfffe48d5c48bdd9d043be31e"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/documentos_markdown/_rascunhos/_INDICE_HISTORICO__IHF_RULES_BH_2026_PT_PARTES.md",
+      "size_bytes": 2030,
+      "sha256": "d747c9ef53189d7f7d9fb0bedfdb6c94b3f0c47599954f606f909c546da5b170"
+    },
+    {
+      "path": "beach_handball_ai/fontes/05_processado/manifest_checksums.json",
+      "size_bytes": 16724,
+      "sha256": "AUTOREFERENCIA_EXCLUIDA_DO_HASH"
     }
   ]
 }
