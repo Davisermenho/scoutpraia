@@ -219,7 +219,7 @@ Aprovado se:
 - toda fonte tiver arquivo local
 - nenhuma fonte D ou rejeitada entrar no RAG principal
 
-* Registrar as fontes em `docs/sources` 
+* Registrar as fontes em `docs/sources`
 * Registrar as fontes em `beach_handball_ai/fontes/`
 
 ### Etapa 2 - Converter documentos para texto limpo
@@ -247,7 +247,7 @@ Aprovado se:
 * `beach_handball_ai/fontes/02_ehf_tecnico/`
 * `beach_handball_ai/fontes/03_cbhb_brasil/`
 * `beach_handball_ai/fontes/04_fontes_proprias_cepraea/`
-* `docs/sources` 
+* `docs/sources`
 
 ### Etapa 3 - Separar por tema
 

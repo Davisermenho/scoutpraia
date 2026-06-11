@@ -738,3 +738,32 @@ git status --short mostrou apenas itens documentais de beach_handball_ai/ ainda 
 - Limitacoes, gaps e riscos:
   - este ciclo decide apenas sobre versionamento seguro do corpus; nao revalida o merito tecnico individual de cada PDF ou markdown
   - o corpus inclui binarios documentais legitimos (`.pdf` e `.xlsx`), o que aumenta o peso do repositório mas foi considerado aceitavel por serem fontes de trabalho do projeto
+
+---
+
+## Ciclo — normalizacao de whitespace no corpus `beach_handball_ai`
+
+- Fase declarada: `Fase 9 — saneamento final antes do push do corpus documental`
+- O que foi implementado:
+  - conversao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` de `CRLF` para `LF`
+  - remocao de trailing whitespace em `beach_handball_ai/fontes/01_ihf_regras/atualizacoes_ihf_2026.md`
+  - remocao de trailing whitespace em `beach_handball_ai/fontes/01_ihf_regras/pagina_ihf_rules_beach_handball.md`
+  - remocao de trailing whitespace em `beach_handball_ai/plano_de_acao.md`
+- O que foi testado:
+  - `git diff --check`
+  - `git status --short`
+- Comandos executados:
+```bash
+perl -0pi -e 's/\r\n/\n/g; s/[ \t]+\n/\n/g' beach_handball_ai/fontes/00_registro/fontes_oficiais.csv beach_handball_ai/fontes/01_ihf_regras/atualizacoes_ihf_2026.md beach_handball_ai/fontes/01_ihf_regras/pagina_ihf_rules_beach_handball.md beach_handball_ai/plano_de_acao.md
+git diff --check
+git status --short
+```
+- Resultado observado:
+```text
+git diff --check: sem saida
+whitespace residual removido do csv e dos markdowns auditados
+```
+- O que ainda nao esta pronto:
+  - o push do corpus ainda depende do fechamento do commit local correspondente
+- Limitacoes, gaps e riscos:
+  - a normalizacao alterou apenas terminadores de linha e espacos finais; nao houve mudanca semantica do conteudo

@@ -23,7 +23,7 @@ Please also note the appendices Referee Hand Signals, Clarifications to the Rule
 
 IHF Partners
 Thanks to our great supporters.
- 
+
 All rights reserved © 2026 IHF
 
 SitemapPrivacy StatementTerms of UseContact UsMobile Apps
