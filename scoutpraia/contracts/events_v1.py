@@ -335,6 +335,7 @@ SHOOTOUT_V1 = ModuleContract(
         _auxiliary_field("pre_launch_defensive_behavior"),
         _auxiliary_field("launch_type"),
         _auxiliary_field("launch_result"),
+        _auxiliary_field("result_shootout"),
         _auxiliary_field("reception_quality"),
         _auxiliary_field("shooter_pressure_level"),
         _auxiliary_field("defensive_trap_type"),
