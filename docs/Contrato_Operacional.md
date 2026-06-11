@@ -1746,3 +1746,251 @@ spreadsheet_validation_matrix_update:
     - "A validação fica rastreável por módulo, teste, evidência e bloqueio."
   next_recommended_step: "Executar validação local do transition_v1 no repositório e, se passar, registrar EV-011."
 ```
+
+
+## 36. Evidência EV-011 — transition_v1 validado por teste conceitual
+```yaml
+ev_011_transition_v1:
+  date: "2026-06-11"
+  module_id: "transition_v1"
+  status: "passed"
+  module_contract_status: "arquitetura_em_definicao_validada_por_teste_conceitual"
+  git_head: "a7b8f97"
+  local_validation:
+    transition_contract:
+      command: "python3 -m pytest tests/test_transition_contract.py -q"
+      result: "15 passed in 0.04s"
+    registry_contract:
+      command: "python3 -m pytest tests/test_events_v1_contract_registry.py -q"
+      result: "16 passed in 0.03s"
+    full_pytest:
+      command: "python3 -m pytest -q"
+      result: "247 passed in 17.70s"
+    verify_current_state:
+      command: "scripts/verify_current_state.sh"
+      result: "verde; 247 passed in 11.98s"
+    git_diff_check:
+      command: "git diff --check"
+      result: "sem saída"
+    git_status_short:
+      command: "git status --short"
+      result: "limpo"
+  seed:
+    taxonomy: "ScoutPraia v0.1"
+    taxonomy_status: "draft"
+    event_definitions: 31
+    expected_event_definitions: 31
+    seed_status: "inalterado"
+  import_rule_v1: "nao_importar_v1"
+  app_ui_status: "nao_liberado"
+  import_status: "nao_liberado"
+  validated_design_rules:
+    - "transition_sequence é o único núcleo inicial de transition_v1."
+    - "Transição é cadeia de substituição funcional pela zona de substituição, com antecipação e estabilização defensiva."
+    - "transition_direction diferencia transição ofensiva e defensiva no mesmo evento."
+    - "substitution_phase e substitution_timing controlam troca funcional e antecipação."
+    - "direct_transition_chance exige transition_type=direct_transition."
+    - "indirect_superiority_created exige transition_type=indirect_superiority e sistema de superioridade."
+    - "Neutralizações defensivas exigem transition_type defensivo correspondente."
+    - "defensive_stabilization_status=defense_stabilized encerra transição."
+    - "transition_goal exige evento terminal de Finalização v1."
+    - "transition_turnover_no_shot exige evento terminal de Attack No Shot v1."
+    - "Shoot-out, eventos da Goleira como terminal, ataque posicionado isolado e points ficam bloqueados em transition_v1."
+  conclusion: "transition_v1 fechado como contrato conceitual validado; permanece bloqueado para UI/importação."
+```
+
+
+## 37. Correção semântica da aba EVENTOS — required_result_field
+```yaml
+eventos_required_result_field_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE!EVENTOS"
+  status: "required_result_field_criado"
+  reason: "A coluna antiga result_possession_auto deixou de representar apenas posse e passou a carregar resultados obrigatórios de Shoot-out, Goleira e Transição. Para reduzir ambiguidade, foi criada required_result_field ao lado da coluna antiga, preservando compatibilidade."
+  structural_change:
+    old_column_preserved: "result_possession_auto"
+    new_column: "required_result_field"
+    position: "ao lado de result_possession_auto"
+  mapping_policy:
+    finalization_v1: "required_result_field=result_possession"
+    attack_no_shot_v1: "required_result_field=result_possession"
+    shootout_v1: "required_result_field=result_shootout"
+    goalkeeper_save: "required_result_field=result_goalkeeper"
+    goalkeeper_goal_allowed: "required_result_field=result_goalkeeper"
+    goalkeeper_specialist_exchange: "required_result_field=exchange_result"
+    transition_v1: "required_result_field=result_transition"
+    auxiliary_or_future_rows: "required_result_field=NA quando não houver resultado técnico exigido"
+    review_marker: "required_result_field=review_marker"
+  validation:
+    checked_range: "EVENTOS!Q1:T40"
+    result: "Cabeçalho e primeiras linhas conferidos; required_result_field aparece entre result_possession_auto e positive_example."
+  current_effect:
+    - "Nenhum evento foi movido ou removido."
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "result_possession_auto permanece para compatibilidade."
+    - "required_result_field passa a ser a coluna semanticamente correta para novos usos e auditorias."
+  next_recommended_step: "Criar EVENTOS_LEGADOS_FUTUROS ou LEGACY_MIGRATION_RULES para mapear explicitamente eventos antigos para códigos atuais ou bloqueio."
+```
+
+
+## 38. Melhoria de migração — LEGACY_MIGRATION_RULES
+```yaml
+legacy_migration_rules_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "legacy_migration_rules_criada"
+  reason: "Mapear explicitamente eventos legados/futuros para códigos atuais, contexto ou bloqueio, reduzindo risco de a IA usar eventos antigos como eventos técnicos válidos."
+  created_sheet:
+    LEGACY_MIGRATION_RULES:
+      purpose: "Regras de migração, bloqueio e revisão para códigos legados/futuros."
+      columns:
+        - "legacy_code"
+        - "legacy_name"
+        - "legacy_scope"
+        - "legacy_status"
+        - "new_module_id"
+        - "new_event_code"
+        - "new_result_or_field"
+        - "migration_action"
+        - "ai_policy"
+        - "requires_human_review"
+        - "blocking_rule"
+        - "evidence_source"
+        - "notes"
+      initial_rules:
+        - "save -> goalkeeper_v1.goalkeeper_save quando houver finalização vinculada; bloquear em Shoot-out."
+        - "save_shootout -> shootout_v1.shootout_attempt + result_shootout=save; bloquear goalkeeper_save."
+        - "goal_conceded -> goalkeeper_v1.goalkeeper_goal_allowed quando houver goleira e finalização vinculada."
+        - "empty_goal_conceded -> contexto/revisão de goalkeeper_v1 ou transition_v1; não virar botão primário."
+        - "fast_break_against -> contexto de transition_v1 com transition_direction=defensive_transition."
+        - "transition_recovery_good -> transition_v1 com resultado de neutralização defensiva quando houver evidência."
+        - "transition_recovery_bad -> transition_v1 como falha defensiva/terminal vinculado quando houver evidência."
+        - "suspension_committed, timeout, set_end, golden_goal, match_end -> bloquear como eventos técnicos v1; manter como contexto futuro."
+        - "specialist_shot -> finalization_v1 com tipo técnico real + scorer_role=specialist."
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "LEGACY_MIGRATION_RULES"
+    VALIDATION_MATRIX:
+      added:
+        - "VAL-013 global_governance migração de legados e futuros"
+  validation:
+    checked_range: "LEGACY_MIGRATION_RULES!A1:M20"
+    result: "Cabeçalho e 13 regras iniciais conferidos."
+  current_effect:
+    - "Nenhum evento foi movido ou removido."
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Códigos legados/futuros agora têm política explícita de migração, contexto ou bloqueio."
+  next_recommended_step: "Criar SOURCE_REGISTER para vincular fontes fortes às regras e módulos."
+```
+
+
+## 39. Melhoria de fontes — SOURCE_REGISTER
+```yaml
+source_register_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "source_register_criado"
+  reason: "Vincular fontes fortes, internas e executáveis às regras, módulos, governança e validação da planilha, reduzindo risco de decisões sem rastreabilidade."
+  created_sheet:
+    SOURCE_REGISTER:
+      purpose: "Registro de fontes fortes, fontes internas e evidências executáveis usadas para sustentar regras, arquitetura, governança e validação."
+      columns:
+        - "source_id"
+        - "title"
+        - "organization"
+        - "source_type"
+        - "version_or_date"
+        - "link_or_location"
+        - "module_id"
+        - "rule_supported"
+        - "evidence_level"
+        - "usage_allowed"
+        - "validation_scope"
+        - "risk_if_missing"
+        - "related_sheets"
+        - "notes"
+      initial_sources:
+        SRC-001: "IHF Rules of the Game — Beach Handball"
+        SRC-002: "NIST AI Risk Management Framework"
+        SRC-003: "OWASP Top 10 for LLM/GenAI Applications"
+        SRC-004: "Data Carpentry Spreadsheet Ecology / Good Practices"
+        SRC-005: "VERSA / Verified Event Data Format for Reliable Sports Analytics"
+        SRC-006: "Contrato_Operacional.md"
+        SRC-007: "scoutpraia/contracts/events_v1.py"
+        SRC-008: "pytest + verify_current_state.sh"
+        SRC-009: "SCOUT_DESIGN_TEMPLATE"
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "SOURCE_REGISTER"
+    VALIDATION_MATRIX:
+      added:
+        - "VAL-014 global_governance registro de fontes fortes e internas"
+  validation:
+    checked_range: "SOURCE_REGISTER!A1:N20"
+    result: "Cabeçalho e 9 fontes iniciais conferidos."
+  current_effect:
+    - "Nenhum evento foi movido ou removido."
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "Fontes fortes e internas passam a ter source_id para futuras auditorias e regras críticas."
+  next_recommended_step: "Criar abas normalizadas EVENT_REQUIRED_FIELDS, EVENT_OPTIONAL_FIELDS, EVENT_FORBIDDEN_FIELDS e EVENT_BLOCKING_RULES, ou iniciar script de auditoria planilha x repositório."
+```
+
+
+## 40. Melhoria de normalização — regras por evento em abas auditáveis
+```yaml
+event_rules_normalization_update:
+  date: "2026-06-11"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "normalizacao_inicial_de_regras_criada"
+  reason: "Reduzir dependência de células com múltiplas regras separadas por ponto-e-vírgula e preparar auditoria automática planilha x repositório."
+  created_sheets:
+    EVENT_REQUIRED_FIELDS:
+      purpose: "Normalizar campos obrigatórios em uma regra por linha."
+      columns:
+        - "rule_id"
+        - "module_id"
+        - "event_code"
+        - "field_code"
+        - "required_when"
+        - "source_column"
+        - "source_sheet"
+        - "repo_symbol"
+        - "validation_status"
+        - "notes"
+      initial_rules_count: 19
+    EVENT_OPTIONAL_FIELDS:
+      purpose: "Normalizar campos opcionais/condicionais em uma regra por linha."
+      initial_rules_count: 11
+    EVENT_FORBIDDEN_FIELDS:
+      purpose: "Normalizar campos/códigos proibidos em uma regra por linha."
+      initial_rules_count: 12
+    EVENT_BLOCKING_RULES:
+      purpose: "Normalizar regras de bloqueio em uma regra por linha."
+      initial_rules_count: 13
+  updated_sheets:
+    SHEET_MAP:
+      added:
+        - "EVENT_REQUIRED_FIELDS"
+        - "EVENT_OPTIONAL_FIELDS"
+        - "EVENT_FORBIDDEN_FIELDS"
+        - "EVENT_BLOCKING_RULES"
+    VALIDATION_MATRIX:
+      added:
+        - "VAL-015 global_governance normalização de regras por evento"
+  validation:
+    checked_range: "EVENT_REQUIRED_FIELDS!A1:J25"
+    result: "Cabeçalho e 19 regras obrigatórias iniciais conferidos."
+  current_effect:
+    - "Nenhum evento foi movido ou removido."
+    - "Nenhum módulo foi liberado para importação."
+    - "Nenhuma UI foi liberada."
+    - "As regras originais da aba EVENTOS foram preservadas."
+    - "As novas abas são fonte auxiliar de auditoria e ainda não substituem 100% das regras originais."
+  next_recommended_step: "Expandir a normalização até cobrir 100% das regras críticas ou criar script de auditoria planilha x repositório usando essas abas."
+```
+
