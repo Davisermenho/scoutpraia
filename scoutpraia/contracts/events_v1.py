@@ -41,6 +41,36 @@ SHOOTOUT_RESULTS = frozenset(
         "defender_foul_6m_awarded",
     }
 )
+GOALKEEPER_SAVE_RESULTS = frozenset(
+    {
+        "save_controlled",
+        "save_rebound_live",
+        "save_out_endline",
+        "save_out_sideline",
+        "uncertain_review",
+    }
+)
+GOALKEEPER_GOAL_ALLOWED_RESULTS = frozenset({"goal_allowed"})
+GOALKEEPER_EXCHANGE_RESULTS = frozenset(
+    {
+        "exchange_successful",
+        "goalkeeper_late_exit",
+        "specialist_late_entry",
+        "overlap_violation",
+        "empty_goal_risk",
+        "exchange_turnover",
+        "unknown_review",
+    }
+)
+GOALKEEPER_ALLOWED_LINKED_FINALIZATIONS = frozenset(
+    {
+        "simple_shot",
+        "spin_shot",
+        "inflight_shot",
+        "goalkeeper_shot",
+        "six_metre_throw",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -330,6 +360,7 @@ SHOOTOUT_V1 = ModuleContract(
         _auxiliary_field("shootout_launcher_role"),
         _auxiliary_field("shootout_defender_id"),
         _auxiliary_field("shootout_defender_role"),
+        _auxiliary_field("shootout_defender_origin_role"),
         _auxiliary_field("shootout_phase"),
         _auxiliary_field("attempt_order"),
         _auxiliary_field("pre_launch_defensive_behavior"),
@@ -356,6 +387,9 @@ SHOOTOUT_V1 = ModuleContract(
             "shootout_double_spin",
             "shootout_inflight",
             "shootout_interception",
+            "goalkeeper_save",
+            "goalkeeper_goal_allowed",
+            "goalkeeper_specialist_exchange",
             "goalkeeper_id",
             "launcher_goalkeeper_id",
             "defender_goalkeeper_id",
@@ -375,6 +409,77 @@ SHOOTOUT_V1 = ModuleContract(
     ),
 )
 
+GOALKEEPER_V1 = ModuleContract(
+    module_code="goalkeeper_v1",
+    display_name="Goleira v1.0",
+    module_contract_status=MODULE_STATUS_ARCHITECTURE,
+    import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+    primary_events=(
+        _primary_event(
+            "goalkeeper_save",
+            allowed_results=GOALKEEPER_SAVE_RESULTS,
+            module_contract_status=EVENT_STATUS_READY_FOR_TEST,
+            import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ),
+        _primary_event(
+            "goalkeeper_goal_allowed",
+            allowed_results=GOALKEEPER_GOAL_ALLOWED_RESULTS,
+            module_contract_status=EVENT_STATUS_READY_FOR_TEST,
+            import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ),
+        _primary_event(
+            "goalkeeper_specialist_exchange",
+            allowed_results=GOALKEEPER_EXCHANGE_RESULTS,
+            module_contract_status=EVENT_STATUS_READY_FOR_TEST,
+            import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+        ),
+    ),
+    auxiliary_fields=(
+        _auxiliary_field("goalkeeper_id"),
+        _auxiliary_field("linked_finalization_id"),
+        _auxiliary_field("linked_finalization_event_code"),
+        _auxiliary_field("result_goalkeeper"),
+        _auxiliary_field("save_type"),
+        _auxiliary_field("save_body_part"),
+        _auxiliary_field("save_zone"),
+        _auxiliary_field("shot_goal_zone"),
+        _auxiliary_field("goalkeeper_positioning"),
+        _auxiliary_field("rebound_result"),
+        _auxiliary_field("possession_after_save"),
+        _auxiliary_field("restart_after_save"),
+        _auxiliary_field("transition_after_save"),
+        _auxiliary_field("trajectory_visible"),
+        _auxiliary_field("review_marker"),
+        _auxiliary_field("specialist_id"),
+        _auxiliary_field("exchange_phase"),
+        _auxiliary_field("exchange_result"),
+        _auxiliary_field("court_overlap_detected"),
+        _auxiliary_field("punishment_applied"),
+        _auxiliary_field("exchange_trigger"),
+        _auxiliary_field("empty_goal_risk"),
+        _auxiliary_field("possession_phase"),
+    ),
+    review_only_events=(),
+    future_events=(),
+    forbidden_event_codes=frozenset(
+        {
+            "shootout_attempt",
+            "line_block_shot",
+            "foot_save",
+            "hand_save",
+            "body_save",
+            "goal_allowed_review",
+        }
+    ),
+    forbidden_results=frozenset(
+        {
+            "goal_allowed_review",
+            "result_shootout",
+            NO_SHOT_RESULT,
+        }
+    ),
+)
+
 
 MODULE_CONTRACTS_V1 = {
     FINALIZATION_V1.module_code: FINALIZATION_V1,
@@ -382,6 +487,7 @@ MODULE_CONTRACTS_V1 = {
     OFFENSIVE_CREATION_V1.module_code: OFFENSIVE_CREATION_V1,
     DEFENSIVE_V1.module_code: DEFENSIVE_V1,
     SHOOTOUT_V1.module_code: SHOOTOUT_V1,
+    GOALKEEPER_V1.module_code: GOALKEEPER_V1,
 }
 
 # Backward-compatible alias for older code/tests that still import the interim name.
