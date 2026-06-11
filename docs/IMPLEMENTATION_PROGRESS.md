@@ -703,3 +703,38 @@ git status --short:  M docs/IMPLEMENTATION_PROGRESS.md e ?? beach_handball_ai/
   - a fusao privilegiou o contrato metodologico do ScoutPraia e rebaixou afirmacoes absolutas dos arquivos `*2` para linguagem de convencao interna
   - metas numericas rigidas e gatilhos automaticos dos arquivos `*2` nao foram canonizados como criterio estavel por falta de validacao observacional no repositorio
   - o resultado melhora a consistencia documental do corpus CEPRAEA, mas nao substitui revisao tecnica humana da comissao para fechar doutrina interna definitiva
+
+---
+
+## Ciclo — auditoria do corpus `beach_handball_ai/` para segundo commit controlado
+
+- Fase declarada: `Fase 9 — saneamento e versionamento controlado do corpus documental`
+- O que foi implementado:
+  - auditoria do restante de `beach_handball_ai/` ainda fora do Git apos o primeiro commit das fontes internas canonicas
+  - verificacao de que o corpus remanescente contem apenas plano, registros, fontes normativas/tecnicas, processados markdown e schema documental
+  - decisao de versionar controladamente o restante do corpus, incluindo PDFs oficiais, `fontes_oficiais.csv`/`.xlsx`, `manifest_checksums.json`, `scout_schema.md`, markdowns processados e `plano_de_acao.md`
+- O que foi testado:
+  - listagem completa de arquivos com tamanho em bytes
+  - busca negativa por extensoes proibidas ou indevidas para o repositório (`.db`, `.sqlite`, `.mp4`, `.mov`, `.avi`, `.mkv`, `.env`, `.pyc`, `.zip`, `.tar`, `.gz`, `.bin`)
+  - busca por referencias residuais a `*2` no corpus
+  - `git status --short`
+- Comandos executados:
+```bash
+find beach_handball_ai -type f -printf '%P\t%s bytes\n' | sort
+find beach_handball_ai -type f | rg '\.(db|sqlite|sqlite3|mp4|mov|avi|mkv|env|pyc|zip|tar|gz|bin)$' -n || true
+rg -n "cepraea2|playbook_cepraea2|glossario_tecnico_cepraea2|criterios_taticos_cepraea2" beach_handball_ai docs -S
+git status --short
+```
+- Resultado observado:
+```text
+nenhum arquivo proibido encontrado em beach_handball_ai/
+restante do corpus composto por fontes PDF oficiais, registro tabular, markdowns processados, schema documental e plano
+referencias a `*2` restaram apenas no historico de docs/IMPLEMENTATION_PROGRESS.md
+git status --short mostrou apenas itens documentais de beach_handball_ai/ ainda nao rastreados
+```
+- O que ainda nao esta pronto:
+  - o versionamento do corpus nao libera RAG nem substitui validacao humana G5
+  - os markdowns de `05_processado/` continuam derivados de apoio, nao fontes normativas primarias
+- Limitacoes, gaps e riscos:
+  - este ciclo decide apenas sobre versionamento seguro do corpus; nao revalida o merito tecnico individual de cada PDF ou markdown
+  - o corpus inclui binarios documentais legitimos (`.pdf` e `.xlsx`), o que aumenta o peso do repositório mas foi considerado aceitavel por serem fontes de trabalho do projeto
