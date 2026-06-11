@@ -3,6 +3,7 @@
 from scoutpraia.contracts.events_v1 import (
     IMPORT_RULE_V1_BLOCKED,
     MODULE_CONTRACTS_V1,
+    SHOOTOUT_V1,
     EventContract,
     ModuleContract,
     all_event_codes,
@@ -16,6 +17,7 @@ from scoutpraia.contracts.events_v1 import (
 __all__ = [
     "IMPORT_RULE_V1_BLOCKED",
     "MODULE_CONTRACTS_V1",
+    "SHOOTOUT_V1",
     "EventContract",
     "ModuleContract",
     "all_event_codes",
