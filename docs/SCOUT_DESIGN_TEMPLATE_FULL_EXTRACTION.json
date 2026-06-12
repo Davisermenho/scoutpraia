@@ -3575,7 +3575,7 @@
       "theme": "field_dictionary",
       "title": "FIELD_DICTIONARY_GLOBAL rows 2-26",
       "total_chunks_for_sheet": 2,
-      "total_sheet_rows": 28
+      "total_sheet_rows": 30
     },
     {
       "agent_use": "reuse_existing_fields_and_avoid_inventing_names",
@@ -3644,6 +3644,36 @@
             "risk_note": "defense_stabilized encerra a transição.",
             "source_sheet": "CAMPOS_AUXILIARES_TRANSICAO",
             "used_by_events": "transition_sequence"
+          },
+          {
+            "_sheet_row": 31,
+            "ai_policy": "usar_como_campo",
+            "allowed_values_or_ref": "athlete_id",
+            "field_code": "shooter_id",
+            "field_name_ui": "Arremessadora",
+            "field_type": "entity_ref",
+            "module_id": "finalization_v1; shootout_v1",
+            "normalization_status": "consolidado",
+            "repo_symbol": "shooter_id",
+            "required_when": "Obrigatório quando evento representa finalização, arremesso ou tentativa com atleta executora direta",
+            "risk_note": "Não substitui scorer_role; shooter_id identifica quem arremessou, scorer_role define papel para pontuação.",
+            "source_sheet": "EVENT_REQUIRED_FIELDS; CAMPOS_AUXILIARES_FINALIZACAO; CAMPOS_AUXILIARES_SHOOTOUT; EVENTOS",
+            "used_by_events": "simple_shot; spin_shot; inflight_shot; goalkeeper_shot; six_metre_throw; shootout_attempt"
+          },
+          {
+            "_sheet_row": 32,
+            "ai_policy": "usar_como_campo_transicao",
+            "allowed_values_or_ref": "defense_to_attack; attack_to_defense; undefined",
+            "field_code": "transition_direction",
+            "field_name_ui": "Direção da transição",
+            "field_type": "enum",
+            "module_id": "transition_v1",
+            "normalization_status": "consolidado",
+            "repo_symbol": "transition_direction",
+            "required_when": "Obrigatório em transition_sequence",
+            "risk_note": "Não calcula pontos; não define resultado da posse; não substitui result_transition.",
+            "source_sheet": "EVENT_REQUIRED_FIELDS; CAMPOS_AUXILIARES_TRANSICAO",
+            "used_by_events": "transition_sequence"
           }
         ]
       },
@@ -3653,16 +3683,16 @@
       ],
       "module_id": "global",
       "priority": "critical",
-      "row_range": "27-29",
+      "row_range": "27-32",
       "sheet_name": "FIELD_DICTIONARY_GLOBAL",
       "source_sheets": [
         "FIELD_DICTIONARY_GLOBAL"
       ],
       "source_type": "SCOUT_DESIGN_TEMPLATE.xlsx",
       "theme": "field_dictionary",
-      "title": "FIELD_DICTIONARY_GLOBAL rows 27-29",
+      "title": "FIELD_DICTIONARY_GLOBAL rows 27-32",
       "total_chunks_for_sheet": 2,
-      "total_sheet_rows": 28
+      "total_sheet_rows": 30
     },
     {
       "agent_use": "validate_allowed_results_by_event_or_module",
@@ -15936,7 +15966,7 @@
       "priority": "critical",
       "sheet_name": "FIELD_DICTIONARY_GLOBAL",
       "total_chunks": 2,
-      "total_rows": 28
+      "total_rows": 30
     },
     {
       "agent_use": "validate_allowed_results_by_event_or_module",
@@ -16649,6 +16679,6 @@
     "VERSIONAMENTO_TRANSICAO"
   ],
   "source_workbook": "docs/SCOUT_DESIGN_TEMPLATE.xlsx",
-  "source_workbook_md5": "c687e169afda7f72c9f788bd479dfbcf",
+  "source_workbook_md5": "65eaf4db3ff7ae78127fdbeac0b6a296",
   "usage_rule": "Full extraction for audit and retrieval. Does not replace executable contracts, tests or human spreadsheet."
 }

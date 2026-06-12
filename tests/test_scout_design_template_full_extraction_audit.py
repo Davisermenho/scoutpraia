@@ -3,8 +3,9 @@ from pathlib import Path
 
 from openpyxl import Workbook
 
-from scripts.audit_scout_design_template_full_extraction import audit_extraction
+from scripts.audit_scout_design_template_full_extraction import CRITICAL_SHEETS, audit_extraction
 
+CRITICAL_SHEETS_LIST = sorted(CRITICAL_SHEETS)
 
 REQUIRED_RULE_TEXT = " ".join(
     [
@@ -35,6 +36,16 @@ def write_xlsx(path: Path, sheet_names: list[str]) -> None:
     workbook.close()
 
 
+def make_full_workbook(path: Path, extra_sheets: list[str] | None = None) -> None:
+    sheets = CRITICAL_SHEETS_LIST + (extra_sheets or [])
+    workbook = Workbook()
+    workbook.active.title = sheets[0]
+    for name in sheets[1:]:
+        workbook.create_sheet(name)
+    workbook.save(path)
+    workbook.close()
+
+
 def make_chunk(chunk_id: str, sheet_name: str, content: str | None = None) -> dict:
     return {
         "chunk_id": chunk_id,
@@ -49,26 +60,30 @@ def make_chunk(chunk_id: str, sheet_name: str, content: str | None = None) -> di
     }
 
 
+def _make_dict_chunk(chunk_id: str, sheet_name: str, headers: list[str], rows: list[dict]) -> dict:
+    chunk = make_chunk(chunk_id, sheet_name)
+    chunk["content"] = {"headers": headers, "rows": rows}
+    return chunk
+
+
 def test_full_extraction_audit_passes_when_all_sheets_and_rules_are_covered(tmp_path: Path) -> None:
     xlsx_path = tmp_path / "template.xlsx"
     chunks_path = tmp_path / "chunks.json"
-    sheets = ["EVENTOS", "MODULE_INDEX", "FIELD_DICTIONARY_GLOBAL"]
-    write_xlsx(xlsx_path, sheets)
+    make_full_workbook(xlsx_path)
     write_json(
         chunks_path,
         {
-            "expected_sheet_count": 3,
-            "chunks": [make_chunk(f"SDT-SHEET-{index:04d}", sheet) for index, sheet in enumerate(sheets, start=1)],
+            "expected_sheet_count": len(CRITICAL_SHEETS_LIST),
+            "chunks": [
+                make_chunk(f"SDT-SHEET-{i:04d}", sheet)
+                for i, sheet in enumerate(CRITICAL_SHEETS_LIST, start=1)
+            ],
         },
     )
 
-    report = audit_extraction(
-        chunks_path=chunks_path,
-        xlsx_path=xlsx_path,
-        full_extraction=True,
-    )
+    report = audit_extraction(chunks_path=chunks_path, xlsx_path=xlsx_path, full_extraction=True)
 
-    assert report.ok
+    assert report.ok, f"errors={[f.code for f in report.errors]}"
 
 
 def test_full_extraction_audit_fails_when_xlsx_sheet_is_missing_from_chunks(tmp_path: Path) -> None:
@@ -143,3 +158,53 @@ def test_synthetic_agent_view_can_warn_about_missing_sheet_metadata_without_fail
 
     assert report.ok
     assert any(finding.code == "no_sheet_level_metadata" for finding in report.warnings)
+
+
+def test_critical_sheet_with_empty_sheet_flag_is_error(tmp_path: Path) -> None:
+    chunks_path = tmp_path / "chunks.json"
+    chunk = make_chunk("SDT-SHEET-0001", "EVENTOS")
+    chunk["content"] = {"headers": [], "rows": [], "empty_sheet": True}
+    write_json(chunks_path, {"chunks": [chunk]})
+
+    report = audit_extraction(chunks_path=chunks_path, full_extraction=False)
+
+    assert not report.ok
+    assert any(f.code == "critical_sheet_empty" for f in report.errors)
+
+
+def test_event_code_without_field_rules_generates_warning(tmp_path: Path) -> None:
+    chunks_path = tmp_path / "chunks.json"
+    write_json(
+        chunks_path,
+        {
+            "chunks": [
+                _make_dict_chunk(
+                    "SDT-SHEET-0001",
+                    "EVENTOS",
+                    ["event_code"],
+                    [{"_sheet_row": 2, "event_code": "orphan_event"}],
+                ),
+                _make_dict_chunk(
+                    "SDT-SHEET-0002",
+                    "EVENT_REQUIRED_FIELDS",
+                    ["event_code", "field_code"],
+                    [{"_sheet_row": 2, "event_code": "other_event", "field_code": "athlete_id"}],
+                ),
+            ]
+        },
+    )
+
+    report = audit_extraction(chunks_path=chunks_path, full_extraction=False)
+
+    assert any(f.code == "event_code_without_field_rules" for f in report.warnings)
+
+
+def test_cross_reference_to_missing_sheet_generates_warning(tmp_path: Path) -> None:
+    chunks_path = tmp_path / "chunks.json"
+    chunk = make_chunk("SDT-SHEET-0001", "EVENTOS")
+    chunk["cross_reference_sheets"] = ["SHEET_INEXISTENTE"]
+    write_json(chunks_path, {"chunks": [chunk]})
+
+    report = audit_extraction(chunks_path=chunks_path, full_extraction=False)
+
+    assert any(f.code == "cross_reference_sheet_missing" for f in report.warnings)

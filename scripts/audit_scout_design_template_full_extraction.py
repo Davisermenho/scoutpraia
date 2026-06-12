@@ -294,7 +294,10 @@ def _collect_field_values(
     for chunk in chunks:
         if chunk.get("sheet_name") != sheet_name:
             continue
-        for row in chunk.get("content", {}).get("rows", []):
+        content = chunk.get("content")
+        if not isinstance(content, dict):
+            continue
+        for row in content.get("rows", []):
             val = row.get(field_key)
             if isinstance(val, str) and val.strip():
                 values.add(val.strip())
