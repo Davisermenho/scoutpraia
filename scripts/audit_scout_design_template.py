@@ -1,7 +1,7 @@
 """Audita o SCOUT_DESIGN_TEMPLATE exportado para XLSX contra o registry v1.
 
 Uso:
-    python3 scripts/audit_scout_design_template.py caminho/SCOUT_DESIGN_TEMPLATE.xlsx
+    python3 scripts/audit_scout_design_template.py docs/SCOUT_DESIGN_TEMPLATE.xlsx
 
 Objetivo:
     - verificar se a planilha possui as abas de governanca previstas;
@@ -11,6 +11,10 @@ Objetivo:
 
 Este script nao altera a planilha. Ele apenas audita e retorna codigo 1 quando ha
 pendencias bloqueantes.
+
+Modo: READ-ONLY — não modifica arquivos
+Gate/trigger: após modificar o XLSX do template
+Artefatos produzidos: nenhum
 """
 
 from __future__ import annotations

@@ -11,6 +11,10 @@ Scope:
     - legacy/future codes must not appear as active KPI/event guidance;
     - points policy must be present as the global scoring authority;
     - docs must not claim MVP/RAG completion while gates remain blocked.
+
+Modo: READ-ONLY — não modifica arquivos
+Gate/trigger: antes de declarar MVP ou contrato como fechado
+Artefatos produzidos: nenhum
 """
 
 from __future__ import annotations

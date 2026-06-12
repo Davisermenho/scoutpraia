@@ -1,4 +1,28 @@
 #!/usr/bin/env python3
+"""Sincroniza o registro de fontes RAG: CSV, XLSX, manifest JSON e chunks JSONL.
+
+Escopo:
+    - Lê beach_handball_ai/fontes/00_registro/fontes_oficiais.csv
+    - Extrai PDFs para Markdown (pdftotext) quando necessário
+    - Gera chunks Etapa 4 (CHUNKS_ETAPA_4_CORPUS.jsonl)
+    - Atualiza todas as abas do XLSX do registro
+    - Atualiza manifest_checksums.json
+
+Modo: MUTANTE — modifica CSV, XLSX, JSONL e Markdown em beach_handball_ai/fontes/
+Gate/trigger: após adicionar nova fonte ao registro ou modificar documentos processados
+Artefatos produzidos:
+    - beach_handball_ai/fontes/00_registro/fontes_oficiais.csv (atualizado)
+    - beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx (atualizado)
+    - beach_handball_ai/fontes/05_processado/manifest_checksums.json
+    - beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_CORPUS.jsonl
+    - beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_AUDITORIA.md
+
+Dependências externas: pdftotext (poppler-utils) para extração de PDF
+
+Examples:
+    python3 scripts/refresh_fontes_registry_and_processados.py
+"""
+
 from __future__ import annotations
 
 import csv

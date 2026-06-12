@@ -18,6 +18,10 @@ Examples:
         --xlsx docs/SCOUT_DESIGN_TEMPLATE.xlsx \
         --output docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json \
         --verify
+
+Modo: MUTANTE — gera/sobrescreve o arquivo JSON/JSONL de saída
+Gate/trigger: quando agente precisa de chunks auditáveis do template para RAG
+Artefatos produzidos: docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json (ou .jsonl)
 """
 
 from __future__ import annotations

@@ -143,3 +143,7 @@ Se `.venv` não puder ser criado por falta de `python3-venv` ou `ensurepip`, reg
 ## Critério de MVP completo
 
 O MVP só pode ser chamado de completo quando todos os critérios em `docs/IMPLEMENTATION_STEPS_AI.md` e `docs/IMPLEMENTATION_PROGRESS.md` estiverem satisfeitos e provados por comando.
+
+## Scripts disponíveis
+
+Ver [`scripts/README.md`](scripts/README.md) para o índice completo de scripts, seus modos (read-only vs. mutante), gates de uso e exemplos de comando.

@@ -6,6 +6,10 @@ spreadsheet in a way that agents/RAG can use safely.
 It does not call Google Drive. Export the Google Doc/JSON view locally first or
 produce a local JSON/JSONL file, then run this script.
 
+Modo: READ-ONLY — não modifica arquivos
+Gate/trigger: após gerar novo JSON/JSONL de extração completa do template
+Artefatos produzidos: nenhum
+
 Examples:
     PYTHONPATH=. python3 scripts/audit_scout_design_template_full_extraction.py \
         --chunks docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json \

@@ -1,4 +1,17 @@
-"""Gera o template de design do scout em XLSX com múltiplas abas."""
+#!/usr/bin/env python3
+"""Gera ou regenera docs/SCOUT_DESIGN_TEMPLATE.xlsx com todas as abas de governança.
+
+Escopo:
+    - Cria o workbook completo a partir do zero via openpyxl
+    - Não lê o XLSX existente — sobrescreve completamente
+
+Modo: MUTANTE — sobrescreve docs/SCOUT_DESIGN_TEMPLATE.xlsx
+Gate/trigger: quando a estrutura de abas do template precisa ser recriada do zero
+Artefatos produzidos: docs/SCOUT_DESIGN_TEMPLATE.xlsx
+
+Examples:
+    python3 scripts/gerar_template_scout.py
+"""
 
 from openpyxl import Workbook
 from openpyxl.styles import (
