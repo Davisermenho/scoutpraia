@@ -15,6 +15,13 @@ from scoutpraia.contracts.events_v1 import (
     list_primary_event_codes,
     list_review_event_codes,
 )
+from scoutpraia.contracts.points_policy_v1 import (
+    PointsDecision,
+    PointsPolicyError,
+    derive_points,
+    result_allowed,
+    validate_points,
+)
 
 __all__ = [
     "GOALKEEPER_V1",
@@ -24,10 +31,15 @@ __all__ = [
     "TRANSITION_V1",
     "EventContract",
     "ModuleContract",
+    "PointsDecision",
+    "PointsPolicyError",
     "all_event_codes",
+    "derive_points",
     "get_module_contract",
     "list_auxiliary_codes",
     "list_future_event_codes",
     "list_primary_event_codes",
     "list_review_event_codes",
+    "result_allowed",
+    "validate_points",
 ]
