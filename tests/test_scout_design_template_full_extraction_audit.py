@@ -58,7 +58,7 @@ def test_full_extraction_audit_passes_when_all_sheets_and_rules_are_covered(tmp_
         chunks_path,
         {
             "expected_sheet_count": 3,
-            "chunks": [make_chunk("SDT-SHEET-0001", sheet) for sheet in sheets],
+            "chunks": [make_chunk(f"SDT-SHEET-{index:04d}", sheet) for index, sheet in enumerate(sheets, start=1)],
         },
     )
 
