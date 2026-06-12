@@ -1,15 +1,16 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — points_policy_v1 criado; auditor docs x contratos criado; SCOUT_DESIGN_TEMPLATE auditável"
+fase_atual: "Eventos v1 — points_policy_v1 criado; auditores docs/contratos e full extraction criados; SCOUT_DESIGN_TEMPLATE auditável"
 testes_passando: 249
 event_definitions: 31
-última_atualização: 2026-06-11
-próxima_ação: "Validar localmente points_policy_v1 e audit_docs_contract_alignment; depois reconciliar evidence_matrix.md e taxonomy_dictionary.md"
+última_atualização: 2026-06-12
+próxima_ação: "Validar localmente auditor de extração completa; depois exportar chunks JSON/JSONL da planilha e auditar cobertura das abas"
 gaps_abertos:
   - "G5 — validação humana com vídeo real e screenshots não executada"
   - "RAG/Chroma/embeddings seguem bloqueados até gate global"
   - "evidence_matrix.md e taxonomy_dictionary.md ainda precisam ser reconciliados com events_v1.py e points_policy_v1"
+  - "SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json/jsonl ainda precisa ser gerado a partir das abas da planilha"
   - "Proteção/locked copy da planilha ainda dependem de ação no Drive/Sheets"
 mvp_completo: false
 ---
@@ -34,14 +35,18 @@ reproduzível por comando, teste ou arquivo verificável.
 ```bash
 python3 -m pytest tests/test_points_policy_v1.py -q
 python3 -m pytest tests/test_docs_contract_alignment_audit.py -q
+python3 -m pytest tests/test_scout_design_template_full_extraction_audit.py -q
 PYTHONPATH=. python3 scripts/audit_docs_contract_alignment.py
+PYTHONPATH=. python3 scripts/audit_scout_design_template.py docs/SCOUT_DESIGN_TEMPLATE.xlsx
+# quando existir o JSON full extraction local:
+# PYTHONPATH=. python3 scripts/audit_scout_design_template_full_extraction.py --chunks docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json --xlsx docs/SCOUT_DESIGN_TEMPLATE.xlsx --full-extraction
 python3 -m pytest tests/test_transition_contract.py -q
 python3 -m pytest tests/test_events_v1_contract_registry.py -q
 python3 -m pytest -q
 scripts/verify_current_state.sh
 git diff --check
 git status --short
-# resultado esperado após pull: 249+ passed
+# resultado esperado após pull: 300+ passed
 ```
 
 **Última evidência informada pelo operador:**
@@ -75,7 +80,26 @@ scripts/audit_docs_contract_alignment.py
 tests/test_docs_contract_alignment_audit.py
 ```
 
-Esses arquivos não alteram seed, UI ou importação. Eles centralizam a derivação de pontos e criam um mecanismo para impedir que documentos antigos reativem códigos legados ou regras incompatíveis.
+Também foi criado um auditor da extração completa do `SCOUT_DESIGN_TEMPLATE`:
+
+```text
+scripts/audit_scout_design_template_full_extraction.py
+tests/test_scout_design_template_full_extraction_audit.py
+```
+
+Esse auditor valida arquivos JSON/JSONL de chunks exportados da planilha. Ele verifica:
+
+```text
+chunk_id único;
+campos obrigatórios do chunk;
+conteúdo não vazio;
+prioridade válida;
+cobertura de abas do XLSX quando --xlsx é informado;
+cobertura de todas as abas quando --full-extraction é usado;
+presença de regras críticas como specialist não ser event_code/position_code, Shoot-out não virar goalkeeper_save, goalkeeper_save exigir finalização vinculada e transição não calcular pontos.
+```
+
+Esses arquivos não alteram seed, UI ou importação. Eles centralizam a derivação de pontos e criam mecanismos para impedir que documentos antigos, planilha binária ou chunks incompletos orientem implementação errada.
 
 Regras críticas cobertas pelo contrato de pontuação:
 
@@ -126,16 +150,55 @@ ARCHITECTURE_README/SOURCE_REGISTER/VALIDATION_MATRIX sem proteção no XLSX exp
 
 ---
 
+## Auditoria da extração completa em chunks
+
+Para validar uma extração completa futura das abas:
+
+```bash
+PYTHONPATH=. python3 scripts/audit_scout_design_template_full_extraction.py \
+  --chunks docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json \
+  --xlsx docs/SCOUT_DESIGN_TEMPLATE.xlsx \
+  --full-extraction
+```
+
+Para validar apenas uma visão sintética de agente:
+
+```bash
+PYTHONPATH=. python3 scripts/audit_scout_design_template_full_extraction.py \
+  --chunks docs/SCOUT_DESIGN_TEMPLATE_AGENT_VIEW_CHUNKS.json
+```
+
+Diferença:
+
+```text
+Agent View sintético: pode não ter sheet_name em cada chunk e pode gerar warnings sem falhar.
+Full extraction: precisa de sheet_name, chunk_type, row_range e cobertura das abas do XLSX.
+```
+
+---
+
 ## Próximo controle de causa raiz
 
-Depois de validar os novos auditores, reconciliar:
+Depois de validar os novos auditores, gerar:
+
+```text
+docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json ou .jsonl
+```
+
+Objetivo: extrair todas as abas relevantes da planilha em chunks auditáveis e reconciliar:
 
 ```text
 docs/taxonomy_dictionary.md
 docs/evidence_matrix.md
 ```
 
-Objetivo: remover drift conceitual entre taxonomia legada, matriz de evidência e contratos atuais (`events_v1.py`, `points_policy_v1.py`, `SCOUT_DESIGN_TEMPLATE.xlsx`).
+com os contratos atuais:
+
+```text
+events_v1.py
+points_policy_v1.py
+SCOUT_DESIGN_TEMPLATE.xlsx
+```
 
 ---
 
@@ -171,6 +234,7 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA PARCIAL` | contratos conceituais; importação segue bloqueada onde aplicável |
 | Points policy v1 | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_points_policy_v1.py` |
 | Auditor docs x contratos | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_docs_contract_alignment_audit.py` |
+| Auditor full extraction template | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_scout_design_template_full_extraction_audit.py` |
 
 ---
 
