@@ -181,29 +181,39 @@ FINALIZATION_V1 = ModuleContract(
     module_code="finalization_v1",
     display_name="Finalizacao v1.0",
     module_contract_status=MODULE_STATUS_VALIDATED,
-    import_rule_v1=IMPORT_RULE_V1_BLOCKED,
+    import_rule_v1=IMPORT_RULE_V1_ACTIVE,
     primary_events=(
         _primary_event(
             "simple_shot",
             allowed_results=frozenset({"goal", "save", "shot_wide", "shot_blocked"}),
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
             "spin_shot",
             allowed_results=frozenset({"goal", "save", "shot_wide", "shot_blocked"}),
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
             "inflight_shot",
             allowed_results=frozenset({"goal", "save", "shot_wide", "shot_blocked"}),
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
             "goalkeeper_shot",
             allowed_results=frozenset({"goal", "save", "shot_wide"}),
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
         _primary_event(
             "six_metre_throw",
             allowed_results=frozenset(
                 {"goal", "save", "shot_wide", "rebound_live", "execution_invalid_6m"}
             ),
+            module_contract_status=EVENT_STATUS_ACTIVE,
+            import_rule_v1=IMPORT_RULE_V1_ACTIVE,
         ),
     ),
     auxiliary_fields=(

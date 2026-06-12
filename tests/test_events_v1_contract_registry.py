@@ -195,8 +195,10 @@ def test_auxiliary_codes_are_not_exposed_as_primary_buttons() -> None:
 
 
 def test_import_rules_match_module_activation_policy() -> None:
-    assert FINALIZATION_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
-    for event_contract in FINALIZATION_V1.event_contracts():
+    assert FINALIZATION_V1.import_rule_v1 == IMPORT_RULE_V1_ACTIVE
+    for event_contract in FINALIZATION_V1.primary_events:
+        assert event_contract.import_rule_v1 == IMPORT_RULE_V1_ACTIVE
+    for event_contract in FINALIZATION_V1.auxiliary_fields:
         assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
 
     assert NO_SHOT_ATTACK_V1.import_rule_v1 == IMPORT_RULE_V1_ACTIVE

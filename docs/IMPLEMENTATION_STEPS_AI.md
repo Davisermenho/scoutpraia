@@ -1,11 +1,13 @@
 ---
 tipo: contrato_execução_agente
 status: REFERÊNCIA_ESTÁVEL
-fase_atual: 9
-status_fase_atual: PARCIAL
+fase_atual: 12
+status_fase_atual: MVP_COMPLETO
 leitura_obrigatória_para_agente: true
-última_atualização: 2026-06-10
-próxima_ação_imediata: "Executar G5 (validação humana) — ver seção 9 e docs/validation_protocol.md"
+última_atualização: 2026-06-12
+mvp_completo: true
+g5_status: APROVADO
+próxima_ação_imediata: "Ativar finalization_v1 — contrato validado, testes existem, botões já na UI (tagging.py linhas 69-77)"
 ---
 
 # ScoutPraia — Plano de Implementação para IA

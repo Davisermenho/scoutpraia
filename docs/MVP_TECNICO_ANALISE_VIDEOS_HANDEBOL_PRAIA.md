@@ -6,9 +6,10 @@ lido_antes_de_implementar: obrigatório
 última_atualização: 2026-06-10
 escopo_proibido: "React, FastAPI, PostgreSQL, autenticação, multiusuário, deploy, API pública"
 documentos_de_execução:
-  - docs/IMPLEMENTATION_STEPS_AI.md  # ordem de execução para agentes
-  - docs/IMPLEMENTATION_PROGRESS.md  # estado atual
-  - docs/taxonomy_dictionary.md      # taxonomia operacional
+  - docs/IMPLEMENTATION_STEPS_AI.md  # contrato de execução com gates sequenciais para agentes
+  - docs/IMPLEMENTATION_PROGRESS.md  # estado atual provado com evidência reproduzível
+  - docs/taxonomy_dictionary.md      # dicionário v0.1 operacional (eventos ativos no app)
+  - docs/Contrato_Operacional.md     # contratos v1 — ler só seção 2-bis; implementação bloqueada até G5
 ---
 
 # ScoutPraia — MVP Técnico Completo (Arquitetura Python-Only)

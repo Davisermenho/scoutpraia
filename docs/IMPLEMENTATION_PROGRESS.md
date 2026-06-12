@@ -1,17 +1,17 @@
 ---
 tipo: progresso_execução
-status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — points_policy_v1 criado; auditor docs x contratos criado; SCOUT_DESIGN_TEMPLATE auditável"
-testes_passando: 249
-event_definitions: 31
-última_atualização: 2026-06-11
-próxima_ação: "Validar localmente points_policy_v1 e audit_docs_contract_alignment; depois reconciliar evidence_matrix.md e taxonomy_dictionary.md"
+status_geral: MVP_COMPLETO
+fase_atual: "finalization_v1 ativo — ativação progressiva dos módulos v1 em curso"
+testes_passando: 300
+event_definitions: 35
+última_atualização: 2026-06-12
+próxima_ação: "Verificar UI com finalization_v1 ativo; próximo módulo a avaliar: offensive_creation_v1"
 gaps_abertos:
-  - "G5 — validação humana com vídeo real e screenshots não executada"
-  - "RAG/Chroma/embeddings seguem bloqueados até gate global"
-  - "evidence_matrix.md e taxonomy_dictionary.md ainda precisam ser reconciliados com events_v1.py e points_policy_v1"
-  - "Proteção/locked copy da planilha ainda dependem de ação no Drive/Sheets"
-mvp_completo: false
+  - "Taxonomia v0.1 ainda em draft — não sustenta KPI final estável (previsto; v1 endereça)"
+  - "RAG/Chroma/embeddings seguem bloqueados até gate de Fase 2"
+  - "evidence_matrix.md e taxonomy_dictionary.md a reconciliar com events_v1.py (pós-MVP)"
+  - "Proteção/locked copy da planilha dependem de ação no Drive/Sheets"
+mvp_completo: true
 ---
 
 # ScoutPraia — Progresso de Implementação e Evidência
@@ -207,3 +207,57 @@ Limite: ainda faltam testes individuais para todos os modelos.
 - 31 definições de eventos.
 - Seed idempotente em `scoutpraia/services/taxonomy_service.py`.
 - Status global da taxonomia: `draft`.
+
+---
+
+## Ciclo — G5: validação humana com vídeo real (fechamento oficial do MVP)
+
+- Fase declarada: `Fase 9 — validação operacional com vídeo real — CONCLUÍDA`
+- O que foi executado:
+  - rodada humana completa no navegador real por Davi Sermenho
+  - 12 eventos marcados no match-1 (adversária: Campinas 360)
+  - vídeo real: `jogo_x6ppOlG0XlQ_2h19m44s_2h52m31s_720p_h264.mp4`
+  - 3 tipos de relatório gerados pela UI: coletivo, individual (Fernanda Campbell), adversária (Campinas 360)
+  - screenshots registrados em `docs/prints.png`
+  - protocolo Blocos A–E preenchido em `docs/validation_protocol.md`
+- O que foi testado:
+  - `scripts/verify_current_state.sh` verde antes do ensaio
+  - `python3 -m pytest -q` com venv ativo
+- Resultado observado:
+```text
+date_utc=2026-06-12T04:34:46Z
+git_head=2f3b7f6
+pytest=300 passed in 16.68s
+new_events_count=12
+final_report_count=5
+decision=APROVADO
+```
+- Limitações registradas (escopo de v0.1, não falha de plataforma):
+  - posições ofensivas e defensivas não coletadas
+  - papel da especialista não coletado
+  - defesa da goleira sem módulo ativo
+  - resultados de eventos incompletos (campos v1 não ativados)
+  - todas as lacunas são endereçadas pelos contratos v1 bloqueados até este gate
+- Status final:
+  - `G5`: **FECHADO — APROVADO**
+  - `mvp_completo`: **true**
+  - próxima fase autorizada: ativação progressiva dos módulos v1 (começar por `finalization_v1`)
+
+---
+
+## Ciclo — Ativação finalization_v1
+
+- Data: `2026-06-12`
+- O que foi alterado:
+  - `scoutpraia/contracts/events_v1.py`: `FINALIZATION_V1.import_rule_v1` → `IMPORT_RULE_V1_ACTIVE`; todos os 5 primary_events → `EVENT_STATUS_ACTIVE` + `IMPORT_RULE_V1_ACTIVE`
+  - `scoutpraia/services/taxonomy_service.py`: adicionados 4 eventos ausentes — `simple_shot`, `inflight_shot`, `goalkeeper_shot`, `six_metre_throw` (total: 35 definições)
+  - `tests/test_events_v1_contract_registry.py`: assertion de import_rule atualizada para `IMPORT_RULE_V1_ACTIVE` em primary_events de `finalization_v1`
+  - `docs/Contrato_Operacional.md`: seção 2-bis e gate_de_leitura atualizados
+- Resultado esperado:
+  - botões "Finalização v1.0" aparecem na UI de marcação (simple_shot, spin_shot, inflight_shot, goalkeeper_shot, six_metre_throw)
+  - pontos derivados automaticamente pelo contrato (não manual)
+  - scorer_role obrigatório nos formulários de finalização
+- Verificação:
+  ```bash
+  source .venv/bin/activate && python3 -m pytest -q
+  ```

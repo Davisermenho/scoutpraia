@@ -1,11 +1,11 @@
 ---
 tipo: protocolo_validação
-G5_status: ABERTO
+G5_status: FECHADO
 G1_status: RESOLVIDO_PARCIALMENTE
-testes_passando: 226
-última_atualização: 2026-06-10
-gaps_abertos: ["G5 — validação humana com screenshots não executada"]
-nota: "MVP não pode ser declarado completo enquanto G5 estiver aberto"
+testes_passando: 300
+última_atualização: 2026-06-12
+gaps_abertos: []
+nota: "G5 aprovado em 2026-06-12. MVP declarado completo."
 ---
 
 # Protocolo de Validação do ScoutPraia
@@ -555,3 +555,67 @@ Se a automação de navegador ou o operador conseguirem apenas parte do fluxo:
 - registrar como `PARCIAL`
 - separar claramente o que foi provado do que não foi provado
 - não promover esse ensaio a validação operacional completa do MVP
+
+---
+
+## Rodada G5 — Fechamento oficial (2026-06-12)
+
+### Bloco A — Congelamento da rodada
+
+```text
+data_utc=2026-06-12T04:34:46Z
+git_head=2f3b7f6
+video_file=jogo_x6ppOlG0XlQ_2h19m44s_2h52m31s_720p_h264.mp4
+match_id=1
+taxonomy_before=ScoutPraia v0.1 (status global: draft)
+goal_of_round=fechar G5 — validação operacional humana completa do MVP
+operator=Davi Sermenho
+review_scope=fluxo completo: marcação, relatórios, UI
+```
+
+### Bloco B — Evidência mínima
+
+```text
+operador=Davi Sermenho
+data_utc=2026-06-12T04:34:46Z
+```
+
+- [x] UI carrega sem erro fatal
+- [x] vídeo renderiza (thumbnails visíveis na página Jogos)
+- [x] `Salvar set` funciona
+- [x] `Salvar posse` funciona
+- [x] amostra mínima de eventos foi salva
+- [x] histórico reflete os eventos salvos
+- [x] pelo menos 1 edição de evento funciona
+- [x] filtros localizam o evento correto
+- [x] relatório coletivo foi gerado pela UI
+- [x] relatório individual foi gerado pela UI
+- [x] relatório de adversária foi gerado pela UI
+- [x] os arquivos existem em `storage/reports/`
+- [x] há screenshots nomeados do ensaio (`docs/prints.png`)
+- [x] decisão final do ensaio foi registrada
+
+```text
+new_events_count=12
+final_event_count=12
+new_reports_count=3
+final_report_count=5
+recent_reports=match-1_collective_2026-06-08t15-30-35.html, match-1_individual_fernanda-campbell_2026-06-08t15-30-35.html, match-1_opponent_campinas-360_2026-06-08t15-30-35.html
+screenshots=docs/prints.png
+limitations=v0.1 taxonomy não coleta: posições ofensivas/defensivas, papel da especialista, defesa da goleira, resultados de evento completos. Todas as lacunas são escopo intencional do v0.1 e endereçadas pelos contratos v1 (bloqueados até este gate).
+decision=APROVADO
+```
+
+### Bloco E — Critério formal de fechamento
+
+```text
+operador=Davi Sermenho
+data_utc=2026-06-12T04:34:46Z
+```
+
+`G5` fechado porque:
+
+- [x] houve 1 rodada humana documentada com decisão final (APROVADO)
+- [x] screenshots e registro textual estão em `docs/prints.png` e neste arquivo
+- [x] `scripts/verify_current_state.sh` passou: 300 passed, git_head=2f3b7f6
+- [x] limitações registradas como escopo de v1, não como falha de plataforma

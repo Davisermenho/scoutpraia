@@ -10,6 +10,19 @@ implementation_source: SCOUT_DESIGN_TEMPLATE
 repository: Davisermenho/scoutpraia
 ---
 
+```yaml
+gate_de_leitura:
+  quando_ler: "SOMENTE após G5 aprovado em docs/validation_protocol.md"
+  estado_atual: "ABERTO — G5 aprovado; finalization_v1 ativo"
+  prioridade_para_agente: |
+    Ler seção 2-bis para entender import_rule_v1 atual de cada módulo.
+    finalization_v1 está ativo. Os demais módulos seguem nao_importar_v1.
+  fonte_legível_para_agente: "Este arquivo (Contrato_Operacional.md)"
+  fonte_para_humano: "SCOUT_DESIGN_TEMPLATE.xlsx"
+  nota_xlsx: |
+    O XLSX é a fonte de design para humanos e não pode ser lido por agentes.
+    Este arquivo .md é a fonte 1 efetiva para agentes.
+```
 
 # Contrato Operacional — Eventos v1
 
@@ -54,8 +67,8 @@ Referência rápida para agentes. Para regras detalhadas, consultar as seções 
 
 ```yaml
 consolidated_state:
-  last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  last_reviewed_at: "2026-06-12"
+  git_head: "pendente"
   modules:
     attack_no_shot_v1:
       status: "contrato_validado"
@@ -64,9 +77,10 @@ consolidated_state:
       evidence_status: "passed"
     finalization_v1:
       status: "contrato_validado"
-      import_rule_v1: "nao_importar_v1"
+      import_rule_v1: "importar_v1"
       evidence: ["EV-006"]
       evidence_status: "passed"
+      ativado_em: "2026-06-12"
     offensive_creation_v1:
       status: "contrato_validado"
       import_rule_v1: "nao_importar_v1"

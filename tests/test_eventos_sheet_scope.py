@@ -41,9 +41,11 @@ def test_attack_no_shot_import_scope_matches_sheet_import_rule() -> None:
         assert event_contract.import_rule_v1 == IMPORT_RULE_V1_ACTIVE
 
 
-def test_finalization_remains_blocked_from_import() -> None:
-    assert FINALIZATION_V1.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
-    for event_contract in FINALIZATION_V1.event_contracts():
+def test_finalization_import_rule_is_active() -> None:
+    assert FINALIZATION_V1.import_rule_v1 == IMPORT_RULE_V1_ACTIVE
+    for event_contract in FINALIZATION_V1.primary_events:
+        assert event_contract.import_rule_v1 == IMPORT_RULE_V1_ACTIVE
+    for event_contract in FINALIZATION_V1.auxiliary_fields:
         assert event_contract.import_rule_v1 == IMPORT_RULE_V1_BLOCKED
 
 
