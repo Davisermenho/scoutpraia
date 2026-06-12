@@ -15,10 +15,8 @@ nota: "G5 aprovado em 2026-06-12. MVP declarado completo."
 | Gap | Descrição | Status |
 | --- | --- | --- |
 | G1 | Taxonomia integralmente em `draft` | RESOLVIDO — `two_point_goal` promovido para `testing` em 2026-06-09 |
-| G5 | Validação humana com vídeo real e screenshots | **ABERTO** — checklist no Bloco B/E abaixo |
+| G5 | Validação humana com vídeo real e screenshots | **FECHADO — APROVADO** em 2026-06-12. Ver rodada "Fechamento oficial" abaixo. |
 | G7 | `validation_protocol.md` sem critérios numéricos | RESOLVIDO — κ > 0.81, ICC ≥ 0.90, α ≥ 0.90 registrados |
-
-**Para fechar G5:** executar o protocolo operacional na seção "Protocolo operacional repetível" abaixo e preencher todos os blocos A–E.
 
 ---
 

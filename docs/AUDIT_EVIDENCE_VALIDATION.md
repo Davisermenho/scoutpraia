@@ -1,30 +1,42 @@
 ---
 tipo: auditoria_evidência
 data_auditoria: 2026-06-06
+data_atualização_g5: 2026-06-12
 status_base_técnica: FUNCIONANDO_COM_EVIDÊNCIA
-mvp_completo: false
+mvp_completo: true
 testes_no_momento_da_auditoria: 10
-testes_atuais: 226
-gaps_abertos: ["G5 — validação humana com vídeo real e screenshots pendente"]
-próxima_ação: "Executar protocolo G5 (docs/validation_protocol.md)"
-nota: "Esta auditoria reflete estado de 2026-06-06; testes atuais são 226"
+testes_atuais: 311
+gaps_abertos: []
+G5_status: FECHADO
+próxima_ação: "Ativação progressiva dos módulos v1 — começar por finalization_v1"
+nota: "Auditoria base de 2026-06-06. G5 fechado em 2026-06-12 por Davi Sermenho — 12 eventos marcados, 16 relatórios, 311 testes passando. Ver docs/validation_protocol.md e docs/evidence_g5/."
 ---
 
 # Auditoria de Evidências e Validação — ScoutPraia
 
+## ATUALIZAÇÃO G5 — 2026-06-12
+
+> **G5 FECHADO — APROVADO.** MVP declarado completo por Davi Sermenho em 2026-06-12.
+> 12 eventos marcados, 16 relatórios gerados, 311 testes passando.
+> Evidências visuais Playwright em `docs/evidence_g5/`. Ver `docs/validation_protocol.md`.
+
+O texto abaixo é a auditoria original de 2026-06-06 e reflete o estado **antes** do fechamento de G5. Mantido como registro histórico.
+
+---
+
 ## VEREDITO RÁPIDO PARA AGENTES
 
-**AUTORIZADO declarar (com base nas evidências desta auditoria, atualizadas pelo progresso atual):**
-- base técnica do ScoutPraia está implementada e funcionando
-- banco, taxonomia, seed, metadados de vídeo e testes automatizados estão provados
-- serviços internos (evento, clipe, validação, analytics, relatório) funcionam — 226 testes passando
+**AUTORIZADO declarar:**
+- MVP do ScoutPraia está implementado e validado humanamente (`mvp_completo: true`)
+- base técnica implementada e funcionando
+- banco, taxonomia, seed, metadados de vídeo e testes automatizados provados
+- serviços internos (evento, clipe, validação, analytics, relatório) funcionam — 311 testes passando
+- UI Streamlit validada humanamente com screenshots Playwright (`docs/evidence_g5/`)
 
 **NÃO AUTORIZADO declarar:**
-- MVP completo está implementado
-- UI Streamlit foi validada humanamente com screenshots
-- taxonomia aprovada para KPI final estável
+- taxonomia v0.1 aprovada para KPI final estável (segue `draft`; v1 endereça)
 
-**Próximo gate obrigatório:** G5 — ver `docs/validation_protocol.md`
+**Gate atual:** ativação progressiva dos módulos v1 — começar por `finalization_v1`
 
 ---
 
