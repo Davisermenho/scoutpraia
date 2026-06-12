@@ -1,16 +1,16 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — EV-009, EV-010 e EV-011 registrados; Etapa 4 documental/chunking integrada; auditoria versionável do SCOUT_DESIGN_TEMPLATE criada"
-testes_passando: 247
+fase_atual: "Eventos v1 — EV-009, EV-010 e EV-011 registrados; points_policy_v1 criado como contrato executável global; auditoria versionável do SCOUT_DESIGN_TEMPLATE criada"
+testes_passando: 249
 event_definitions: 31
 última_atualização: 2026-06-11
-próxima_ação: "Exportar SCOUT_DESIGN_TEMPLATE para XLSX e executar scripts/audit_scout_design_template.py; depois corrigir pendências apontadas na planilha"
+próxima_ação: "Validar points_policy_v1 localmente; depois criar auditor de alinhamento docs x contratos e reconciliar evidence_matrix/taxonomy_dictionary"
 gaps_abertos:
-  - "Planilha ainda precisa passar no auditor XLSX"
-  - "EVENTOS_LEGADOS_FUTUROS precisa existir na planilha ou ter decisão documentada equivalente"
-  - "repo_symbol precisa estar nas abas exigidas ou centralização precisa ser formalizada"
-  - "proteção/locked copy ainda dependem de ação no Drive/Sheets"
+  - "G5 — validação humana com vídeo real e screenshots não executada"
+  - "RAG/Chroma/embeddings seguem bloqueados até gate global"
+  - "evidence_matrix.md e taxonomy_dictionary.md ainda precisam ser reconciliados com events_v1.py e points_policy_v1"
+  - "Proteção/locked copy da planilha ainda dependem de ação no Drive/Sheets"
 mvp_completo: false
 ---
 
@@ -32,44 +32,54 @@ reproduzível por comando, teste ou arquivo verificável.
 **Gate atual do repositório:**
 
 ```bash
+python3 -m pytest tests/test_points_policy_v1.py -q
 python3 -m pytest tests/test_transition_contract.py -q
 python3 -m pytest tests/test_events_v1_contract_registry.py -q
 python3 -m pytest -q
 scripts/verify_current_state.sh
 git diff --check
 git status --short
-# resultado esperado: 247 passed
+# resultado esperado após pull: 249+ passed
 ```
 
 **Última evidência informada pelo operador:**
 
 ```text
-date_utc=2026-06-11T20:03:21Z
-git_head=a7b8f97
-transition_contract=15 passed
-registry_contract=16 passed
-pytest=247 passed
+date_utc=2026-06-11T22:48:16Z
+git_head=7de34ec
+pytest=249 passed
 verify_current_state.sh=verde
 taxonomy=ScoutPraia v0.1
 taxonomy_status=draft
 event_definitions=31
 expected_event_definitions=31
-git diff --check=sem saída
-git status --short=limpo
-etapa_4_chunking=documentação e corpus integrados antes do rebase
+SCOUT_DESIGN_TEMPLATE audit=status=ok errors=0 warnings=4
 ```
 
 **Estado após esta atualização no repositório:**
 
-Foram adicionados arquivos versionáveis para fechar a parte do plano que depende do repo:
+Foram adicionados arquivos versionáveis para fechar a causa raiz da pontuação como contrato executável global:
 
 ```text
-scripts/audit_scout_design_template.py
-tests/test_scout_design_template_audit.py
-docs/ARCHITECTURE_README.md
+scoutpraia/contracts/points_policy_v1.py
+tests/test_points_policy_v1.py
+scoutpraia/contracts/__init__.py
 ```
 
-Esses arquivos não alteram seed, UI ou importação. Eles criam a base de auditoria para validar o XLSX exportado da planilha contra `scoutpraia/contracts/events_v1.py`.
+Esses arquivos não alteram seed, UI ou importação. Eles centralizam a derivação de pontos para impedir que um agente, importador, tela ou relatório aceite pontuação manual divergente da regra.
+
+Regras críticas cobertas pelo contrato:
+
+```text
+specialist não é event_code nem position_code; é scorer_role.
+specialist_shot é código proibido.
+scorer_role=specialist + result=goal em finalização válida deriva 2 pontos.
+simple_shot + field_player + goal deriva 1 ponto.
+spin_shot, inflight_shot, goalkeeper_shot, six_metre_throw e shootout_attempt convertidos derivam 2 pontos.
+resultados não convertidos ou perda sem finalização derivam 0 quando permitidos.
+manual_points divergente deve gerar erro.
+resultado incompatível com evento deve gerar erro.
+```
 
 ---
 
@@ -78,17 +88,35 @@ Esses arquivos não alteram seed, UI ou importação. Eles criam a base de audit
 Para validar a planilha exportada:
 
 ```bash
-python3 scripts/audit_scout_design_template.py caminho/SCOUT_DESIGN_TEMPLATE.xlsx
+PYTHONPATH=. python3 scripts/audit_scout_design_template.py docs/SCOUT_DESIGN_TEMPLATE.xlsx
 ```
 
-O script deve falhar enquanto houver pendências como:
+O auditor já foi executado localmente pelo operador com:
 
-- ausência de `EVENTOS_LEGADOS_FUTUROS`;
-- ausência de `repo_test_file` em `MODULE_INDEX`;
-- ausência de `repo_symbol` em `EVENTOS`, `RESULTADOS_*` ou `CAMPOS_AUXILIARES_*`;
-- código legado/futuro não bloqueado;
-- matriz de validação incompleta;
-- regra normalizada ausente.
+```text
+status=ok
+errors=0
+warnings=4
+```
+
+Warnings remanescentes:
+
+```text
+specialist_shot ausente de EVENTOS porque é legado/bloqueado, não evento ativo.
+ARCHITECTURE_README/SOURCE_REGISTER/VALIDATION_MATRIX sem proteção no XLSX exportado.
+```
+
+---
+
+## Próximo controle de causa raiz
+
+Depois de validar `points_policy_v1`, criar:
+
+```text
+scripts/audit_docs_contract_alignment.py
+```
+
+Objetivo: comparar `events_v1.py`, `points_policy_v1.py`, `SCOUT_DESIGN_TEMPLATE.xlsx`, `Contrato_Operacional.md`, `taxonomy_dictionary.md` e `evidence_matrix.md` para detectar drift conceitual antes que o agente implemente regra antiga.
 
 ---
 
@@ -118,10 +146,11 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 247 passed |
+| 8 — Testes | `FUNCIONANDO` | 249 passed antes de points_policy_v1; validar novamente após pull |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
-| Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA` | baseline G0 fechado; G1 registry realinhado à planilha; importação segue bloqueada |
+| Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA PARCIAL` | contratos conceituais; importação segue bloqueada onde aplicável |
+| Points policy v1 | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_points_policy_v1.py` |
 
 ---
 
@@ -155,921 +184,6 @@ Limite: ainda faltam testes individuais para todos os modelos.
 
 ### Fase 5 — Taxonomia v0.1 `[CONCLUÍDA]`
 
-- 31 definições de eventos (após adição de `specialist_attempt` e `specialist_goal`)
-- Seed idempotente em `scoutpraia/services/taxonomy_service.py`
-- Status global da taxonomia: `draft`
-- `two_point_goal` promovido para `testing` em 2026-06-09 (G1 fechado)
-
-### Fase 6 — Serviços internos `[CONCLUÍDA COM EVIDÊNCIA]`
-
-| Serviço | Status | Teste principal |
-|---------|--------|----------------|
-| `video_service.py` | FUNCIONANDO | `test_video_metadata_uses_real_ffprobe` |
-| `event_service.py` | FUNCIONANDO | `test_event_service.py` (+ v1 fields) |
-| `clip_service.py` | FUNCIONANDO | `test_clip_service.py` |
-| `validation_service.py` | FUNCIONANDO | `test_validation_service.py` |
-| `analytics_service.py` | FUNCIONANDO | `test_analytics_service.py` |
-| `report_service.py` | FUNCIONANDO | `test_report_service.py` |
-| `match_service.py` | FUNCIONANDO | `test_match_service.py` |
-| `finalization_contract_service.py` | FUNCIONANDO | `test_finalization_contract_service.py` |
-| `no_shot_attack_contract_service.py` | FUNCIONANDO | `test_no_shot_attack_contract_service.py` |
-
-### Fase 7 — Interface Streamlit `[CONCLUÍDA COM EVIDÊNCIA]`
-
-Páginas implementadas: Dashboard, Jogos, Marcação, Relatórios, Adversárias
-
-Funcionalidades da página Marcação:
-- player de vídeo com `st.video`
-- timestamp em MM:SS, HH:MM:SS ou segundos
-- botões rápidos com preenchimento automático de pontos
-- edição/exclusão de qualquer evento salvo
-- edição/exclusão de set e posse
-- filtros por set, lado, tipo e busca textual
-- navegação rápida entre eventos filtrados
-- ajuste fino de timestamp (±0.5s, ±1s)
-
-Pendências da fase 7:
-- Verificação visual humana fim a fim ainda não documentada com screenshots
-
-### Fase 8 — Testes `[FUNCIONANDO]`
-
-247 testes passando. Suíte inclui:
-- `test_smoke.py`, `test_models.py`, `test_match_service.py`
-- `test_event_service.py`, `test_clip_service.py`
-- `test_validation_service.py`, `test_analytics_service.py`
-- `test_report_service.py`, `test_streamlit_pages.py`
-- `test_ui_labels.py`, `test_taxonomy_service.py`
-- `test_events_v1_contract_registry.py`, `test_finalization_contract.py`
-- `test_finalization_contract_service.py`, `test_no_shot_attack_contract_service.py`
-- `test_event_model_v1_fields.py`, `test_tagging_finalization_v1_ui.py`
-- `test_tagging_no_shot_attack_v1_ui.py`, `test_reports_events_v1.py`
-- `test_real_video_integration.py`, `test_stage1_stage2_sources_registry.py`
-- `test_stage3_thematic_metadata.py`, `test_stage4_chunk_inventory.py`
-- `test_stage_registry_workbook_views.py`, `test_transition_contract.py`
-
-### Fase 9 — Validação operacional com vídeo real `[PARCIAL]`
-
-Concluído:
-- Ensaio automatizado com Playwright em `Execução 2` — 3 relatórios gerados pela UI real
-- 8 eventos reais persistidos no banco local
-
-Pendente (G5):
-- Rodada humana com screenshots documentados
-- Protocolo em `docs/validation_protocol.md` — checklist Bloco A–E
-
-### Fase 10 — README e operação local `[CONCLUÍDA]`
-
-- `README.md` documenta instalação, banco, launcher e fallback de virtualenv
-- `scripts/run_scout.sh` — launcher com `--port` e `--no-browser`
-- `scripts/setup_venv.sh` — fallback para ambientes sem `ensurepip`
-- `ScoutPraia.desktop` — lançador gráfico de 1 clique
-
-### Eventos v1 `[IMPLEMENTADO COM EVIDÊNCIA — IMPORTAÇÃO BLOQUEADA]`
-
-| Passo | Arquivo | Status |
-|-------|---------|--------|
-| 1 — Contrato | `scoutpraia/contracts/events_v1.py` | CONCLUÍDO |
-| 1B — Registry G1 | `offensive_creation_v1` + `defensive_v1` reconhecidos no registry com separação núcleo/revisão/futuro | CONCLUÍDO |
-| 2 — Serviço Finalização | `finalization_contract_service.py` | CONCLUÍDO |
-| 3 — Serviço Ataque sem finalização | `no_shot_attack_contract_service.py` | CONCLUÍDO |
-| 4 — Modelo/banco | campos v1 em `event.py` + migração leve | CONCLUÍDO |
-| 5 — UI de marcação | blocos v1 em `tagging.py` | CONCLUÍDO |
-| 6 — Relatórios/KPIs | métricas v1 em `analytics_service.py` + templates | CONCLUÍDO |
-| 6A — Correção KPIs | especialista + 2 pontos adversária | CONCLUÍDO |
-
-Importação bloqueada: `import_rule_v1 = nao_importar_v1`
-
-Registry principal atual:
-- `attack_no_shot_v1` — importação ativa (`importar_v1`)
-- `finalization_v1` — contrato validado, importação bloqueada
-- `offensive_creation_v1` — contrato validado no registry, importação bloqueada
-- `defensive_v1` — contrato validado no registry, importação bloqueada
-- `shootout_v1` — contrato conceitual validado por teste, sem seed/UI/importação
-- `goalkeeper_v1` — contrato conceitual validado por teste, sem seed/UI/importação
-- `offensive_creation_v1` — núcleo ativo: `assist_to_finalization`; auxiliares: `assist_to_inflight_shot`, `pivot_feed_to_shot`; revisão: `advantage_pass_to_free_player`, `collective_action_creates_shot`
-- `defensive_v1` — núcleo ativo: `line_block_shot`; revisão: `defensive_pressure_forced_error`, `steal_or_interception`; futuro: `defensive_rebound_recovery`
-
-Limite explícito:
-- `offensive_creation_v1` e `defensive_v1` ainda não aparecem na UI nem na importação ativa do app
-- `shootout_v1` permanece fora do seed operacional, da UI e da importação
-- `goalkeeper_v1` permanece fora do seed operacional, da UI e da importação
-- este ciclo não altera `tagging.py`, seed, serviços de persistência ou relatórios operacionais
-
-Para liberar: passar todos os testes v1 **E** ter evidência registrada de:
-- contrato v1 carregado no código ✓
-- serviço de Finalização aprovado ✓
-- serviço de Ataque sem finalização aprovado ✓
-- UI de marcação aprovada ✓
-- modelo/banco aprovado ✓
-- relatórios mínimos aprovados ✓
-- decisão explícita de promoção em `docs/taxonomy_dictionary.md`
-
----
-
-## Pendências reais para MVP completo
-
-1. G5: validação humana com screenshots (ver `docs/validation_protocol.md`)
-2. Verificação visual fim a fim no navegador documentada
-3. Decidir liberação da importação v1 após G5
-4. Seed de dados de exemplo ou fixture sintética de jogo completo
-5. Expor regra de taxonomia aprovada na UI de relatórios
-
----
-
-## Definição de não concluído
-
-Não considerar o MVP completo enquanto qualquer item abaixo estiver ausente:
-
-- marcação operacional completa por jogo — **presente**
-- geração real de clipes com `ffmpeg` — **presente**
-- KPIs completos — **presente**
-- fluxo operacional completo de relatórios via interface — **presente**
-- validação da taxonomia com vídeo e screenshots humanos — **PENDENTE (G5)**
-- testes de fluxo operacional — **presente**
-
----
-
-## Próxima fase autorizada pelo plano
-
-1. Executar protocolo G5 de validação humana (`docs/validation_protocol.md`)
-2. Rodar `scripts/verify_current_state.sh` após qualquer nova mudança relevante
-3. Depois de G5: decidir liberação de `import_rule_v1`
-4. Não liberar UI/importação de `offensive_creation_v1`, `defensive_v1`, `shootout_v1` ou `goalkeeper_v1` antes desse gate
-
----
-
-## Governança de agentes
-
-Status: `CONFIGURADO`
-
-- `AGENTS.md` com regras obrigatórias para agentes neste repositório.
-- Exigência de prova reproduzível antes de declarar sucesso.
-- Exigência de atualização deste arquivo em cada ciclo.
-- Proibição explícita de pular fases ou esconder trabalho parcial.
-- Restrições de escopo: sem React, FastAPI, PostgreSQL, API pública, auth, deploy, RAG antes do MVP funcional.
-
----
-
-## Ciclo — G0 baseline + G1 registry
-
-- Fase declarada: `Eventos v1 — fechamento de baseline G0 e ampliação controlada do registry G1`
-- O que foi implementado:
-  - registro oficial do baseline `G0_BASELINE_EVENTOS_V1_VERDE`
-  - inclusão de `offensive_creation_v1` e `defensive_v1` em `scoutpraia/contracts/events_v1.py`
-  - atualização de `tests/test_events_v1_contract_registry.py` para o novo snapshot do registry
-- O que foi testado:
-  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
-  - `python3 -m pytest tests/test_eventos_sheet_scope.py -q`
-  - `python3 -m pytest -q`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - registry específico: `10 passed`
-  - escopo da planilha: `7 passed`
-  - suíte completa: `199 passed`
-  - `verify_current_state.sh`: verde com `event_definitions=31` e `199 passed`
-  - baseline G0 preservado como registro do estado limpo anterior (`git_head=5cf588c`, `git_status=clean`)
-- O que ainda não está pronto:
-  - `offensive_creation_v1` e `defensive_v1` não foram liberados na UI nem na importação ativa
-  - G5 continua pendente
-- Limitações, gaps e riscos:
-  - este ciclo valida somente reconhecimento contratual no registry; não prova fluxo operacional desses dois módulos no app
-  - qualquer liberação futura desses módulos ainda depende de gate posterior e evidência adicional
-
----
-
-## Ciclo — correção de aderência planilha + contrato
-
-- Fase declarada: `Eventos v1 — correção do registry para espelhar SCOUT_DESIGN_TEMPLATE e Contrato_Operacional`
-- O que foi implementado:
-  - separação explícita em `scoutpraia/contracts/events_v1.py` entre `primary_events`, `auxiliary_fields`, `review_only_events` e `future_events`
-  - realinhamento de `offensive_creation_v1` para núcleo ativo único `assist_to_finalization`
-  - realinhamento de `defensive_v1` para núcleo ativo único `line_block_shot`
-  - atualização de `tests/test_events_v1_contract_registry.py` para provar que revisão/futuro não contam como núcleo ativo
-- O que foi testado:
-  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
-  - `python3 -m pytest -q`
-  - `scripts/verify_current_state.sh`
-- Resultado observado:
-  - registry específico: `10 passed`
-  - suíte completa: `199 passed`
-  - `verify_current_state.sh`: verde com `event_definitions=31`, `199 passed` e `git diff --check` sem erro
-- O que ainda não está pronto:
-  - `offensive_creation_v1` e `defensive_v1` continuam fora da UI e da importação ativa
-  - G5 continua pendente
-- Limitações, gaps e riscos:
-  - o registry agora espelha melhor a planilha/contrato, mas isso ainda não representa implementação operacional desses módulos no app
-  - qualquer divergência futura deve ser resolvida pela prioridade de fonte definida em `docs/Contrato_Operacional.md`
-  - `docs/Contrato_Operacional.md` passa a compor o conjunto versionável de fontes do ciclo
-
----
-
-## Ciclo — evidência local EV-009 do shootout_v1
-
-- Fase declarada: `Eventos v1 — registro documental da evidência local do contrato conceitual de shootout`
-- O que foi implementado:
-  - atualização de `docs/Contrato_Operacional.md` para registrar `EV-009`
-  - consolidação do estado de `shootout_v1` como `arquitetura_em_definicao_validada_por_teste_conceitual`
-  - registro explícito de que seed operacional, UI e importação permanecem inalterados
-- O que foi testado:
-  - `python3 -m pytest tests/test_shootout_contract.py -q`
-  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
-  - `python3 -m pytest -q`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-  - `git status --short`
-- Resultado observado:
-  - shootout específico: `10 passed in 0.02s`
-  - registry específico: `12 passed in 0.02s`
-  - suíte completa: `211 passed in 14.49s`
-  - `verify_current_state.sh`: verde com `git_head=c4afac9`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `211 passed in 13.59s`
-  - `git diff --check`: sem saída
-  - `git status --short`: limpo antes da atualização documental deste ciclo
-- O que ainda não está pronto:
-  - `shootout_v1` não foi promovido para seed operacional
-  - `shootout_v1` não foi liberado na UI nem na importação
-  - G5 continua pendente
-- Limitações, gaps e riscos:
-  - a evidência fecha apenas o contrato conceitual e sua compatibilidade com a base atual
-  - esta validação não prova fluxo operacional de marcação de shoot-out no app
-  - qualquer liberação operacional continua bloqueada até gate posterior explícito
-
----
-
-## Ciclo — evidência local EV-010 do goalkeeper_v1
-
-- Fase declarada: `Eventos v1 — registro documental da evidência local do contrato conceitual de goalkeeper`
-- O que foi implementado:
-  - atualização de `docs/Contrato_Operacional.md` para registrar `EV-010`
-  - consolidação do estado de `goalkeeper_v1` como `arquitetura_em_definicao_validada_por_teste_conceitual`
-  - registro explícito de que seed operacional, UI e importação permanecem inalterados
-- O que foi testado:
-  - `python3 -m pytest tests/test_goalkeeper_contract.py -q`
-  - `python3 -m pytest tests/test_events_v1_contract_registry.py -q`
-  - `python3 -m pytest -q`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-  - `git status --short`
-- Resultado observado:
-  - goalkeeper específico: `13 passed in 0.02s`
-  - registry específico: `14 passed in 0.02s`
-  - suíte completa: `226 passed in 14.19s`
-  - `verify_current_state.sh`: verde com `git_head=aa8934c`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed in 13.81s`
-  - `git diff --check`: sem saída
-  - `git status --short`: limpo antes da atualização documental deste ciclo
-- O que ainda não está pronto:
-  - `goalkeeper_v1` não foi promovido para seed operacional
-  - `goalkeeper_v1` não foi liberado na UI nem na importação
-  - G5 continua pendente
-- Limitações, gaps e riscos:
-  - a evidência fecha apenas o contrato conceitual e sua compatibilidade com a base atual
-  - esta validação não prova fluxo operacional de marcação de goleira no app
-  - qualquer liberação operacional continua bloqueada até gate posterior explícito
-
----
-
-## Ciclo — padronização do `plano_de_acao.md`
-
-- Fase declarada: `Fase 9 — documentação operacional auxiliar (sem alterar comportamento do MVP)`
-- O que foi implementado:
-  - reestruturação completa de `plano_de_acao.md` para Markdown hierárquico consistente
-  - remoção de headings redundantes em `# **...**` e padronização para títulos Markdown nativos
-  - conversão de exemplos soltos para blocos de código (`csv`, `text`, `json`, `md`)
-  - conversão de listas com quebra manual em listas Markdown reais
-  - correção de inconsistências de hierarquia, especialmente nos exemplos internos de glossário e relatório
-- O que foi testado:
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - `git diff --check`: sem saída
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed in 13.96s`
-  - `git status --short`: `?? beach_handball_ai/` e `?? plano_de_acao.md`
-- O que ainda não está pronto:
-  - G5 continua pendente
-  - o conteúdo de `plano_de_acao.md` segue como plano auxiliar e não substitui os contratos canônicos do repositório
-- Limitações, gaps e riscos:
-  - a validação executada prova higiene do diff e integridade do estado atual do repositório, não qualidade semântica do plano além da padronização estrutural
-  - `plano_de_acao.md` permanece não rastreado no Git neste estado
-  - havia um diretório não rastreado pré-existente (`beach_handball_ai/`) no workspace durante a validação
-
----
-
-## Ciclo — registro unificado de fontes fortes
-
-- Fase declarada: `Fase 9 — organização manual de fontes e rastreabilidade documental (sem liberar RAG)`
-- O que foi implementado:
-  - atualização de `beach_handball_ai/plano_de_acao.md` para declarar `docs/sources/` como entrada obrigatória junto com `beach_handball_ai/fontes/`
-  - substituição dos `.md` vazios em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/` e `beach_handball_ai/fontes/05_processado/IHF_RULES_BH_2026_PT_TRANSLATION.md` por placeholders explícitos de status
-  - geração de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` com 46 linhas inventariadas e colunas extras de rastreabilidade (`source_code_repo`, `origem_catalogo`, `papel_documento`, `fonte_primaria_relacionada`, `uso_mvp`, `uso_rag_fase2`)
-  - atualização de `beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx` para refletir o registro unificado e adicionar sheets auxiliares de crosswalk e resumo de status
-  - geração de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` com checksums SHA-256 para `docs/sources/` e `beach_handball_ai/fontes/`
-- O que foi testado:
-  - `python3` inline para reconstruir o registro unificado, recalcular checksums e regravar `csv`/`xlsx`/`json`
-  - `python3` inline para validar `source_id` único, existência de arquivo, checksum preenchido e zero-byte somente em status de placeholder
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - registro unificado: `46` linhas, `46` `source_id` únicos, nenhum arquivo ausente, nenhum checksum em branco
-  - pendências explícitas restantes: `4` PDFs EHF continuam `0 bytes` com status `placeholder_vazio_pendente_download`
-  - `manifest_checksums.json` passou a registrar os dois acervos (`docs/sources` e `beach_handball_ai/fontes`)
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
-  - `git diff --check`: sem saída
-  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
-- O que ainda não está pronto:
-  - RAG continua bloqueado por contrato até G5 e fase 2
-  - os 4 PDFs EHF previstos no corpus operacional ainda não foram obtidos
-  - as fontes próprias CEPRAEA continuam como `pendente_elaboracao`; agora sem ambiguidade de placeholder vazio
-- Limitações, gaps e riscos:
-  - este ciclo fecha o inventário e a rastreabilidade do item 1, mas não valida o conteúdo semântico das fontes próprias ainda não escritas
-  - os artefatos em `beach_handball_ai/fontes/05_processado/documentos_markdown/` continuam derivados intermediários (`.docx`), não markdown consolidado final
-  - a presença de fontes de IA em `docs/sources/` não altera o bloqueio de uso operacional do RAG no ScoutPraia
-
----
-
-## Ciclo — obtenção dos 4 PDFs EHF previstos no registro
-
-- Fase declarada: `Fase 9 — organização manual de fontes e fechamento de placeholders EHF`
-- O que foi implementado:
-  - substituição dos 4 placeholders vazios em `beach_handball_ai/fontes/02_ehf_tecnico/` pelos PDFs oficiais reais da página EHF Beach Handball Publications
-  - atualização do registro em `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` com links oficiais EHF, checksums e status `obtido_oficial_ehf_pendente_leitura`
-  - atualização de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` para refletir os novos arquivos e o novo resumo de status
-- O que foi testado:
-  - `python3` inline para localizar e baixar os 4 PDFs a partir dos links oficiais da página EHF
-  - `python3` inline para atualizar `csv`/`xlsx`/`manifest` com links, checksums e status
-  - verificação de tamanho dos arquivos em `beach_handball_ai/fontes/02_ehf_tecnico`
-  - verificação de ausência de arquivos `0 bytes` restantes em `beach_handball_ai/fontes/`
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - `refereeing_beach_handball.pdf`: `2967257` bytes
-  - `shootout_psychological_pressure.pdf`: `1702276` bytes
-  - `ultimate_school_handball_2025.pdf`: `11374314` bytes
-  - `mini_beach_handball_info_sheet.pdf`: `2225349` bytes
-  - não restaram arquivos `0 bytes` em `beach_handball_ai/fontes/`
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
-  - `git diff --check`: sem saída
-  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
-- O que ainda não está pronto:
-  - os 4 PDFs EHF foram obtidos, mas seguem `pendente_leitura` no registro; o conteúdo semântico ainda não foi resumido/classificado em profundidade
-  - as fontes próprias CEPRAEA continuam `pendente_elaboracao`
-  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
-- Limitações, gaps e riscos:
-  - a obtenção dos PDFs prova disponibilidade local e rastreabilidade oficial EHF, não leitura técnica integral do conteúdo
-  - o arquivo `Understanding Psyhological Pressure...` preserva a grafia do link oficial EHF (`Psyhological`)
-  - o bloqueio de RAG permanece inalterado; obter os PDFs não libera fase 2
-
----
-
-## Ciclo — classificação semântica dos 4 PDFs EHF
-
-- Fase declarada: `Fase 9 — organização manual de fontes e classificação temática de apoio`
-- O que foi implementado:
-  - leitura local dos 4 PDFs EHF com extração de texto por `pdftotext`
-  - conferência de metadata por `pdfinfo` para registrar datas de criação/versão quando disponíveis
-  - atualização de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para trocar `obtido_oficial_ehf_pendente_leitura` por `validado_tecnico_educacional_ehf`
-  - refinamento semântico de tema, observação e uso final para cada publicação:
-    - `Refereeing in Beach Handball` → arbitragem, preparação física e estresse térmico
-    - `Understanding Psychological Pressure in Beach Handball Shootouts` → psicologia do esporte e preparação mental para shoot-out
-    - `Ultimate School Handball 2025` → ensino escolar, metodologia e iniciação
-    - `Mini Beach Handball Info Sheet 2020` → iniciação infantil e regras adaptadas
-  - atualização do resumo de status em `beach_handball_ai/fontes/05_processado/manifest_checksums.json`
-- O que foi testado:
-  - `pdftotext` nos 4 PDFs EHF
-  - `pdfinfo` nos 4 PDFs EHF
-  - `python3` inline para atualizar `csv`/`xlsx`/`manifest`
-  - inspeção das 4 linhas EHF no registro final
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - as 4 entradas EHF passaram a `validado_tecnico_educacional_ehf`
-  - `manifest_checksums.json` agora resume `4` itens nesse status
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
-  - `git diff --check`: sem saída
-  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
-- O que ainda não está pronto:
-  - as fontes próprias CEPRAEA continuam `pendente_elaboracao`
-  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
-  - o uso das fontes EHF continua sendo de apoio técnico/educacional, não normativo
-- Limitações, gaps e riscos:
-  - a classificação feita aqui é suficiente para catalogação e uso orientado, mas não substitui leitura integral futura se alguma publicação passar a sustentar decisão crítica específica
-  - o bloqueio de RAG permanece inalterado; classificar semanticamente as fontes não libera fase 2
-
----
-
-## Ciclo — elaboração das 4 fontes próprias CEPRAEA
-
-- Fase declarada: `Fase 9 — consolidação de fontes internas de apoio`
-- O que foi implementado:
-  - substituição dos placeholders por conteúdo base nas 4 fontes próprias em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/`
-  - elaboração de `glossario_tecnico_cepraea.md` com distinção entre termos operacionais já alinhados ao app e convenções internas ainda pendentes
-  - elaboração de `playbook_cepraea.md` com hierarquia de decisão, blocos de leitura e fluxo treinador-video-relatorio
-  - elaboração de `scout_schema.md` com o schema funcional do ScoutPraia v0.1 baseado no modelo `Event`, labels e KPIs atuais
-  - elaboração de `criterios_taticos_cepraea.md` com critérios internos para transformar evento e KPI em leitura de treino/jogo
-  - atualização do registro em `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para promover as 4 fontes de `pendente_elaboracao` para `base_interna_elaborada_v0`
-  - atualização de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` com os novos checksums e resumo de status
-- O que foi testado:
-  - inspeção dos 4 arquivos gerados
-  - `python3` inline para atualizar `csv`/`xlsx`/`manifest`
-  - verificação de status e checksum das 4 entradas no registro
-  - verificação de ausência de arquivos `0 bytes` em `beach_handball_ai/fontes/`
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - as 4 entradas internas passaram a `base_interna_elaborada_v0`
-  - os 4 arquivos internos deixaram de ser vazios: `4965` a `11177` bytes
-  - não restaram arquivos `0 bytes` em `beach_handball_ai/fontes/`
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
-  - `git diff --check`: sem saída
-  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
-- O que ainda não está pronto:
-  - as 4 fontes próprias estão em base `v0`, não em ontologia tática final congelada
-  - termos internos como `3:0`, `2:1`, `4:0` e `devolucao` continuam explicitamente marcados como convenção pendente de formalização
-  - os artefatos `.docx` de `05_processado/documentos_markdown/` continuam derivados intermediários
-- Limitações, gaps e riscos:
-  - essas fontes internas foram ancoradas no estado atual do app e da documentação, não em validação humana G5 concluída
-  - o objetivo aqui foi remover lacuna documental e alinhar linguagem interna ao que já existe no ScoutPraia, não congelar doutrina tática definitiva
-  - o bloqueio de RAG permanece inalterado
-
----
-
-## Ciclo — consolidação dos artefatos processados em Markdown
-
-- Fase declarada: `Fase 9 — saneamento dos derivados de processamento para uso futuro no plano`
-- O que foi implementado:
-  - comparação entre os `.docx` e os `.md` correspondentes em `beach_handball_ai/fontes/05_processado/`
-  - promoção do melhor conteúdo para `.md` em 17 pares de artefatos
-  - limpeza dos escapes indevidos de Markdown (`\\#`, `\\_`, `\\---`) nos `.md` preservados
-  - criação de `chunks_jsonl/CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md` a partir do `.docx` que não tinha equivalente `.md`
-  - transformação de `IHF_RULES_BH_2026_PT_TRANSLATION.md` em índice dos `.md` consolidados
-  - remoção de todos os `.docx` intermediários de `05_processado/`
-  - atualização do registro em `fontes_oficiais.csv`/`xlsx` e do `manifest_checksums.json` para refletir somente os `.md` consolidados
-- O que foi testado:
-  - extração local de texto dos `.docx` com `python3` e leitura de `word/document.xml`
-  - inspeção manual de pares representativos (`MD_PROCESSADO__IHF_UPDATE_BH_2026_04`, `MD_PROCESSADO__IHF_PAGE_BH_RULES_2026`, `REVISAO_CHUNKING_*`)
-  - busca residual por `.docx` em `05_processado/`, no `csv` e no `manifest`
-  - verificação de existência de `.docx` via `find` e `rglob`
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Resultado observado:
-  - `docx_exists False`
-  - `05_processado/` ficou apenas com `.md` e `manifest_checksums.json`
-  - `fontes_oficiais.csv` ficou sem referências residuais a `.docx`
-  - resumo de status passou a registrar `18` itens como `derivado_markdown_consolidado`
-  - `verify_current_state.sh`: verde com `git_head=63624c2`, `taxonomy=ScoutPraia v0.1`, `taxonomy_status=draft`, `event_definitions=31` e `226 passed`
-  - `git diff --check`: sem saída
-  - `git status --short`: ` M docs/IMPLEMENTATION_PROGRESS.md` e `?? beach_handball_ai/`
-- O que ainda não está pronto:
-  - os artefatos processados continuam derivados de apoio, não fontes normativas primárias
-  - eventual uso futuro desses `.md` em fase 2 ainda depende do desbloqueio formal de RAG
-- Limitações, gaps e riscos:
-  - a comparação privilegiou o conteúdo semanticamente mais completo e a formatação Markdown mais utilizável, não equivalência bit a bit com o `.docx`
-  - o índice `IHF_RULES_BH_2026_PT_TRANSLATION.md` aponta para os melhores `.md` consolidados, mas a regra normativa continua sendo o PDF IHF oficial em inglês
-  - o bloqueio de RAG permanece inalterado
-
----
-
-## Como registrar um novo ciclo
-
-Adicionar ao final deste arquivo:
-
-```markdown
-## Ciclo — <nome curto>
-
-Fase atual declarada: `<fase>`
-
-Status: `<status>`
-
-Implementado / executado:
-
-- ...
-
-Comandos executados:
-
-```bash
-...
-```
-
-Resultado observado:
-
-```text
-...
-```
-
-O que ainda não está pronto:
-
-- ...
-
-Limitações, gaps e riscos:
-
-- ...
-```
-
----
-
-## Ciclo — fusao das fontes internas CEPRAEA e remocao dos duplicados `*2`
-
-- Fase declarada: `Fase 9 — consolidacao semantica das fontes internas de apoio`
-- O que foi implementado:
-  - fusao do conteudo util de `glossario_tecnico_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/glossario_tecnico_cepraea.md`
-  - formalizacao no glossario dos termos internos `3:0`, `2:1`, `4:0`, `devolucao` e `ultimos 15 segundos`, mantendo o status de convencao interna e sem promover esses itens a evento ou KPI
-  - fusao do conteudo util de `playbook_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/playbook_cepraea.md`, com secao propria para sistemas e protocolos internos (`4:0`, `3:1`, `3:0`, `2:1`, `slide`, jogo passivo, ultimos 15 segundos e shoot-out)
-  - fusao do conteudo util de `criterios_taticos_cepraea2.md` em `beach_handball_ai/fontes/04_fontes_proprias_cepraea/criterios_taticos_cepraea.md`, reescrevendo as diretrizes como criterio interno condicional e nao como regra oficial ou KPI validado
-  - remocao dos arquivos duplicados `glossario_tecnico_cepraea2.md`, `playbook_cepraea2.md` e `criterios_taticos_cepraea2.md`
-- O que foi testado:
-  - inspecao manual dos trechos fundidos nos 3 arquivos canonicos
-  - verificacao de ausencia dos arquivos `*2` via `find`
-  - `git diff --check`
-  - `scripts/verify_current_state.sh`
-  - `git status --short`
-- Comandos executados:
-```bash
-find beach_handball_ai/fontes/04_fontes_proprias_cepraea -maxdepth 1 -type f | sort
-git diff --check
-scripts/verify_current_state.sh
-git status --short
-```
-- Resultado observado:
-```text
-find: permaneceram apenas criterios_taticos_cepraea.md, glossario_tecnico_cepraea.md, playbook_cepraea.md e scout_schema.md
-git diff --check: sem saida
-verify_current_state.sh: verde com git_head=63624c2, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 226 passed
-git status --short:  M docs/IMPLEMENTATION_PROGRESS.md e ?? beach_handball_ai/
-```
-- O que ainda nao esta pronto:
-  - os termos internos fundidos continuam como nomenclatura e playbook interno; nao viraram evento, KPI ou automacao do ScoutPraia
-  - a validacao humana G5 continua pendente e segue bloqueando qualquer liberacao de RAG
-  - o conteudo fundido ainda nao congela ontologia tatica final da equipe
-- Limitacoes, gaps e riscos:
-  - a fusao privilegiou o contrato metodologico do ScoutPraia e rebaixou afirmacoes absolutas dos arquivos `*2` para linguagem de convencao interna
-  - metas numericas rigidas e gatilhos automaticos dos arquivos `*2` nao foram canonizados como criterio estavel por falta de validacao observacional no repositorio
-  - o resultado melhora a consistencia documental do corpus CEPRAEA, mas nao substitui revisao tecnica humana da comissao para fechar doutrina interna definitiva
-
----
-
-## Ciclo — auditoria do corpus `beach_handball_ai/` para segundo commit controlado
-
-- Fase declarada: `Fase 9 — saneamento e versionamento controlado do corpus documental`
-- O que foi implementado:
-  - auditoria do restante de `beach_handball_ai/` ainda fora do Git apos o primeiro commit das fontes internas canonicas
-  - verificacao de que o corpus remanescente contem apenas plano, registros, fontes normativas/tecnicas, processados markdown e schema documental
-  - decisao de versionar controladamente o restante do corpus, incluindo PDFs oficiais, `fontes_oficiais.csv`/`.xlsx`, `manifest_checksums.json`, `scout_schema.md`, markdowns processados e `plano_de_acao.md`
-- O que foi testado:
-  - listagem completa de arquivos com tamanho em bytes
-  - busca negativa por extensoes proibidas ou indevidas para o repositório (`.db`, `.sqlite`, `.mp4`, `.mov`, `.avi`, `.mkv`, `.env`, `.pyc`, `.zip`, `.tar`, `.gz`, `.bin`)
-  - busca por referencias residuais a `*2` no corpus
-  - `git status --short`
-- Comandos executados:
-```bash
-find beach_handball_ai -type f -printf '%P\t%s bytes\n' | sort
-find beach_handball_ai -type f | rg '\.(db|sqlite|sqlite3|mp4|mov|avi|mkv|env|pyc|zip|tar|gz|bin)$' -n || true
-rg -n "cepraea2|playbook_cepraea2|glossario_tecnico_cepraea2|criterios_taticos_cepraea2" beach_handball_ai docs -S
-git status --short
-```
-- Resultado observado:
-```text
-nenhum arquivo proibido encontrado em beach_handball_ai/
-restante do corpus composto por fontes PDF oficiais, registro tabular, markdowns processados, schema documental e plano
-referencias a `*2` restaram apenas no historico de docs/IMPLEMENTATION_PROGRESS.md
-git status --short mostrou apenas itens documentais de beach_handball_ai/ ainda nao rastreados
-```
-- O que ainda nao esta pronto:
-  - o versionamento do corpus nao libera RAG nem substitui validacao humana G5
-  - os markdowns de `05_processado/` continuam derivados de apoio, nao fontes normativas primarias
-- Limitacoes, gaps e riscos:
-  - este ciclo decide apenas sobre versionamento seguro do corpus; nao revalida o merito tecnico individual de cada PDF ou markdown
-  - o corpus inclui binarios documentais legitimos (`.pdf` e `.xlsx`), o que aumenta o peso do repositório mas foi considerado aceitavel por serem fontes de trabalho do projeto
-
----
-
-## Ciclo — normalizacao de whitespace no corpus `beach_handball_ai`
-
-- Fase declarada: `Fase 9 — saneamento final antes do push do corpus documental`
-- O que foi implementado:
-  - conversao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` de `CRLF` para `LF`
-  - remocao de trailing whitespace em `beach_handball_ai/fontes/01_ihf_regras/atualizacoes_ihf_2026.md`
-  - remocao de trailing whitespace em `beach_handball_ai/fontes/01_ihf_regras/pagina_ihf_rules_beach_handball.md`
-  - remocao de trailing whitespace em `beach_handball_ai/plano_de_acao.md`
-- O que foi testado:
-  - `git diff --check`
-  - `git status --short`
-- Comandos executados:
-```bash
-perl -0pi -e 's/\r\n/\n/g; s/[ \t]+\n/\n/g' beach_handball_ai/fontes/00_registro/fontes_oficiais.csv beach_handball_ai/fontes/01_ihf_regras/atualizacoes_ihf_2026.md beach_handball_ai/fontes/01_ihf_regras/pagina_ihf_rules_beach_handball.md beach_handball_ai/plano_de_acao.md
-git diff --check
-git status --short
-```
-- Resultado observado:
-```text
-git diff --check: sem saida
-whitespace residual removido do csv e dos markdowns auditados
-```
-- O que ainda nao esta pronto:
-  - o push do corpus ainda depende do fechamento do commit local correspondente
-- Limitacoes, gaps e riscos:
-  - a normalizacao alterou apenas terminadores de linha e espacos finais; nao houve mudanca semantica do conteudo
-
----
-
-## Ciclo — Etapa 3 do plano de acao: metadados tematicos pre-chunking
-
-- Fase declarada: `Fase 9 — preparacao documental da Etapa 3 sem liberar RAG`
-- O que foi implementado:
-  - criacao de `beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl` com inventario de registros pre-chunking
-  - atribuicao dos campos obrigatorios `source_id`, `tema`, `subtema`, `organizacao`, `versao`, `confiabilidade` e `arquivo` para trechos/fontes do corpus atual
-  - cobertura dos temas normalizados `regra`, `arbitragem`, `tecnica`, `tatica`, `treino`, `scout`, `nomenclatura`, `analise_de_adversario` e `cepraea_playbook`
-  - marcacao explicita de `pronto_para_chunking=true` para trechos ja processados e `pronto_para_chunking=false` para fontes ainda bloqueadas pela Etapa 2
-  - atualizacao de `beach_handball_ai/fontes/05_processado/manifest_checksums.json` para incluir o novo artefato
-  - adicao de `tests/test_stage3_thematic_metadata.py` para validar esquema, cobertura tematica e existencia dos arquivos referenciados
-- O que foi testado:
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-  - `git status --short`
-- Comandos executados:
-```bash
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-git status --short
-```
-- Resultado observado:
-```text
-teste dedicado de metadata: 1 passed in 0.02s
-suite completa: 227 passed in 14.68s
-verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 227 passed in 13.39s
-git diff --check: sem saida
-git status --short: M beach_handball_ai/fontes/05_processado/manifest_checksums.json; ?? beach_handball_ai/fontes/05_processado/chunks_jsonl/METADADOS_TEMATICOS_ETAPA_3.jsonl; ?? tests/test_stage3_thematic_metadata.py
-```
-- O que ainda nao esta pronto:
-  - a Etapa 3 ficou `PARCIAL`, porque parte das fontes EHF ainda nao passou integralmente pela Etapa 2 de conversao para markdown/txt
-  - a Etapa 4 de chunking ainda nao foi iniciada
-  - embeddings, Chroma, teste de recuperacao e agente textual continuam fora do escopo deste ciclo
-- Limitacoes, gaps e riscos:
-  - os registros de EHF em `METADADOS_TEMATICOS_ETAPA_3.jsonl` estao como `pendente_etapa_2_conversao_texto`; eles organizam a fila semantica, mas nao sustentam chunking ainda
-  - os trechos IHF liberados foram mapeados a partir dos arquivos de revisao de chunking, nao de chunks finais ja cortados
-  - este ciclo prepara a base de metadados e de priorizacao tematica, mas nao cumpre sozinho o criterio de aceite final da Etapa 3 do plano para um banco vetorial operacional
-
----
-
-## Ciclo — Etapa 1 e Etapa 2 do plano de acao: registro real de fontes e conversao PDF para markdown
-
-- Fase declarada: `Fase 9 — governanca documental do corpus sem liberar RAG`
-- O que foi implementado:
-  - criacao de `scripts/refresh_fontes_registry_and_processados.py` para reconstruir o registro, recalcular checksums, sincronizar a planilha e gerar markdown processado para cada PDF com `source_id` no frontmatter
-  - atualizacao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv` e `fontes_oficiais.xlsx` para cobrir integralmente `docs/sources/` e `beach_handball_ai/fontes/`
-  - geracao ou atualizacao de `beach_handball_ai/fontes/05_processado/manifest_checksums.json`
-  - geracao de markdowns diretos `MD_PROCESSADO__{source_id}.md` em `beach_handball_ai/fontes/05_processado/documentos_markdown/` para todos os PDFs catalogados
-  - adicao de `tests/test_stage1_stage2_sources_registry.py` para validar cobertura do registro, unicidade de `source_id`, campos obrigatorios e rastreabilidade dos PDFs convertidos
-  - correcao do gerador CSV para escrever com `LF`, eliminando a falha de `git diff --check`
-- O que foi testado:
-  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-  - revisao manual de amostras em `MD_PROCESSADO__IHF_RULES_BH_2026_EN.md` e `MD_PROCESSADO__CBHB_REGULAMENTO_BH_2026.md`
-- Comandos executados:
-```bash
-python3 scripts/refresh_fontes_registry_and_processados.py
-python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-```
-- Resultado observado:
-```text
-registro consolidado: 65 source_id unicos
-cobertura do catalogo: 100% dos arquivos de docs/sources e beach_handball_ai/fontes registrados
-pdfs catalogados: 16
-markdowns processados rastreaveis em 05_processado/documentos_markdown: 31
-teste dedicado Etapa 1/2: 1 passed
-teste dedicado Etapa 3: 1 passed
-suite completa: 228 passed
-git diff --check: sem saida
-```
-- O que ainda nao esta pronto:
-  - a Etapa 1 ficou `FUNCIONANDO COM EVIDENCIA`
-  - a Etapa 2 ficou `PARCIAL`, porque a conversao estrutural dos PDFs foi concluida, mas a revisao manual integral das tabelas importantes e de todos os apendices ainda nao foi encerrada
-  - o corpus processado continua bloqueado para RAG principal quando o registro marca artefato derivado, fonte D/secundaria ou item ainda pendente de revisao manual
-- Limitacoes, gaps e riscos:
-  - os arquivos `MD_PROCESSADO__*.md` preservam rastreabilidade e estrutura basica, mas ainda podem carregar artefatos tipicos de `pdftotext -layout` em tabelas complexas e seções graficas
-  - parte dos artefatos antigos de `05_processado/` continua no catalogo como derivado historico do fluxo anterior; isso e intencional para auditoria, nao para promover esses artefatos a fonte primaria
-  - a proxima acao correta dentro deste subplano e concluir a revisao manual das tabelas/apendices criticos da Etapa 2 antes de tratar a Etapa 2 como aprovada sem ressalvas
-
----
-
-## Ciclo — revisao manual assistida da Etapa 2 e realinhamento da Etapa 3
-
-- Fase declarada: `Fase 9 — consolidacao documental do corpus processado sem liberar RAG`
-- O que foi implementado:
-  - revisao manual assistida dos markdowns processados mais criticos da Etapa 2, com atualizacao de status e observacao no registro e no frontmatter dos arquivos gerados
-  - promocao de `11` processados para estados `revisado_manual_*` no registro:
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_EN`
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_WORKING_COPY`
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_PT_TRANSLATION`
-    - `MD_PROCESSADO_SRC_IHF_RULES_FILE`
-    - `MD_PROCESSADO_FHERJ_MUDANCAS_REGRAS_BH_2026`
-    - `MD_PROCESSADO_FHERJ_ESCLARECIMENTOS_REGRAS_2025`
-    - `MD_PROCESSADO_CBHB_REGULAMENTO_BH_2026`
-    - `MD_PROCESSADO_REFEREEING_BEACH_HANDBALL`
-    - `MD_PROCESSADO_SHOOTOUT_PSYCHOLOGICAL_PRESSURE`
-    - `MD_PROCESSADO_ULTIMATE_SCHOOL_HANDBALL_2025`
-    - `MD_PROCESSADO_MINI_BEACH_HANDBALL_INFO_SHEET`
-  - manutencao de `5` processados como pendentes de revisao manual integral:
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_DE`
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_FR`
-    - `MD_PROCESSADO_SRC_NOTATIONAL_BH_IANNACCONE_2022`
-    - `MD_PROCESSADO_SRC_RAG_STRUCTURED_FILE`
-    - `MD_PROCESSADO_SRC_WOMENS_BH_STATISTICS_2022`
-  - endurecimento de `tests/test_stage1_stage2_sources_registry.py` com anchors criticos para regras IHF, FHERJ, CBHb e materiais EHF revisados
-  - realinhamento de `METADADOS_TEMATICOS_ETAPA_3.jsonl` para apontar caminhos existentes, incluindo `_rascunhos/` historicos e os markdowns EHF agora processados
-  - ajuste de `tests/test_stage3_thematic_metadata.py` para validar consistencia do inventario sem pressupor que sempre exista pelo menos um item pendente
-- O que foi testado:
-  - `python3 scripts/refresh_fontes_registry_and_processados.py`
-  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-- Comandos executados:
-```bash
-python3 scripts/refresh_fontes_registry_and_processados.py
-python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-```
-- Resultado observado:
-```text
-teste Etapa 1/2: 1 passed in 0.04s
-teste Etapa 3: 1 passed in 0.07s
-suite completa: 228 passed in 20.81s
-verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 228 passed in 20.81s
-git diff --check: sem saida
-```
-- O que ainda nao esta pronto:
-  - a Etapa 2 continua `PARCIAL`, porque a revisao manual integral ainda nao cobriu as versoes IHF em alemao e frances nem os PDFs cientificos de `docs/sources`
-  - a Etapa 3 continua `PARCIAL`, porque o inventario tematico foi corrigido e ampliado, mas a Etapa 4 de chunking ainda nao foi iniciada
-  - o RAG segue bloqueado por contrato global do ScoutPraia, independentemente do estado do corpus processado
-- Limitacoes, gaps e riscos:
-  - mesmo nos itens promovidos para `revisado_manual_*`, figuras, fotos de sinais de arbitragem, layouts visuais de uniforme e graficos continuam dependendo do PDF original
-  - os arquivos em `documentos_markdown/_rascunhos/` permanecem como historico de processo e nao devem ser tratados como fonte final preferencial
-  - o workspace continua documentalmente sujo porque este ciclo apenas consolidou evidencia e artefatos; nao houve commit neste turno
-
----
-
-## Ciclo — fechamento da revisao manual dos 5 processados pendentes da Etapa 2
-
-- Fase declarada: `Fase 9 — fechamento documental da Etapa 2 com evidencia`
-- O que foi implementado:
-  - revisao manual assistida dos 5 processados restantes:
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_DE`
-    - `MD_PROCESSADO_IHF_RULES_BH_2026_FR`
-    - `MD_PROCESSADO_SRC_NOTATIONAL_BH_IANNACCONE_2022`
-    - `MD_PROCESSADO_SRC_RAG_STRUCTURED_FILE`
-    - `MD_PROCESSADO_SRC_WOMENS_BH_STATISTICS_2022`
-  - promocao dos 5 para status `revisado_manual_*` no `fontes_oficiais.csv`/`.xlsx`
-  - inclusao de notas de revisao manual no frontmatter dos markdowns correspondentes
-  - ampliacao de `tests/test_stage1_stage2_sources_registry.py` com anchors criticos para as versoes IHF DE/FR e para os 3 artigos cientificos
-  - atualizacao de `METADADOS_TEMATICOS_ETAPA_3.jsonl` para incluir esses documentos como `ready_for_chunking`
-- O que foi testado:
-  - `python3 scripts/refresh_fontes_registry_and_processados.py`
-  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-- Comandos executados:
-```bash
-python3 scripts/refresh_fontes_registry_and_processados.py
-python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-```
-- Resultado observado:
-```text
-processados revisados manualmente: 16
-processados ainda pendentes de revisao manual: 0
-teste Etapa 1/2: 1 passed in 0.11s
-teste Etapa 3: 1 passed in 0.04s
-suite completa: 228 passed in 20.60s
-verify_current_state.sh: verde com git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 228 passed in 20.60s
-git diff --check: sem saida
-```
-- O que ainda nao esta pronto:
-  - a Etapa 2 pode ser tratada como `CONCLUIDA COM EVIDENCIA` no escopo documental do plano de acao
-  - a Etapa 3 continua `PARCIAL`, mas nao mais por falta de conversao/revisao dos PDFs; o pendente real agora e o chunking da Etapa 4 e o restante da fase RAG
-  - o RAG segue bloqueado pelo contrato global do ScoutPraia enquanto G5 e os gates do MVP principal nao forem fechados
-- Limitacoes, gaps e riscos:
-  - fechamento da Etapa 2 nao elimina a preferencia pelo PDF original quando a pergunta depender de figura, layout visual, diagrama ou detalhe grafico fino
-  - as versoes linguisticas DE/FR da IHF foram revisadas como copias normativas de conferencia, nao como fonte operacional principal acima da versao EN/PT
-
----
-
-## Ciclo — coerencia final do registro CSV/XLSX e abas auxiliares
-
-- Fase declarada: `Fase 9 — governanca documental do corpus sem liberar RAG`
-- O que foi implementado:
-  - correcao do tratamento de checksum ciclico em `scripts/refresh_fontes_registry_and_processados.py` para `fontes_oficiais.csv`, `fontes_oficiais.xlsx` e `manifest_checksums.json`
-  - adocao da sentinela `CONTROLE_CICLICO_VER_MANIFESTO` no registro e `AUTOREFERENCIA_EXCLUIDA_DO_HASH` no manifest para impedir falso hash autoreferencial
-  - regeneracao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.csv`
-  - regeneracao de `beach_handball_ai/fontes/00_registro/fontes_oficiais.xlsx`
-  - atualizacao programatica das abas `auditoria_organizacao`, `proxima_acao`, `revisao_cruzada` e `matriz_chunks_final` a partir do estado canonico do repo e do `METADADOS_TEMATICOS_ETAPA_3.jsonl`
-  - adicao de `tests/test_stage_registry_workbook_views.py` para validar a coerencia das abas auxiliares e do manifest
-- O que foi testado:
-  - `python3 scripts/refresh_fontes_registry_and_processados.py`
-  - `python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q`
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest tests/test_stage_registry_workbook_views.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-- Comandos executados:
-```bash
-python3 scripts/refresh_fontes_registry_and_processados.py
-python3 -m pytest tests/test_stage1_stage2_sources_registry.py -q
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest tests/test_stage_registry_workbook_views.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-```
-- Resultado observado:
-```text
-teste Etapa 1/2: 1 passed in 0.09s
-teste Etapa 3: 1 passed in 0.03s
-teste workbook/manifest: 1 passed in 0.60s
-suite completa: 229 passed in 22.43s
-verify_current_state.sh: verde com date_utc=2026-06-11T18:36:25Z, git_head=891abdb, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 229 passed in 23.75s
-git diff --check: sem saida
-```
-- O que ainda nao esta pronto:
-  - a Etapa 4 do plano de acao ainda nao foi executada; a aba `matriz_chunks_final` agora e uma matriz honesta de chunking planejado, nao chunks finais gerados
-  - embeddings, Chroma, prompt do agente textual e avaliacao de 30 perguntas continuam bloqueados pelo gate global do ScoutPraia ate G5
-  - o workspace segue documentalmente sujo por mudancas anteriores do corpus processado que nao foram versionadas neste turno
-- Limitacoes, gaps e riscos:
-  - os hashes reais de `fontes_oficiais.csv` e `fontes_oficiais.xlsx` devem ser auditados pelo `manifest_checksums.json`; o proprio registro nao pode carregar esse valor sem reintroduzir ciclo
-  - as abas auxiliares passam a refletir o estado atual do repo, mas dependem de reexecucao do script de refresh sempre que o corpus ou o JSONL da Etapa 3 mudar
-  - a proxima acao recomendada dentro deste subplano e executar a Etapa 4 de chunking mantendo separacao estrita entre IHF, CBHb, EHF e CEPRAEA
-
----
-
-## Ciclo — execucao da Etapa 4 de chunking estruturado
-
-- Fase declarada: `Fase 9 — governanca documental do corpus com chunking concluido e RAG ainda bloqueado`
-- O que foi implementado:
-  - extensao de `scripts/refresh_fontes_registry_and_processados.py` para gerar automaticamente os artefatos da Etapa 4:
-    - `beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_CORPUS.jsonl`
-    - `beach_handball_ai/fontes/05_processado/chunks_jsonl/CHUNKS_ETAPA_4_AUDITORIA.md`
-  - conversao do artefato legado `CHUNKS_FINAIS_RAG_IHF_RULES_BH_2026_PT.md` para JSONL estruturado por unidade, mantendo-o apenas como base historica auditavel
-  - geracao de chunks reais para o corpus aprovado da Etapa 3 com `chunk_id`, `source_id`, `tema`, `subtema`, `organizacao`, `versao`, `confiabilidade`, `status`, `arquivo_origem`, `token_count_aprox` e `overlap_tokens_aprox`
-  - marcacao explicita dos `_rascunhos/` historicos da revisao IHF como `status=deprecated`
-  - atualizacao do `fontes_oficiais.csv`/`.xlsx` para registrar os novos artefatos de chunking e promover `matriz_chunks_final` de planejamento para visao derivada dos chunks reais
-  - adicao de `tests/test_stage4_chunk_inventory.py` e ajuste de `tests/test_stage_registry_workbook_views.py` para validar o estado final da Etapa 4
-- O que foi testado:
-  - `python3 scripts/refresh_fontes_registry_and_processados.py`
-  - `python3 -m pytest tests/test_stage3_thematic_metadata.py -q`
-  - `python3 -m pytest tests/test_stage4_chunk_inventory.py -q`
-  - `python3 -m pytest tests/test_stage_registry_workbook_views.py -q`
-  - `python3 -m pytest`
-  - `scripts/verify_current_state.sh`
-  - `git diff --check`
-- Comandos executados:
-```bash
-python3 scripts/refresh_fontes_registry_and_processados.py
-python3 -m pytest tests/test_stage3_thematic_metadata.py -q
-python3 -m pytest tests/test_stage4_chunk_inventory.py -q
-python3 -m pytest tests/test_stage_registry_workbook_views.py -q
-python3 -m pytest
-scripts/verify_current_state.sh
-git diff --check
-```
-- Resultado observado:
-```text
-teste Etapa 3: 1 passed in 0.06s
-teste Etapa 4: 1 passed in 0.15s
-teste workbook/manifest: 1 passed in 0.35s
-suite completa: 247 passed in 22.60s
-verify_current_state.sh: verde com date_utc=2026-06-11T19:02:38Z, git_head=2cb5b44, taxonomy=ScoutPraia v0.1, taxonomy_status=draft, event_definitions=31 e 247 passed in 19.12s
-git diff --check: sem saida
-```
-- O que ainda nao esta pronto:
-  - a Etapa 5 do plano textual nao pode avancar operacionalmente porque embeddings/Chroma continuam bloqueados pelo gate global do ScoutPraia enquanto `G5` nao for fechado
-  - o MVP principal continua `PARCIAL` na Fase 9 do contrato global; o chunking documental nao libera RAG por si so
-  - o corpus de chunks ainda nao foi submetido a teste de recuperacao vetorial, porque isso pertence as Etapas 5 e 5.1 do subplano
-- Limitacoes, gaps e riscos:
-  - parte dos chunks IHF ativos veio de curadoria legada convertida (`curadoria_legada_convertida`), preservando fronteiras normativas melhores que um corte cego, mas sem overlap tecnico obrigatorio
-  - chunks com `ativo_com_ressalva` continuam dependentes do PDF original quando a pergunta exigir figura, tabela, diagrama ou detalhe visual fino
-  - `_rascunhos/` foi preservado apenas para auditoria; o banco principal deve ignorar todos os chunks com `status=deprecated`
+- 31 definições de eventos.
+- Seed idempotente em `scoutpraia/services/taxonomy_service.py`.
+- Status global da taxonomia: `draft`.
