@@ -13,15 +13,22 @@ Examples:
         --xlsx docs/SCOUT_DESIGN_TEMPLATE.xlsx \
         --output docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.jsonl \
         --format jsonl
+
+    PYTHONPATH=. python3 scripts/export_scout_design_template_full_extraction.py \
+        --xlsx docs/SCOUT_DESIGN_TEMPLATE.xlsx \
+        --output docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json \
+        --verify
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
 from dataclasses import dataclass
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -91,6 +98,33 @@ DOMAIN_VALUE_SHEETS = frozenset(
     }
 )
 
+# Cross-references between chunk types — which sheets an agent MUST also consult.
+CROSS_REFERENCES: dict[str, list[str]] = {
+    "event_registry": [
+        "FIELD_DICTIONARY_GLOBAL",
+        "EVENT_REQUIRED_FIELDS",
+        "EVENT_OPTIONAL_FIELDS",
+        "EVENT_FORBIDDEN_FIELDS",
+        "RESULT_DOMAIN_GLOBAL",
+        "DECISION_PRECEDENCE",
+        "SCORER_ROLES",
+    ],
+    "normalized_event_rules": ["EVENTOS", "FIELD_DICTIONARY_GLOBAL", "RESULT_DOMAIN_GLOBAL"],
+    "result_domain": ["EVENTOS", "EVENT_REQUIRED_FIELDS"],
+    "field_dictionary": ["EVENTOS", "EVENT_REQUIRED_FIELDS"],
+    "legacy_migration": ["EVENTOS"],
+    "cross_module_boundaries": ["MODULE_INDEX", "EVENTOS"],
+    "test_cases": [
+        "EVENTOS",
+        "EVENT_REQUIRED_FIELDS",
+        "EVENT_OPTIONAL_FIELDS",
+        "RESULT_DOMAIN_GLOBAL",
+        "FIELD_DICTIONARY_GLOBAL",
+    ],
+    "domain_values": ["FIELD_DICTIONARY_GLOBAL", "EVENTOS"],
+    "decision_precedence": ["EVENTOS", "CROSS_MODULE_BOUNDARIES"],
+}
+
 REQUIRED_RULE_TEXT = " ".join(
     [
         "specialist não é event_code; event_code=specialist_shot proibido",
@@ -120,8 +154,13 @@ def normalize_cell(value: Any) -> Any:
     if isinstance(value, str):
         text = value.strip()
         return text if text else None
-    if isinstance(value, float) and math.isfinite(value) and value.is_integer():
-        return int(value)
+    # datetime must come before date (it is a subclass)
+    if isinstance(value, (datetime, date, time)):
+        return value.isoformat()
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            return None
+        return int(value) if value.is_integer() else value
     return value
 
 
@@ -234,6 +273,10 @@ def infer_agent_use(sheet_name: str) -> str:
     return mapping.get(chunk_type, "inspect_sheet_content")
 
 
+def infer_cross_reference_sheets(chunk_type: str) -> list[str]:
+    return CROSS_REFERENCES.get(chunk_type, [])
+
+
 def chunk_rows(sheet_rows: SheetRows, *, rows_per_chunk: int) -> list[dict[str, Any]]:
     if not sheet_rows.rows:
         return [
@@ -269,52 +312,99 @@ def make_chunk_id(index: int) -> str:
 
 def build_chunks(xlsx_path: Path, *, rows_per_chunk: int) -> dict[str, Any]:
     workbook = load_workbook(xlsx_path, read_only=True, data_only=True)
+    source_hash = hashlib.md5(xlsx_path.read_bytes()).hexdigest()
     try:
         chunks: list[dict[str, Any]] = []
         for worksheet in workbook.worksheets:
             sheet_rows = extract_sheet_rows(worksheet)
             sheet_chunks = chunk_rows(sheet_rows, rows_per_chunk=rows_per_chunk)
-            for sheet_chunk in sheet_chunks:
+            total_chunks_for_sheet = len(sheet_chunks)
+            total_sheet_rows = len(sheet_rows.rows)
+            sheet_name = sheet_rows.sheet_name
+            chunk_type = infer_chunk_type(sheet_name)
+            cross_refs = infer_cross_reference_sheets(chunk_type)
+
+            for chunk_index, sheet_chunk in enumerate(sheet_chunks, start=1):
                 chunk_id = make_chunk_id(len(chunks) + 1)
                 row_start = sheet_chunk["row_start"]
                 row_end = sheet_chunk["row_end"]
-                sheet_name = sheet_rows.sheet_name
-                content = {
+                content: dict[str, Any] = {
                     "headers": sheet_chunk["headers"],
                     "rows": sheet_chunk["rows"],
                     "empty_sheet": sheet_chunk["empty_sheet"],
                 }
-                if chunk_id == "SDT-SHEET-0001":
+                # Propagate global rules to ALL critical sheet chunks (not just the first chunk)
+                if sheet_name in CRITICAL_SHEETS:
                     content["required_global_rules_for_auditor"] = REQUIRED_RULE_TEXT
                 chunks.append(
                     {
                         "chunk_id": chunk_id,
                         "title": f"{sheet_name} rows {row_start}-{row_end}",
-                        "theme": infer_chunk_type(sheet_name),
+                        "theme": chunk_type,
                         "priority": infer_priority(sheet_name),
                         "agent_use": infer_agent_use(sheet_name),
                         "sheet_name": sheet_name,
                         "source_sheets": [sheet_name],
-                        "chunk_type": infer_chunk_type(sheet_name),
+                        "chunk_type": chunk_type,
                         "module_id": infer_module_id(sheet_name),
                         "row_range": f"{row_start}-{row_end}",
+                        "chunk_index_in_sheet": chunk_index,
+                        "total_chunks_for_sheet": total_chunks_for_sheet,
+                        "total_sheet_rows": total_sheet_rows,
+                        "cross_reference_sheets": cross_refs,
                         "source_type": "SCOUT_DESIGN_TEMPLATE.xlsx",
                         "content": content,
                     }
                 )
+
+        # Build navigation index: compact map of all sheets → their chunk_ids
+        navigation_index: dict[str, Any] = {}
+        for chunk in chunks:
+            sn = chunk["sheet_name"]
+            if sn not in navigation_index:
+                navigation_index[sn] = {
+                    "sheet_name": sn,
+                    "priority": chunk["priority"],
+                    "chunk_type": chunk["chunk_type"],
+                    "module_id": chunk["module_id"],
+                    "agent_use": chunk["agent_use"],
+                    "total_chunks": chunk["total_chunks_for_sheet"],
+                    "total_rows": chunk["total_sheet_rows"],
+                    "chunk_ids": [],
+                }
+            navigation_index[sn]["chunk_ids"].append(chunk["chunk_id"])
+
         return {
             "document_id": "SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION",
             "source_workbook": str(xlsx_path),
+            "source_workbook_md5": source_hash,
             "format": "json_chunks_full_sheet_extraction",
             "expected_sheet_count": len(workbook.sheetnames),
             "sheet_names": workbook.sheetnames,
             "rows_per_chunk": rows_per_chunk,
             "chunk_count": len(chunks),
             "usage_rule": "Full extraction for audit and retrieval. Does not replace executable contracts, tests or human spreadsheet.",
+            "navigation_index": list(navigation_index.values()),
             "chunks": chunks,
         }
     finally:
         workbook.close()
+
+
+def verify_output(output_path: Path, payload: dict[str, Any]) -> None:
+    raw = json.loads(output_path.read_text(encoding="utf-8"))
+    if raw["chunk_count"] != len(raw["chunks"]):
+        raise SystemExit(f"verify FAIL: chunk_count={raw['chunk_count']} mas len(chunks)={len(raw['chunks'])}")
+    if raw["chunk_count"] != payload["chunk_count"]:
+        raise SystemExit(f"verify FAIL: payload chunk_count={payload['chunk_count']} != file chunk_count={raw['chunk_count']}")
+    empty_critical = [
+        c["sheet_name"] for c in raw["chunks"]
+        if c.get("content", {}).get("empty_sheet") and c["sheet_name"] in CRITICAL_SHEETS
+    ]
+    if empty_critical:
+        raise SystemExit(f"verify FAIL: critical sheets vazias: {empty_critical}")
+    nav_count = len(raw.get("navigation_index", []))
+    print(f"verify=ok chunks={raw['chunk_count']} navigation_index_sheets={nav_count} critical_sheets_ok=True")
 
 
 def write_output(payload: dict[str, Any], output_path: Path, *, output_format: str) -> None:
@@ -333,6 +423,7 @@ def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     parser.add_argument("--output", required=True, type=Path, help="Arquivo de saída .json ou .jsonl")
     parser.add_argument("--format", choices=("json", "jsonl"), default="json", help="Formato de saída")
     parser.add_argument("--rows-per-chunk", type=int, default=25, help="Quantidade máxima de linhas de dados por chunk")
+    parser.add_argument("--verify", action="store_true", default=False, help="Valida integridade do arquivo gerado após escrita")
     return parser.parse_args(list(argv))
 
 
@@ -344,10 +435,14 @@ def main(argv: Iterable[str] | None = None) -> int:
     write_output(payload, args.output, output_format=args.format)
     print("== SCOUT_DESIGN_TEMPLATE full extraction export ==")
     print(f"source={args.xlsx}")
+    print(f"source_md5={payload['source_workbook_md5']}")
     print(f"output={args.output}")
     print(f"format={args.format}")
     print(f"sheet_count={payload['expected_sheet_count']}")
     print(f"chunk_count={payload['chunk_count']}")
+    print(f"navigation_index_sheets={len(payload['navigation_index'])}")
+    if args.verify:
+        verify_output(args.output, payload)
     return 0
 
 

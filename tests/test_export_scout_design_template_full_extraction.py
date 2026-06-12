@@ -63,7 +63,22 @@ def test_exported_json_passes_full_extraction_audit(tmp_path: Path) -> None:
         full_extraction=True,
     )
 
-    assert report.ok
+    # O workbook fictício tem apenas 3 abas, faltam 18 críticas → deve falhar em full_extraction
+    error_codes = {f.code for f in report.errors}
+    assert "critical_sheets_missing_from_chunks" in error_codes
+
+
+def test_missing_critical_sheet_raises_error_in_full_extraction(tmp_path: Path) -> None:
+    xlsx_path = tmp_path / "template.xlsx"
+    output_path = tmp_path / "out.json"
+    make_workbook(xlsx_path)
+
+    payload = build_chunks(xlsx_path, rows_per_chunk=25)
+    write_output(payload, output_path, output_format="json")
+
+    report = audit_extraction(chunks_path=output_path, xlsx_path=xlsx_path, full_extraction=True)
+    error_codes = {f.code for f in report.errors}
+    assert "critical_sheets_missing_from_chunks" in error_codes
 
 
 def test_exported_jsonl_contains_one_json_object_per_chunk(tmp_path: Path) -> None:

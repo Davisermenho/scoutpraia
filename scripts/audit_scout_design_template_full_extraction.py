@@ -246,7 +246,12 @@ def validate_sheet_coverage(
             )
 
 
-def validate_critical_sheet_presence(chunks: list[dict[str, Any]], report: AuditReport) -> None:
+def validate_critical_sheet_presence(
+    chunks: list[dict[str, Any]],
+    report: AuditReport,
+    *,
+    full_extraction: bool = False,
+) -> None:
     covered: set[str] = set()
     for chunk in chunks:
         covered.update(chunk_sheet_names(chunk))
@@ -259,11 +264,96 @@ def validate_critical_sheet_presence(chunks: list[dict[str, Any]], report: Audit
         return
     missing_critical = sorted(CRITICAL_SHEETS - covered)
     if missing_critical:
+        severity = "error" if full_extraction else "warning"
         report.add(
-            "warning",
+            severity,
             "critical_sheets_missing_from_chunks",
             f"Abas críticas sem chunk direto: {', '.join(missing_critical)}",
         )
+
+
+def validate_critical_sheets_not_empty(chunks: list[dict[str, Any]], report: AuditReport) -> None:
+    for chunk in chunks:
+        sheet = chunk.get("sheet_name", "")
+        if sheet not in CRITICAL_SHEETS:
+            continue
+        content = chunk.get("content", {})
+        if isinstance(content, dict) and content.get("empty_sheet") is True:
+            report.add(
+                "error",
+                "critical_sheet_empty",
+                f"Aba crítica sem dados: {sheet}",
+                chunk.get("chunk_id", ""),
+            )
+
+
+def _collect_field_values(
+    chunks: list[dict[str, Any]], sheet_name: str, field_key: str
+) -> set[str]:
+    values: set[str] = set()
+    for chunk in chunks:
+        if chunk.get("sheet_name") != sheet_name:
+            continue
+        for row in chunk.get("content", {}).get("rows", []):
+            val = row.get(field_key)
+            if isinstance(val, str) and val.strip():
+                values.add(val.strip())
+    return values
+
+
+def validate_cross_sheet_consistency(chunks: list[dict[str, Any]], report: AuditReport) -> None:
+    eventos_codes = _collect_field_values(chunks, "EVENTOS", "event_code")
+    rule_codes = (
+        _collect_field_values(chunks, "EVENT_REQUIRED_FIELDS", "event_code")
+        | _collect_field_values(chunks, "EVENT_OPTIONAL_FIELDS", "event_code")
+        | _collect_field_values(chunks, "EVENT_FORBIDDEN_FIELDS", "event_code")
+    )
+    result_domain = _collect_field_values(chunks, "RESULT_DOMAIN_GLOBAL", "result_code")
+    eventos_results = _collect_field_values(chunks, "EVENTOS", "result_allowed")
+    field_dict_codes = _collect_field_values(chunks, "FIELD_DICTIONARY_GLOBAL", "field_code")
+    req_field_codes = _collect_field_values(chunks, "EVENT_REQUIRED_FIELDS", "field_code")
+
+    if eventos_codes and rule_codes:
+        orphan_events = sorted(eventos_codes - rule_codes)
+        if orphan_events:
+            report.add(
+                "warning",
+                "event_code_without_field_rules",
+                f"event_codes em EVENTOS sem linhas em EVENT_*_FIELDS: {', '.join(orphan_events[:10])}",
+            )
+
+    if result_domain and eventos_results:
+        invalid_results = sorted(eventos_results - result_domain)
+        if invalid_results:
+            report.add(
+                "warning",
+                "result_code_not_in_domain",
+                f"result_code em EVENTOS ausentes de RESULT_DOMAIN_GLOBAL: {', '.join(invalid_results[:10])}",
+            )
+
+    if field_dict_codes and req_field_codes:
+        orphan_fields = sorted(req_field_codes - field_dict_codes)
+        if orphan_fields:
+            report.add(
+                "warning",
+                "field_code_not_in_dictionary",
+                f"field_code em EVENT_REQUIRED_FIELDS ausentes de FIELD_DICTIONARY_GLOBAL: {', '.join(orphan_fields[:10])}",
+            )
+
+
+def validate_cross_reference_integrity(chunks: list[dict[str, Any]], report: AuditReport) -> None:
+    present_sheets = {chunk.get("sheet_name") for chunk in chunks if chunk.get("sheet_name")}
+    for chunk in chunks:
+        cross_refs = chunk.get("cross_reference_sheets") or []
+        for ref in cross_refs:
+            if ref not in present_sheets:
+                report.add(
+                    "warning",
+                    "cross_reference_sheet_missing",
+                    f"cross_reference_sheet '{ref}' não tem chunks no JSON",
+                    chunk.get("chunk_id", ""),
+                )
+                break
 
 
 def validate_required_rules(metadata: dict[str, Any], chunks: list[dict[str, Any]], report: AuditReport) -> None:
@@ -294,7 +384,10 @@ def audit_extraction(
 
     validate_chunk_structure(chunks, report, full_extraction=full_extraction)
     validate_required_rules(metadata, chunks, report)
-    validate_critical_sheet_presence(chunks, report)
+    validate_critical_sheet_presence(chunks, report, full_extraction=full_extraction)
+    validate_critical_sheets_not_empty(chunks, report)
+    validate_cross_sheet_consistency(chunks, report)
+    validate_cross_reference_integrity(chunks, report)
 
     expected_sheets: list[str] = []
     if xlsx_path is not None:
