@@ -1,11 +1,11 @@
 ---
 tipo: progresso_execução
 status_geral: BASE_TÉCNICA_FUNCIONANDO
-fase_atual: "Eventos v1 — EV-009, EV-010 e EV-011 registrados; points_policy_v1 criado como contrato executável global; auditoria versionável do SCOUT_DESIGN_TEMPLATE criada"
+fase_atual: "Eventos v1 — points_policy_v1 criado; auditor docs x contratos criado; SCOUT_DESIGN_TEMPLATE auditável"
 testes_passando: 249
 event_definitions: 31
 última_atualização: 2026-06-11
-próxima_ação: "Validar points_policy_v1 localmente; depois criar auditor de alinhamento docs x contratos e reconciliar evidence_matrix/taxonomy_dictionary"
+próxima_ação: "Validar localmente points_policy_v1 e audit_docs_contract_alignment; depois reconciliar evidence_matrix.md e taxonomy_dictionary.md"
 gaps_abertos:
   - "G5 — validação humana com vídeo real e screenshots não executada"
   - "RAG/Chroma/embeddings seguem bloqueados até gate global"
@@ -33,6 +33,8 @@ reproduzível por comando, teste ou arquivo verificável.
 
 ```bash
 python3 -m pytest tests/test_points_policy_v1.py -q
+python3 -m pytest tests/test_docs_contract_alignment_audit.py -q
+PYTHONPATH=. python3 scripts/audit_docs_contract_alignment.py
 python3 -m pytest tests/test_transition_contract.py -q
 python3 -m pytest tests/test_events_v1_contract_registry.py -q
 python3 -m pytest -q
@@ -66,9 +68,16 @@ tests/test_points_policy_v1.py
 scoutpraia/contracts/__init__.py
 ```
 
-Esses arquivos não alteram seed, UI ou importação. Eles centralizam a derivação de pontos para impedir que um agente, importador, tela ou relatório aceite pontuação manual divergente da regra.
+Também foi criado um auditor semântico para detectar drift entre documentação e contratos:
 
-Regras críticas cobertas pelo contrato:
+```text
+scripts/audit_docs_contract_alignment.py
+tests/test_docs_contract_alignment_audit.py
+```
+
+Esses arquivos não alteram seed, UI ou importação. Eles centralizam a derivação de pontos e criam um mecanismo para impedir que documentos antigos reativem códigos legados ou regras incompatíveis.
+
+Regras críticas cobertas pelo contrato de pontuação:
 
 ```text
 specialist não é event_code nem position_code; é scorer_role.
@@ -79,6 +88,15 @@ spin_shot, inflight_shot, goalkeeper_shot, six_metre_throw e shootout_attempt co
 resultados não convertidos ou perda sem finalização derivam 0 quando permitidos.
 manual_points divergente deve gerar erro.
 resultado incompatível com evento deve gerar erro.
+```
+
+Regras críticas cobertas pelo auditor docs x contratos:
+
+```text
+specialist_shot, specialist_attempt e specialist_goal não podem aparecer como evento ativo/KPI final.
+save_shootout, goal_conceded, fast_break_against e recovery legados precisam aparecer apenas como legado/bloqueio/migração.
+docs precisam preservar a afirmação de que SCOUT_DESIGN_TEMPLATE é contrato de arquitetura, não banco de lances.
+docs não podem declarar MVP/RAG/taxonomia como completos sem contexto de bloqueio/negação.
 ```
 
 ---
@@ -110,13 +128,14 @@ ARCHITECTURE_README/SOURCE_REGISTER/VALIDATION_MATRIX sem proteção no XLSX exp
 
 ## Próximo controle de causa raiz
 
-Depois de validar `points_policy_v1`, criar:
+Depois de validar os novos auditores, reconciliar:
 
 ```text
-scripts/audit_docs_contract_alignment.py
+docs/taxonomy_dictionary.md
+docs/evidence_matrix.md
 ```
 
-Objetivo: comparar `events_v1.py`, `points_policy_v1.py`, `SCOUT_DESIGN_TEMPLATE.xlsx`, `Contrato_Operacional.md`, `taxonomy_dictionary.md` e `evidence_matrix.md` para detectar drift conceitual antes que o agente implemente regra antiga.
+Objetivo: remover drift conceitual entre taxonomia legada, matriz de evidência e contratos atuais (`events_v1.py`, `points_policy_v1.py`, `SCOUT_DESIGN_TEMPLATE.xlsx`).
 
 ---
 
@@ -146,11 +165,12 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 | 5 — Taxonomia v0.1 | `FUNCIONANDO` | 31 definições, seed idempotente |
 | 6 — Serviços internos | `FUNCIONANDO COM EVIDÊNCIA` | event, clip, validation, analytics, report |
 | 7 — Interface Streamlit | `FUNCIONANDO COM EVIDÊNCIA` | Dashboard, Jogos, Marcação, Relatórios, Adversárias |
-| 8 — Testes | `FUNCIONANDO` | 249 passed antes de points_policy_v1; validar novamente após pull |
+| 8 — Testes | `FUNCIONANDO` | 249 passed antes dos novos auditores; validar novamente após pull |
 | 9 — Validação operacional com vídeo real | `PARCIAL` | prova automatizada feita; G5 humano pendente |
 | 10 — README e operação local | `FUNCIONANDO` | README + scripts documentados |
 | Eventos v1 (contrato, serviços, modelo, UI, KPIs) | `IMPLEMENTADO COM EVIDÊNCIA PARCIAL` | contratos conceituais; importação segue bloqueada onde aplicável |
 | Points policy v1 | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_points_policy_v1.py` |
+| Auditor docs x contratos | `CRIADO — AGUARDA VALIDAÇÃO LOCAL` | `tests/test_docs_contract_alignment_audit.py` |
 
 ---
 
