@@ -1,4 +1,25 @@
+---
+doc_id: ARCH_013
+title: "Architecture README"
+status: active
+version: "1.0.0"
+authority_level: 2
+category: ARCH
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+---
+
 # SCOUT_DESIGN_TEMPLATE — Architecture README
+
+## Resumo Executivo
+
+Este documento registra a função arquitetural do `SCOUT_DESIGN_TEMPLATE` e separa o que é contrato, o que é dado observacional e o que precisa de auditoria automática.
+
+## Objetivo
+
+Definir as regras de governança da planilha `SCOUT_DESIGN_TEMPLATE`, incluindo abas obrigatórias, política de importação/UI e critério de implementação completa.
 
 Este documento registra a funcao arquitetural do `SCOUT_DESIGN_TEMPLATE` e separa o que e contrato, o que e dado observacional e o que precisa de auditoria automatica.
 
@@ -9,7 +30,7 @@ O `SCOUT_DESIGN_TEMPLATE` e contrato de arquitetura e governanca do scout. Ele n
 ## Fontes de verdade
 
 1. `scoutpraia/contracts/events_v1.py` e o registry executavel dos contratos v1.
-2. `docs/Contrato_Operacional.md` e o registro historico das decisoes, evidencias EV e bloqueios.
+2. `docs/005_CONT_Operacional_Eventos_v1.md` e o registro historico das decisoes, evidencias EV e bloqueios.
 3. `SCOUT_DESIGN_TEMPLATE` e a visao humana/operacional do contrato.
 4. `pytest` e `scripts/verify_current_state.sh` sao a evidencia executavel.
 

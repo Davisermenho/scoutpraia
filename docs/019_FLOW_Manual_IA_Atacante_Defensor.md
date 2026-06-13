@@ -1,10 +1,15 @@
 ---
-document_id: IA-AD-MANUAL-001
-title: Manual Determinístico — Fluxo IA Atacante × Defensor
-version: v0.9
-status: manual_deterministico
+doc_id: FLOW_019
+title: "Manual Determinístico — Fluxo IA Atacante × Defensor"
+status: active
+version: "0.9.0"
+authority_level: 3
+category: FLOW
 owner: Davi Sermenho
-created_at: 2026-06-12
+created_at: "2026-06-12"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+document_id: IA-AD-MANUAL-001
 timezone: America/Sao_Paulo
 purpose: ensinar, definir e operacionalizar o Fluxo IA Atacante × Defensor
 primary_rule: nenhuma etapa pode ser executada sem entrada, saída, critério de aceite e evidência verificável
@@ -16,6 +21,14 @@ implementation_appendix: Python + LangGraph + VS Code + OpenAI API
 ---
 
 # Manual Determinístico — Fluxo IA Atacante × Defensor
+
+## Resumo Executivo
+
+Manual determinístico do Fluxo IA Atacante × Defensor para revisar e fortalecer documentos, planos e especificações por meio de ciclos controlados de ataque crítico e defesa corretiva, com critério de encerramento explícito (TERMINATE).
+
+## Objetivo
+
+Ensinar e padronizar o uso do Fluxo IA Atacante × Defensor, definindo papéis, entradas/saídas obrigatórias, critérios de aceite e limite de iterações para produzir versões mais robustas e rastreáveis.
 
 ## 1. Natureza deste documento
 

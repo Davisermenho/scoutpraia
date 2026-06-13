@@ -1,4 +1,14 @@
 ---
+doc_id: AUDIT_010
+title: "Auditoria de Evidências e Validação G5"
+status: active
+version: "1.0.0"
+authority_level: 3
+category: AUDIT
+owner: Davi Sermenho
+created_at: "2026-06-06"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: auditoria_evidência
 data_auditoria: 2026-06-06
 data_atualização_g5: 2026-06-12
@@ -9,16 +19,24 @@ testes_atuais: 311
 gaps_abertos: []
 G5_status: FECHADO
 próxima_ação: "Ativação progressiva dos módulos v1 — começar por finalization_v1"
-nota: "Auditoria base de 2026-06-06. G5 fechado em 2026-06-12 por Davi Sermenho — 12 eventos marcados, 16 relatórios, 311 testes passando. Ver docs/validation_protocol.md e docs/evidence_g5/."
+nota: "Auditoria base de 2026-06-06. G5 fechado em 2026-06-12 por Davi Sermenho — 12 eventos marcados, 16 relatórios, 311 testes passando. Ver docs/007_PROT_Protocolo_Validacao.md e docs/evidence_g5/."
 ---
 
 # Auditoria de Evidências e Validação — ScoutPraia
+
+## Resumo Executivo
+
+Auditoria do estado técnico do ScoutPraia (base em 2026-06-06, G5 fechado em 2026-06-12). MVP declarado completo: 311 testes passando, 12 eventos marcados em vídeo real, 16 relatórios gerados.
+
+## Objetivo
+
+Registrar as evidências de funcionamento do ScoutPraia e o fechamento formal do gate G5 (validação humana), autorizando a ativação progressiva dos módulos v1.
 
 ## ATUALIZAÇÃO G5 — 2026-06-12
 
 > **G5 FECHADO — APROVADO.** MVP declarado completo por Davi Sermenho em 2026-06-12.
 > 12 eventos marcados, 16 relatórios gerados, 311 testes passando.
-> Evidências visuais Playwright em `docs/evidence_g5/`. Ver `docs/validation_protocol.md`.
+> Evidências visuais Playwright em `docs/evidence_g5/`. Ver `docs/007_PROT_Protocolo_Validacao.md`.
 
 O texto abaixo é a auditoria original de 2026-06-06 e reflete o estado **antes** do fechamento de G5. Mantido como registro histórico.
 
@@ -173,7 +191,7 @@ O `skip` é correto para CI/repo porque vídeos reais são dados locais ignorado
 
 | Área | Arquivos principais | Prova |
 | --- | --- | --- |
-| contrato documental | `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` | contadores no script |
+| contrato documental | `docs/002_SPEC_MVP_Tecnico.md` | contadores no script |
 | higiene de repo | `.gitignore`, `scripts/verify_current_state.sh` | ausência de mídia/banco/legado versionado |
 | banco e modelos base | `scoutpraia/core/database.py`, `scoutpraia/models/*` | init de DB e criação de tabelas |
 | taxonomia inicial | `scoutpraia/services/taxonomy_service.py` | seed idempotente com 29 definições |
@@ -187,11 +205,11 @@ O `skip` é correto para CI/repo porque vídeos reais são dados locais ignorado
 
 | Área | Motivo | Próximo gate |
 | --- | --- | --- |
-| UI Streamlit completa | não houve `streamlit run app.py` com verificação visual/browser | G5 — `docs/validation_protocol.md` |
-| marcação de eventos (validação humana) | prova automatizada existe; falta validação humana com screenshots | G5 — `docs/validation_protocol.md` |
-| validação observacional | não há duas codificações comparadas nem amostra intra/interobservador | G5 — Bloco C de `docs/validation_protocol.md` |
-| taxonomia aprovada | taxonomia está `draft`; vídeo real não validou definição operacional | G1/G5 — `docs/taxonomy_dictionary.md` + `docs/validation_protocol.md` |
-| importação de Eventos v1 | `import_rule_v1 = nao_importar_v1` | G5 aprovado + decisão em `docs/taxonomy_dictionary.md` |
+| UI Streamlit completa | não houve `streamlit run app.py` com verificação visual/browser | G5 — `docs/007_PROT_Protocolo_Validacao.md` |
+| marcação de eventos (validação humana) | prova automatizada existe; falta validação humana com screenshots | G5 — `docs/007_PROT_Protocolo_Validacao.md` |
+| validação observacional | não há duas codificações comparadas nem amostra intra/interobservador | G5 — Bloco C de `docs/007_PROT_Protocolo_Validacao.md` |
+| taxonomia aprovada | taxonomia está `draft`; vídeo real não validou definição operacional | G1/G5 — `docs/006_TAX_Dicionario_Taxonomia.md` + `docs/007_PROT_Protocolo_Validacao.md` |
+| importação de Eventos v1 | `import_rule_v1 = nao_importar_v1` | G5 aprovado + decisão em `docs/006_TAX_Dicionario_Taxonomia.md` |
 | MVP completo | G5 pendente | G5 fechado → declarar MVP |
 
 ## Veredito sobre `AGENTS.md`
@@ -226,5 +244,5 @@ Para poder declarar MVP completo, os próximos gates precisam incluir pelo menos
 4. teste de analytics/KPIs com fixture controlada
 5. teste de relatório HTML salvo em `storage/reports/`
 6. teste ou verificação visual da UI Streamlit
-7. validação com vídeo real conforme `docs/validation_protocol.md`
+7. validação com vídeo real conforme `docs/007_PROT_Protocolo_Validacao.md`
 8. comparação intra/interobservador para campos críticos

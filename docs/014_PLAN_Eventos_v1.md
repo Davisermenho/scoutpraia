@@ -1,4 +1,14 @@
 ---
+doc_id: PLAN_014
+title: "Plano de Implementação Eventos v1"
+status: historical
+version: "1.0.0"
+authority_level: 2
+category: PLAN
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: plano_implementação_eventos_v1
 status_geral: IMPLEMENTADO_COM_EVIDÊNCIA
 import_rule_v1: nao_importar_v1
@@ -9,10 +19,17 @@ lote_4_modelo_banco: CONCLUÍDO
 lote_5_ui_marcação: CONCLUÍDO
 lote_6_relatórios_kpis: CONCLUÍDO
 próxima_ação: "Executar G5; manter offensive_creation_v1 e defensive_v1 somente como contratos registrados e bloqueados"
-última_atualização: 2026-06-10
 ---
 
 # Plano de implementação — Eventos v1
+
+## Resumo Executivo
+
+Plano histórico de implementação dos módulos v1 do ScoutPraia, com todos os 6 lotes concluídos. Serve como registro das decisões tomadas durante a implementação dos contratos v1.
+
+## Objetivo
+
+Registrar a sequência de lotes de implementação dos eventos v1, as restrições críticas aplicadas e o estado final alcançado antes do gate G5.
 
 ## RESTRIÇÕES CRÍTICAS (MUST NOT para agentes)
 
@@ -85,7 +102,7 @@ baseline:
 Limite explícito:
 - este plano continua sem liberar UI, importação ativa ou comportamento operacional para `offensive_creation_v1` e `defensive_v1`
 - a próxima liberação continua dependente de G5 e de decisão explícita posterior
-- a modelagem do registry deve seguir a prioridade de fonte `SCOUT_DESIGN_TEMPLATE` > `Contrato_Operacional.md` > repositório
+- a modelagem do registry deve seguir a prioridade de fonte `SCOUT_DESIGN_TEMPLATE` > `005_CONT_Operacional_Eventos_v1.md` > repositório
 
 Prova atual após o ajuste de registry:
 - `python3 -m pytest -q` => `199 passed`

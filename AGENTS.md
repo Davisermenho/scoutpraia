@@ -6,25 +6,40 @@ Estas instruções são obrigatórias para qualquer agente trabalhando neste rep
 
 Não declarar trabalho como concluído sem prova reproduzível. Toda afirmação de implementação deve ser sustentada por arquivo, teste, comando executado ou evidência registrada.
 
+## Ponto de entrada obrigatório
+
+Leia `docs/000_QUICK_REFERENCE.md` ANTES de qualquer outro documento. É o resumo executivo (~800 tokens) com hierarquia, status dos módulos e mapa de documentos.
+
+## Hierarquia de autoridade
+
+Quando documentos conflitam, o de maior `authority_level` vence:
+```
+001_PLAN_Plano_Mestre_Agente.md   (authority 5) ← leia primeiro
+005_CONT_Operacional_Eventos_v1.md (authority 5)
+011_UX_Contrato_Interface.md      (authority 5)
+002_SPEC_MVP_Tecnico.md           (authority 5)
+AGENTS.md                          (authority 5)
+```
+
 ## Arquivos de contrato
 
 Antes de implementar qualquer coisa, leia:
 
-- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
-- `docs/IMPLEMENTATION_STEPS_AI.md`
-- `docs/IMPLEMENTATION_PROGRESS.md`
+- `docs/002_SPEC_MVP_Tecnico.md`
+- `docs/003_PLAN_Passos_Implementacao_IA.md`
+- `docs/004_PROG_Progresso_Implementacao.md`
 - `docs/sources/README.md`
-- `docs/evidence_matrix.md`
-- `docs/taxonomy_dictionary.md`
-- `docs/validation_protocol.md`
-- `docs/rag_workflow.md`
-- `docs/AUDIT_EVIDENCE_VALIDATION.md`
+- `docs/008_AUDIT_Matriz_Evidencias.md`
+- `docs/006_TAX_Dicionario_Taxonomia.md`
+- `docs/007_PROT_Protocolo_Validacao.md`
+- `docs/009_RAG_Workflow_Fontes.md`
+- `docs/010_AUDIT_Validacao_G5.md`
 
-Se algum desses arquivos não existir, registre a ausência em `docs/IMPLEMENTATION_PROGRESS.md` antes de prosseguir.
+Se algum desses arquivos não existir, registre a ausência em `docs/004_PROG_Progresso_Implementacao.md` antes de prosseguir.
 
 ## Ordem de execução
 
-Siga a ordem definida em `docs/IMPLEMENTATION_STEPS_AI.md`. Não pule fases.
+Siga a ordem definida em `docs/003_PLAN_Passos_Implementacao_IA.md`. Não pule fases.
 
 Para cada ciclo de trabalho:
 
@@ -32,7 +47,7 @@ Para cada ciclo de trabalho:
 2. implementar somente o escopo dessa fase
 3. adicionar ou atualizar testes
 4. rodar prova reproduzível
-5. atualizar `docs/IMPLEMENTATION_PROGRESS.md`
+5. atualizar `docs/004_PROG_Progresso_Implementacao.md`
 6. registrar pendências reais sem suavizar
 
 ## Prova obrigatória
@@ -58,7 +73,7 @@ Também rode comandos específicos quando a mudança exigir, por exemplo:
 
 ## Registro de progresso
 
-Atualize `docs/IMPLEMENTATION_PROGRESS.md` em toda entrega.
+Atualize `docs/004_PROG_Progresso_Implementacao.md` em toda entrega.
 
 O registro deve conter:
 
@@ -138,11 +153,11 @@ Antes de commit:
 
 Use `python3` como comando padrão.
 
-Se `.venv` não puder ser criado por falta de `python3-venv` ou `ensurepip`, registre isso em `docs/IMPLEMENTATION_PROGRESS.md`. Não ocultar instalação feita fora da `.venv`.
+Se `.venv` não puder ser criado por falta de `python3-venv` ou `ensurepip`, registre isso em `docs/004_PROG_Progresso_Implementacao.md`. Não ocultar instalação feita fora da `.venv`.
 
 ## Critério de MVP completo
 
-O MVP só pode ser chamado de completo quando todos os critérios em `docs/IMPLEMENTATION_STEPS_AI.md` e `docs/IMPLEMENTATION_PROGRESS.md` estiverem satisfeitos e provados por comando.
+O MVP só pode ser chamado de completo quando todos os critérios em `docs/003_PLAN_Passos_Implementacao_IA.md` e `docs/004_PROG_Progresso_Implementacao.md` estiverem satisfeitos e provados por comando.
 
 ## Scripts disponíveis
 

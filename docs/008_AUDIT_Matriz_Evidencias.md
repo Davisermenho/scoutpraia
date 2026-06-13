@@ -1,12 +1,29 @@
 ---
+doc_id: AUDIT_008
+title: "Matriz de Evidências"
+status: active
+version: "1.0.0"
+authority_level: 3
+category: AUDIT
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: matriz_evidência
 cobertura_atual: "11/31 eventos documentados (20 faltantes)"
-última_atualização: 2026-06-10
 gap_ativo: "G4 resolvido; G5 aberto (validação humana)"
 regra_crítica: "Evento não presente nesta matriz não pode entrar em KPI crítico"
 ---
 
 # Matriz de Evidência do ScoutPraia
+
+## Resumo Executivo
+
+Matriz que registra a evidência de cada campo, evento e KPI do ScoutPraia antes de sua inclusão na taxonomia aprovada. Cobertura atual: 11/31 eventos documentados.
+
+## Objetivo
+
+Garantir que nenhum evento entre em KPI crítico sem fonte registrada (oficial, científica, técnica ou hipótese validada), criando rastreabilidade auditável da taxonomia.
 
 Objetivo: registrar por que cada campo, evento ou KPI existe antes de entrar na versão aprovada da taxonomia.
 
@@ -26,21 +43,21 @@ Itens `hipótese` não entram em KPI final até passarem por validação.
 - **Permite:** marcação manual, ensaio operacional, teste de fluxo, UI com taxonomia explícita
 - **Bloqueia:** KPI final estável, relatório final sem ressalva, promoção silenciosa
 - **Para avançar para `testing`:** registrar fonte + escrever definição operacional + marcação humana inicial em vídeo real
-- **Fontes:** `SRC-OBS-MEASUREMENT`; `docs/taxonomy_dictionary.md`; `docs/validation_protocol.md`
+- **Fontes:** `SRC-OBS-MEASUREMENT`; `docs/006_TAX_Dicionario_Taxonomia.md`; `docs/007_PROT_Protocolo_Validacao.md`
 
 ### Status `testing` — uso controlado
 
 - **Permite:** ensaio controlado, prévia de relatório com ressalva explícita, indicador experimental
 - **Bloqueia:** congelamento como regra estável sem rodada de validação suficiente, KPI final sem ressalva
-- **Para avançar para `approved`:** executar `docs/validation_protocol.md` → revisar divergências → congelar em nova versão da taxonomia
-- **Fontes:** `SRC-IHF-RULES`; `SRC-NOTATIONAL-BH`; `SRC-OBS-MEASUREMENT`; `docs/validation_protocol.md`
+- **Para avançar para `approved`:** executar `docs/007_PROT_Protocolo_Validacao.md` → revisar divergências → congelar em nova versão da taxonomia
+- **Fontes:** `SRC-IHF-RULES`; `SRC-NOTATIONAL-BH`; `SRC-OBS-MEASUREMENT`; `docs/007_PROT_Protocolo_Validacao.md`
 
 ### Status `approved` — uso oficial
 
 - **Permite:** KPI final estável, relatório final sem ressalva, uso em decisão de treino/jogo
 - **Bloqueia:** alteração silenciosa sem nova versão ou nova evidência
 - **Para alterar:** mudança de semântica exige nova versão de taxonomia e revalidação
-- **Fontes:** `SRC-IHF-RULES`; `docs/sources/README.md`; `docs/validation_protocol.md`
+- **Fontes:** `SRC-IHF-RULES`; `docs/sources/README.md`; `docs/007_PROT_Protocolo_Validacao.md`
 
 ## Matriz inicial
 
@@ -104,5 +121,5 @@ Antes de `ScoutPraia v1.0`, cada item deve ter:
 ```
 [ ] todos os 31 eventos têm linha na tabela principal
 [ ] todos os itens têm fonte registrada
-[ ] status de cada item está sincronizado com docs/taxonomy_dictionary.md
+[ ] status de cada item está sincronizado com docs/006_TAX_Dicionario_Taxonomia.md
 ```

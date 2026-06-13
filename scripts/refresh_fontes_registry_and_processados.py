@@ -840,7 +840,7 @@ def build_proxima_acao_rows() -> tuple[list[str], list[list[str]]]:
             [
                 "4",
                 "Etapa 5 permanece bloqueada: nao gerar embeddings nem Chroma antes do gate global do ScoutPraia.",
-                "G5 aprovado e criterios de docs/rag_workflow.md satisfeitos antes das Etapas 5-8.",
+                "G5 aprovado e criterios de docs/009_RAG_Workflow_Fontes.md satisfeitos antes das Etapas 5-8.",
                 "Governanca do projeto",
                 "bloqueado_ate_G5",
             ],
@@ -871,7 +871,7 @@ def build_proxima_acao_rows() -> tuple[list[str], list[list[str]]]:
             [
                 "4",
                 "Nao iniciar embeddings, Chroma ou avaliacao do agente textual antes do gate global do ScoutPraia.",
-                "G5 aprovado e criterios de docs/rag_workflow.md satisfeitos antes das Etapas 5-8.",
+                "G5 aprovado e criterios de docs/009_RAG_Workflow_Fontes.md satisfeitos antes das Etapas 5-8.",
                 "Governanca do projeto",
                 "bloqueado_ate_G5",
             ],

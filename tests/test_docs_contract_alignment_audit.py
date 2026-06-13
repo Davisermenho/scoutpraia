@@ -15,11 +15,11 @@ def write_file(path: Path, content: str) -> None:
 
 
 def seed_required_docs(root: Path, taxonomy_text: str) -> None:
-    write_file(root / "docs/taxonomy_dictionary.md", taxonomy_text)
-    write_file(root / "docs/evidence_matrix.md", "sem codigo legado ativo\n")
-    write_file(root / "docs/IMPLEMENTATION_PLAN_EVENTOS_V1.md", "sem codigo legado ativo\n")
-    write_file(root / "docs/Contrato_Operacional.md", "sem codigo legado ativo\n")
-    write_file(root / "docs/ARCHITECTURE_README.md", "sem codigo legado ativo\n")
+    write_file(root / "docs/006_TAX_Dicionario_Taxonomia.md", taxonomy_text)
+    write_file(root / "docs/008_AUDIT_Matriz_Evidencias.md", "sem codigo legado ativo\n")
+    write_file(root / "docs/014_PLAN_Eventos_v1.md", "sem codigo legado ativo\n")
+    write_file(root / "docs/005_CONT_Operacional_Eventos_v1.md", "sem codigo legado ativo\n")
+    write_file(root / "docs/013_ARCH_Readme.md", "sem codigo legado ativo\n")
 
 
 def test_flags_legacy_code_when_presented_as_active(tmp_path: Path) -> None:
@@ -60,8 +60,8 @@ def test_points_policy_blocks_specialist_misclassification() -> None:
 
 
 def test_required_doc_patterns_detect_missing_architecture_contract(tmp_path: Path) -> None:
-    write_file(tmp_path / "docs/ARCHITECTURE_README.md", "Documento incompleto\n")
-    write_file(tmp_path / "docs/IMPLEMENTATION_PROGRESS.md", "Documento sem points policy\n")
+    write_file(tmp_path / "docs/013_ARCH_Readme.md", "Documento incompleto\n")
+    write_file(tmp_path / "docs/004_PROG_Progresso_Implementacao.md", "Documento sem points policy\n")
 
     report = AuditReport()
     audit_required_doc_patterns(tmp_path, report)
@@ -71,10 +71,10 @@ def test_required_doc_patterns_detect_missing_architecture_contract(tmp_path: Pa
 
 
 def test_completion_claims_warns_on_unqualified_completion_claim(tmp_path: Path) -> None:
-    write_file(tmp_path / "docs/IMPLEMENTATION_PROGRESS.md", "MVP completo declarado\n")
-    write_file(tmp_path / "docs/validation_protocol.md", "G5 aberto; MVP nao pode ser completo\n")
-    write_file(tmp_path / "docs/AUDIT_EVIDENCE_VALIDATION.md", "RAG bloqueado\n")
-    write_file(tmp_path / "docs/rag_workflow.md", "RAG_liberado: false\n")
+    write_file(tmp_path / "docs/004_PROG_Progresso_Implementacao.md", "MVP completo declarado\n")
+    write_file(tmp_path / "docs/007_PROT_Protocolo_Validacao.md", "G5 aberto; MVP nao pode ser completo\n")
+    write_file(tmp_path / "docs/010_AUDIT_Validacao_G5.md", "RAG bloqueado\n")
+    write_file(tmp_path / "docs/009_RAG_Workflow_Fontes.md", "RAG_liberado: false\n")
 
     report = AuditReport()
     audit_completion_claims(tmp_path, report)

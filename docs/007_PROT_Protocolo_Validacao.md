@@ -1,14 +1,32 @@
 ---
+doc_id: PROT_007
+title: "Protocolo de Validação G5"
+status: active
+version: "1.0.0"
+authority_level: 4
+category: PROT
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+blocking_policy: "Não declarar trabalho concluído sem cumprir os critérios aqui definidos."
 tipo: protocolo_validação
 G5_status: FECHADO
 G1_status: RESOLVIDO_PARCIALMENTE
 testes_passando: 300
-última_atualização: 2026-06-12
 gaps_abertos: []
 nota: "G5 aprovado em 2026-06-12. MVP declarado completo."
 ---
 
 # Protocolo de Validação do ScoutPraia
+
+## Resumo Executivo
+
+Protocolo de validação humana do ScoutPraia v0.1, com G5 fechado e aprovado em 2026-06-12. Define critérios numéricos de confiabilidade (κ > 0.81, ICC ≥ 0.90) e registra o fechamento dos gaps G1, G5 e G7.
+
+## Objetivo
+
+Transformar a taxonomia ScoutPraia em instrumento observacional confiável, com validação humana em vídeo real antes de usar KPIs como referência estável.
 
 ## Status dos gaps de validação
 
@@ -16,7 +34,7 @@ nota: "G5 aprovado em 2026-06-12. MVP declarado completo."
 | --- | --- | --- |
 | G1 | Taxonomia integralmente em `draft` | RESOLVIDO — `two_point_goal` promovido para `testing` em 2026-06-09 |
 | G5 | Validação humana com vídeo real e screenshots | **FECHADO — APROVADO** em 2026-06-12. Ver rodada "Fechamento oficial" abaixo. |
-| G7 | `validation_protocol.md` sem critérios numéricos | RESOLVIDO — κ > 0.81, ICC ≥ 0.90, α ≥ 0.90 registrados |
+| G7 | `007_PROT_Protocolo_Validacao.md` sem critérios numéricos | RESOLVIDO — κ > 0.81, ICC ≥ 0.90, α ≥ 0.90 registrados |
 
 ---
 
@@ -105,7 +123,7 @@ Usar esta régua quando um item precisar mudar de `draft` para `testing` ou `app
 
 | Transição | Condição mínima | Evidência mínima | Efeito operacional |
 | --- | --- | --- | --- |
-| `draft` → `testing` | há fonte registrada, definição operacional inicial e utilidade prática suficiente para ensaio controlado | item registrado em `docs/evidence_matrix.md`, definição em `docs/taxonomy_dictionary.md` e marcação humana inicial em vídeo | o item pode entrar em ensaio controlado, UI e prévia de relatório, mas ainda não em KPI final estável |
+| `draft` → `testing` | há fonte registrada, definição operacional inicial e utilidade prática suficiente para ensaio controlado | item registrado em `docs/008_AUDIT_Matriz_Evidencias.md`, definição em `docs/006_TAX_Dicionario_Taxonomia.md` e marcação humana inicial em vídeo | o item pode entrar em ensaio controlado, UI e prévia de relatório, mas ainda não em KPI final estável |
 | `testing` → `approved` | houve validação em vídeo com revisão de divergências e decisão explícita de manter o item | execução deste protocolo, revisão das ambiguidades e congelamento em nova versão de taxonomia | o item pode sustentar KPI final e relatório final sem ressalva metodológica central |
 | `approved` → nova versão | houve mudança de semântica, regra de marcação ou interpretação do item | nova rodada documental e, quando aplicável, nova validação em vídeo | evita alteração silenciosa de KPI ou relatório |
 
@@ -115,7 +133,7 @@ Fontes verificáveis desta régua:
 - `SRC-IHF-RULES` quando o item depende de regra oficial
 - `SRC-NOTATIONAL-BH` quando o item deriva de análise notacional
 - `docs/sources/README.md` para precedência de regra, evidência e hipótese
-- `docs/rag_workflow.md` para o fluxo fonte → definição → validação → aprovação
+- `docs/009_RAG_Workflow_Fontes.md` para o fluxo fonte → definição → validação → aprovação
 
 ---
 
@@ -227,8 +245,8 @@ Marcar apenas quando a evidência mínima estiver satisfeita.
   - [ ] utilidade prática suficiente
   - [ ] marcação humana inicial em vídeo
 - [ ] cada item promovido para `testing` foi refletido em:
-  - [ ] `docs/taxonomy_dictionary.md`
-  - [ ] `docs/evidence_matrix.md`
+  - [ ] `docs/006_TAX_Dicionario_Taxonomia.md`
+  - [ ] `docs/008_AUDIT_Matriz_Evidencias.md`
 - [ ] cada item promovido para `approved` teve:
   - [ ] validação em vídeo
   - [ ] revisão explícita de divergências
@@ -296,8 +314,8 @@ Bloco D — gate de promoção de status desta rodada:
   - [x] utilidade prática suficiente
   - [x] marcação humana inicial em vídeo
 - [x] cada item promovido para `testing` foi refletido em:
-  - [x] `docs/taxonomy_dictionary.md`
-  - [x] `docs/evidence_matrix.md`
+  - [x] `docs/006_TAX_Dicionario_Taxonomia.md`
+  - [x] `docs/008_AUDIT_Matriz_Evidencias.md`
 - [ ] cada item promovido para `approved` teve:
   - [ ] validação em vídeo
   - [ ] revisão explícita de divergências

@@ -19,6 +19,9 @@ storage/reports/*
 storage/thumbnails/*
 !storage/thumbnails/.gitkeep
 docs/SCOUT_DESIGN_TEMPLATE.xlsx
+docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json
+docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.jsonl
+docs/SCOUT_DESIGN_CSV.csv
 bin/
 
 tmp/

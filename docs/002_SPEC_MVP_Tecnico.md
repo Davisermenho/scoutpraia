@@ -1,18 +1,35 @@
 ---
+doc_id: SPEC_002
+title: "Especificação Técnica do MVP ScoutPraia"
+status: canonical
+version: "1.0.0"
+authority_level: 5
+category: SPEC
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+blocking_policy: "Nenhuma execução sem leitura prévia deste documento."
 tipo: contrato_produto
-status: REFERÊNCIA_ESTÁVEL
 não_alterar_sem: nova versão explícita do MVP
 lido_antes_de_implementar: obrigatório
-última_atualização: 2026-06-10
 escopo_proibido: "React, FastAPI, PostgreSQL, autenticação, multiusuário, deploy, API pública"
 documentos_de_execução:
-  - docs/IMPLEMENTATION_STEPS_AI.md  # contrato de execução com gates sequenciais para agentes
-  - docs/IMPLEMENTATION_PROGRESS.md  # estado atual provado com evidência reproduzível
-  - docs/taxonomy_dictionary.md      # dicionário v0.1 operacional (eventos ativos no app)
-  - docs/Contrato_Operacional.md     # contratos v1 — ler só seção 2-bis; implementação bloqueada até G5
+  - docs/003_PLAN_Passos_Implementacao_IA.md  # contrato de execução com gates sequenciais para agentes
+  - docs/004_PROG_Progresso_Implementacao.md  # estado atual provado com evidência reproduzível
+  - docs/006_TAX_Dicionario_Taxonomia.md      # dicionário v0.1 operacional (eventos ativos no app)
+  - docs/005_CONT_Operacional_Eventos_v1.md     # contratos v1 — ler só seção 2-bis; implementação bloqueada até G5
 ---
 
 # ScoutPraia — MVP Técnico Completo (Arquitetura Python-Only)
+
+## Resumo Executivo
+
+Especificação técnica canônica do MVP ScoutPraia. Define o escopo proibido (sem React, FastAPI, PostgreSQL), a arquitetura Python-only (Streamlit, SQLite, FFmpeg) e os documentos de execução que derivam desta fonte.
+
+## Objetivo
+
+Estabelecer o contrato de produto do ScoutPraia v1, garantindo que nenhuma implementação desvie do escopo aprovado de arquitetura local Python-only.
 
 ## ESCOPO PROIBIDO — ler antes de qualquer implementação
 
@@ -26,17 +43,17 @@ MUST NOT: deploy em servidor
 MUST NOT: versionar vídeos, banco, clipes, relatórios, .env, .venv, tmp/ ou binários locais
 ```
 
-Para a ordem de implementação, seguir `docs/IMPLEMENTATION_STEPS_AI.md`.
+Para a ordem de implementação, seguir `docs/003_PLAN_Passos_Implementacao_IA.md`.
 
 ## Relação com documentos de execução
 
 | Documento | Papel | Quando ler |
 | --- | --- | --- |
-| `docs/IMPLEMENTATION_STEPS_AI.md` | contrato de execução com gates sequenciais para agentes | antes de implementar qualquer coisa |
-| `docs/IMPLEMENTATION_PROGRESS.md` | estado atual provado com evidência reproduzível | para saber onde o projeto está |
-| `docs/taxonomy_dictionary.md` | dicionário operacional com definições de eventos | antes de criar ou alterar eventos |
-| `docs/evidence_matrix.md` | governa quais eventos podem entrar em KPI | antes de usar evento em relatório final |
-| `docs/validation_protocol.md` | protocolo de validação humana com vídeo real | para fechar G5 |
+| `docs/003_PLAN_Passos_Implementacao_IA.md` | contrato de execução com gates sequenciais para agentes | antes de implementar qualquer coisa |
+| `docs/004_PROG_Progresso_Implementacao.md` | estado atual provado com evidência reproduzível | para saber onde o projeto está |
+| `docs/006_TAX_Dicionario_Taxonomia.md` | dicionário operacional com definições de eventos | antes de criar ou alterar eventos |
+| `docs/008_AUDIT_Matriz_Evidencias.md` | governa quais eventos podem entrar em KPI | antes de usar evento em relatório final |
+| `docs/007_PROT_Protocolo_Validacao.md` | protocolo de validação humana com vídeo real | para fechar G5 |
 
 ---
 

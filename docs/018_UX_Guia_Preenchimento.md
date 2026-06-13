@@ -1,16 +1,33 @@
 ---
+doc_id: UX_018
+title: "Guia de Preenchimento da Marcação"
+status: active
+version: "1.0.0"
+authority_level: 3
+category: UX
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: guia_operacional_humano
 destinatário: operador_humano
 uso_por_agente: "NÃO — este guia é para o usuário humano, não para implementação"
-última_atualização: 2026-06-10
 nota: "Agentes não devem usar este guia como referência de código; ver scoutpraia/pages/tagging.py"
 ---
 
 # Guia de Preenchimento — Marcação no ScoutPraia
 
+## Resumo Executivo
+
+Guia operacional para o usuário humano usar a página de marcação do ScoutPraia: como preencher campos, registrar eventos e informar timestamps corretamente. Exclusivo para uso humano — não para agentes.
+
+## Objetivo
+
+Ensinar ao operador (treinador ou analista) o uso correto da tela de marcação do ScoutPraia, campo a campo, com o fluxo correto de preenchimento durante um jogo.
+
 > **AVISO PARA AGENTES:** este documento é um guia operacional para o usuário humano.
 > Não use este guia para tomar decisões de implementação ou arquitetura.
-> Para implementação: ver `docs/IMPLEMENTATION_STEPS_AI.md`.
+> Para implementação: ver `docs/003_PLAN_Passos_Implementacao_IA.md`.
 > Para a página de marcação: ver `scoutpraia/pages/tagging.py`.
 
 ---
@@ -20,7 +37,7 @@ Objetivo: explicar como usar a página `Marcação` do ScoutPraia, como preenche
 Importante:
 
 - este guia é operacional; ele ensina o uso da tela
-- ele não substitui a validação formal da taxonomia em `docs/taxonomy_dictionary.md`
+- ele não substitui a validação formal da taxonomia em `docs/006_TAX_Dicionario_Taxonomia.md`
 - a taxonomia atual `ScoutPraia v0.1` ainda está em `draft`
 
 ---
@@ -683,7 +700,7 @@ Depois da marcação:
 
 ## 11. Referências internas úteis
 
-- uso operacional da taxonomia: `docs/taxonomy_dictionary.md`
-- protocolo humano de validação: `docs/validation_protocol.md`
-- estado real do projeto e evidências: `docs/IMPLEMENTATION_PROGRESS.md`
+- uso operacional da taxonomia: `docs/006_TAX_Dicionario_Taxonomia.md`
+- protocolo humano de validação: `docs/007_PROT_Protocolo_Validacao.md`
+- estado real do projeto e evidências: `docs/004_PROG_Progresso_Implementacao.md`
 - implementação da página: `scoutpraia/pages/tagging.py`

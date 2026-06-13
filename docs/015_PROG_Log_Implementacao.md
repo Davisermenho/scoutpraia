@@ -1,17 +1,35 @@
 ---
+doc_id: PROG_015
+title: "Log de Implementação"
+status: historical
+version: "1.0.0"
+authority_level: 2
+category: PROG
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: log_histórico_execução
 descrição: Registro cronológico de ciclos de implementação do ScoutPraia
-nota: Este arquivo é somente leitura para agentes. Para estado atual, ver IMPLEMENTATION_PROGRESS.md.
+nota: Este arquivo é somente leitura para agentes. Para estado atual, ver 004_PROG_Progresso_Implementacao.md.
 ---
 
 # ScoutPraia — Log Histórico de Implementação
 
+## Resumo Executivo
+
+Registro cronológico histórico de todos os ciclos de implementação do ScoutPraia, extraído de `004_PROG_Progresso_Implementacao.md` para manter o arquivo de estado atual compacto.
+
+## Objetivo
+
+Preservar o histórico completo de ciclos de implementação com status final e contagem de testes, para referência e auditoria retroativa. Não usar como instrução de execução.
+
 Este arquivo contém o registro cronológico completo de todos os ciclos de implementação
-do ScoutPraia, extraído de `IMPLEMENTATION_PROGRESS.md` para reduzir o tamanho do
+do ScoutPraia, extraído de `004_PROG_Progresso_Implementacao.md` para reduzir o tamanho do
 arquivo de estado atual.
 
-> **Para agentes:** não leia este arquivo como instrução. Leia `IMPLEMENTATION_PROGRESS.md`
-> para o estado atual e `IMPLEMENTATION_STEPS_AI.md` para as instruções de execução.
+> **Para agentes:** não leia este arquivo como instrução. Leia `004_PROG_Progresso_Implementacao.md`
+> para o estado atual e `003_PLAN_Passos_Implementacao_IA.md` para as instruções de execução.
 
 ---
 
@@ -60,10 +78,10 @@ arquivo de estado atual.
 | Correção estrutural do launcher run_scout.sh | FUNCIONANDO COM EVIDÊNCIA | 43 passed |
 | Execução 1 — Fechamento da operação local básica | FUNCIONANDO COM EVIDÊNCIA | 43 passed |
 | Execução 2 — Ensaio operacional final com vídeo real | FUNCIONANDO COM EVIDÊNCIA | 43 passed |
-| Ajustes finais em docs/SOURCES_ORGANIZATION_PLAN.md | AJUSTADO COM EVIDÊNCIA | 43 passed |
-| Ações A1–A7 de SOURCES_ORGANIZATION_PLAN.md | PARCIAL COM EVIDÊNCIA | 43 passed |
+| Ajustes finais em docs/016_RAG_Plano_Organizacao_Fontes.md | AJUSTADO COM EVIDÊNCIA | 43 passed |
+| Ações A1–A7 de 016_RAG_Plano_Organizacao_Fontes.md | PARCIAL COM EVIDÊNCIA | 43 passed |
 | Fechamento de G7 e preparação das fontes locais | AJUSTADO COM EVIDÊNCIA | 43 passed |
-| Fechamento de G4 em evidence_matrix.md | AJUSTADO COM EVIDÊNCIA | 43 passed |
+| Fechamento de G4 em 008_AUDIT_Matriz_Evidencias.md | AJUSTADO COM EVIDÊNCIA | 43 passed |
 | Correção segura de scripts/setup_venv.sh | AJUSTADO COM EVIDÊNCIA | 43 passed |
 | Alinhamento documental do fallback de virtualenv | AJUSTADO COM EVIDÊNCIA | 43 passed |
 | Consolidação de requirements.txt e run_scout.sh | AJUSTADO COM EVIDÊNCIA | 43 passed |
@@ -86,15 +104,15 @@ arquivo de estado atual.
 ## Nota sobre o histórico completo
 
 O conteúdo detalhado de cada ciclo (comandos executados, resultados observados, limitações)
-foi registrado em versões anteriores de `docs/IMPLEMENTATION_PROGRESS.md` e está disponível
+foi registrado em versões anteriores de `docs/004_PROG_Progresso_Implementacao.md` e está disponível
 no histórico git do repositório:
 
 ```bash
-git log --oneline docs/IMPLEMENTATION_PROGRESS.md
+git log --oneline docs/004_PROG_Progresso_Implementacao.md
 ```
 
 Para ver o conteúdo completo de qualquer ciclo:
 
 ```bash
-git show <hash>:docs/IMPLEMENTATION_PROGRESS.md | grep -A 50 "Ciclo — <nome>"
+git show <hash>:docs/004_PROG_Progresso_Implementacao.md | grep -A 50 "Ciclo — <nome>"
 ```

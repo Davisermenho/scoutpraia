@@ -1,10 +1,19 @@
 ---
+doc_id: PLAN_003
+title: "Passos de Implementação para IA"
+status: active
+version: "1.0.0"
+authority_level: 4
+category: PLAN
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+blocking_policy: "Não declarar trabalho concluído sem cumprir os critérios aqui definidos."
 tipo: contrato_execução_agente
-status: REFERÊNCIA_ESTÁVEL
 fase_atual: 12
 status_fase_atual: MVP_COMPLETO
 leitura_obrigatória_para_agente: true
-última_atualização: 2026-06-12
 mvp_completo: true
 g5_status: APROVADO
 próxima_ação_imediata: "Ativar finalization_v1 — contrato validado, testes existem, botões já na UI (tagging.py linhas 69-77)"
@@ -12,7 +21,15 @@ próxima_ação_imediata: "Ativar finalization_v1 — contrato validado, testes 
 
 # ScoutPraia — Plano de Implementação para IA
 
-Este arquivo é o contrato de execução para uma IA implementar o ScoutPraia até o MVP completo. Ele deriva do `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e deve ser seguido na ordem.
+## Resumo Executivo
+
+Contrato de execução sequencial para agentes de IA implementarem o ScoutPraia até o MVP completo, com gates por fase que bloqueiam avanço sem evidência reproduzível.
+
+## Objetivo
+
+Definir a ordem obrigatória de implementação, os gates de validação por fase e os critérios de aceite que a IA deve cumprir antes de declarar qualquer etapa concluída.
+
+Este arquivo é o contrato de execução para uma IA implementar o ScoutPraia até o MVP completo. Ele deriva do `docs/002_SPEC_MVP_Tecnico.md` e deve ser seguido na ordem.
 
 A palavra "garantia" aqui significa garantia operacional por gates: a IA só pode avançar quando a fase anterior entrega arquivos, comportamento e validações definidos. Fontes e plano não garantem resultado por si mesmos; a completude vem de implementação, teste, revisão com vídeo e aceite final.
 
@@ -45,7 +62,7 @@ scripts/verify_current_state.sh
 # resultado esperado: 247 passed
 ```
 
-**Próxima ação:** executar o protocolo operacional de G5 em `docs/validation_protocol.md`.
+**Próxima ação:** executar o protocolo operacional de G5 em `docs/007_PROT_Protocolo_Validacao.md`.
 
 ---
 
@@ -70,7 +87,7 @@ MUST NOT: iniciar RAG antes do MVP completo
 
 MUST: implementar monólito local em Python
 MUST: rodar scripts/verify_current_state.sh após cada mudança relevante
-MUST: atualizar docs/IMPLEMENTATION_PROGRESS.md a cada ciclo
+MUST: atualizar docs/004_PROG_Progresso_Implementacao.md a cada ciclo
 MUST: corrigir causa raiz, não apenas silenciar erro
 MUST: manter MVP simples, local e utilizável por uma pessoa
 ```
@@ -123,27 +140,27 @@ MUST: manter MVP simples, local e utilizável por uma pessoa
 
 ### 1.1 Corrigir inconsistências do MVP documental
 
-Antes de codar, revisar `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` e corrigir:
+Antes de codar, revisar `docs/002_SPEC_MVP_Tecnico.md` e corrigir:
 
 - `match_roster` tem `player_id` duplicado; manter apenas um.
 - `## 13.1 KPIs coletivos` aparece duplicado; manter apenas um.
 
 Gate de aceite:
 
-- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md` não tem duplicações óbvias de campo/título.
+- `docs/002_SPEC_MVP_Tecnico.md` não tem duplicações óbvias de campo/título.
 - `git diff --check` não acusa espaços problemáticos, se o repo estiver em Git.
 
 ### 1.2 Confirmar arquivos de contrato
 
 A IA deve ler estes arquivos antes de implementar:
 
-- `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- `docs/002_SPEC_MVP_Tecnico.md`
 - `docs/sources/README.md`
-- `docs/evidence_matrix.md`
-- `docs/taxonomy_dictionary.md`
-- `docs/validation_protocol.md`
-- `docs/rag_workflow.md`
-- `docs/IMPLEMENTATION_STEPS_AI.md`
+- `docs/008_AUDIT_Matriz_Evidencias.md`
+- `docs/006_TAX_Dicionario_Taxonomia.md`
+- `docs/007_PROT_Protocolo_Validacao.md`
+- `docs/009_RAG_Workflow_Fontes.md`
+- `docs/003_PLAN_Passos_Implementacao_IA.md`
 
 Gate de aceite:
 
@@ -323,7 +340,7 @@ Gate de aceite:
 
 ### 5.1 Criar seed da taxonomia
 
-Criar função ou script para inserir `ScoutPraia v0.1` com todos os eventos listados em `docs/taxonomy_dictionary.md`.
+Criar função ou script para inserir `ScoutPraia v0.1` com todos os eventos listados em `docs/006_TAX_Dicionario_Taxonomia.md`.
 
 Eventos obrigatórios:
 
@@ -653,7 +670,7 @@ Executar fluxo real:
 
 ### 9.2 Validação da taxonomia
 
-Seguir `docs/validation_protocol.md`:
+Seguir `docs/007_PROT_Protocolo_Validacao.md`:
 
 1. marcar jogo com `ScoutPraia v0.1`.
 2. remarcar amostra após 24 horas.

@@ -1,14 +1,30 @@
 ---
+doc_id: TAX_006
+title: "Dicionário de Taxonomia v0.1"
+status: draft
+version: "0.1.0"
+authority_level: 3
+category: TAX
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: dicionário_taxonomia
-versão: ScoutPraia v0.1
 status_global: draft
-última_atualização: 2026-06-10
 regra_crítica: "Evento sem status approved não sustenta KPI final"
 leitura_obrigatória_para_agente: true
 nota: "Status global draft não impede marcação ou uso em testes; impede apenas KPI final estável"
 ---
 
 # Dicionário Operacional da Taxonomia
+
+## Resumo Executivo
+
+Dicionário de taxonomia v0.1 do ScoutPraia, em estado `draft`. Define os eventos observacionais, seus status de aprovação e as regras de uso por status (marcação, KPI, relatório).
+
+## Objetivo
+
+Registrar e governar cada evento da taxonomia ScoutPraia, especificando fonte, definição operacional e status de validação, até atingir o estado `approved` para uso em KPIs finais estáveis.
 
 Versão inicial: `ScoutPraia v0.1`
 
@@ -28,7 +44,7 @@ Nota operacional:
 | `testing` | permitida em ensaio controlado | aparece como opção em uso controlado | indicador experimental (não KPI final) | com ressalva metodológica explícita |
 | `approved` | uso oficial na taxonomia ativa | opção consolidada | sustenta KPI final estável | relatório final sem ressalva |
 
-Regra operacional: agente MUST NOT promover evento de `draft` diretamente para `approved` sem rodada de validação explícita registrada em `docs/validation_protocol.md`.
+Regra operacional: agente MUST NOT promover evento de `draft` diretamente para `approved` sem rodada de validação explícita registrada em `docs/007_PROT_Protocolo_Validacao.md`.
 
 ## Regra geral
 

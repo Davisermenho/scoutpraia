@@ -1,16 +1,25 @@
 ---
-title: Contrato Operacional — Eventos v1
-project: ScoutPraia
-version: eventos_v1.0
+doc_id: CONT_005
+title: "Contrato Operacional — Eventos v1"
+status: canonical
+version: "1.0.0"
+authority_level: 5
+category: CONT
 owner: Davi Sermenho
-last_updated: 2026-06-12
-status: todos_contratos_validados
-semantic_source: Contrato_Operacional.md
-implementation_source: SCOUT_DESIGN_TEMPLATE
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
 repository: Davisermenho/scoutpraia
+blocking_policy: "Nenhuma execução sem leitura prévia deste documento."
+project: ScoutPraia
+semantic_source: 005_CONT_Operacional_Eventos_v1.md
+implementation_source: SCOUT_DESIGN_TEMPLATE
 ---
 
 # Contrato Operacional — Eventos v1
+
+## Resumo Executivo
+
+Contrato canônico que define as regras semânticas, taxonômicas e operacionais dos módulos v1 do ScoutPraia. Governa quais eventos podem ser importados, exibidos na UI e usados em KPIs, com referência cruzada ao `SCOUT_DESIGN_TEMPLATE`.
 
 ## 1. Objetivo
 
@@ -22,7 +31,7 @@ Regra principal:
 global_rule:
   source_priority:
     1: "SCOUT_DESIGN_TEMPLATE"
-    2: "Contrato_Operacional.md"
+    2: "005_CONT_Operacional_Eventos_v1.md"
     3: "Davisermenho/scoutpraia"
   blocking_rule: "Divergência entre fontes bloqueia implementação até correção."
 ```
@@ -31,7 +40,7 @@ global_rule:
 
 ```yaml
 sources:
-  semantic_rules: "Contrato_Operacional.md"
+  semantic_rules: "005_CONT_Operacional_Eventos_v1.md"
   implementation_structure: "SCOUT_DESIGN_TEMPLATE"
   code_and_tests: "Davisermenho/scoutpraia"
   evidence: "ACCEPTANCE_EVIDENCE"
@@ -54,7 +63,8 @@ consolidated_state:
       evidence_status: "passed"
     finalization_v1:
       status: "contrato_validado"
-      import_rule_v1: "nao_importar_v1"
+      import_rule_v1: "importar_v1"
+      activation_date: "2026-06-12"
       evidence: ["EV-006"]
       evidence_status: "passed"
     offensive_creation_v1:
@@ -91,7 +101,8 @@ module_status:
   finalization_v1:
     name: "Finalização v1.0"
     status: "contrato_validado"
-    import_rule_v1: "nao_importar_v1"
+    import_rule_v1: "importar_v1"
+    activation_date: "2026-06-12"
     evidence: ["EV-006"]
     evidence_status: "passed"
     validated_core_events:
@@ -102,7 +113,7 @@ module_status:
       - "six_metre_throw"
     auxiliary_only:
       - "specialist_finish_role"
-    blocking_rule: "Mesmo validado por contrato, não importar no app antes de implementação controlada e testes de integração."
+    activation_note: "Ativado em 2026-06-12 (git head cc05ef9). Botões de Finalização v1.0 ativos na UI de marcação. Ver 004_PROG_Progresso_Implementacao.md ciclo de ativação."
 
   offensive_creation_v1:
     name: "Criação ofensiva v1.0"
@@ -216,7 +227,8 @@ module_finalization:
   name: "Finalização v1.0"
   definition: "Ação com arremesso intencional ao gol."
   status: "contrato_validado"
-  import_rule_v1: "nao_importar_v1"
+  import_rule_v1: "importar_v1"
+  activation_date: "2026-06-12"
   last_reviewed_at: "2026-06-10"
   git_head: "7352846"
   evidence: "EV-006"
@@ -1868,7 +1880,7 @@ source_register_update:
         SRC-003: "OWASP Top 10 for LLM/GenAI Applications"
         SRC-004: "Data Carpentry Spreadsheet Ecology / Good Practices"
         SRC-005: "VERSA / Verified Event Data Format for Reliable Sports Analytics"
-        SRC-006: "Contrato_Operacional.md"
+        SRC-006: "005_CONT_Operacional_Eventos_v1.md"
         SRC-007: "scoutpraia/contracts/events_v1.py"
         SRC-008: "pytest + verify_current_state.sh"
         SRC-009: "SCOUT_DESIGN_TEMPLATE"

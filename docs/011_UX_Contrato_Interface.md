@@ -1,9 +1,13 @@
 ---
-doc_id: SCOUTPRAIA_UX_UI_CONTRACT
-status: canonical_ux_ui_contract
+doc_id: UX_011
+title: "Contrato UX/UI — Interface de Marcação ScoutPraia"
+status: canonical
+category: UX
 version: "1.0.0"
 authority_level: 5
+owner: Davi Sermenho
 created_at: "2026-06-12"
+last_updated: "2026-06-13"
 repository: "Davisermenho/scoutpraia"
 master_plan: "https://docs.google.com/document/d/1gy0j8QDDAlh7Qp9ehsYy4P9o1BpaFpKq8eHS7zx56Ds/edit?usp=drivesdk"
 parent_document: "https://docs.google.com/document/d/1bw-53YWvvTslmZA0XmZ-ySMGBc8BbudcNJ9WokPdcLY/edit?tab=t.0"
@@ -28,6 +32,11 @@ ux_ui_contract_summary:
   may_use_raw_event_code_as_primary_label: false
   may_release_pilot_without_human_validation: false
 ```
+
+## Objetivo
+
+Garantir que toda decisão de interface do ScoutPraia seja tratada como instrumento técnico de captura de dados, com backlog controlado, critérios de aceite e validação humana obrigatória antes de qualquer build ou piloto.
+
 ## 0. Gate obrigatório de UX UI por task
 
 Nenhuma task de UX UI pode entrar no backlog, alterar interface, criar botão, criar campo, criar label, alterar `tagging.py`, liberar build, liberar piloto ou liberar uso real se não estiver ligada a fonte forte, chunk, ação executável, critério de aceite e prova esperada.
@@ -184,7 +193,7 @@ ux_ui_contract_driven_tasks_part_1:
   - task_id: UX_001_CREATE_GLOBAL_CONTRACT
     chunk_id: CHUNK_UX_00_SOURCES_AND_GATES
     objective: "Criar contrato global de UX UI no repositório."
-    executable_action: "Criar docs/UX_UI_CONTRACT.md."
+    executable_action: "Criar docs/011_UX_Contrato_Interface.md."
     technical_justification: "Design centrado no humano precisa ser planejado no ciclo de vida do sistema interativo."
     verifiable_strong_source: SRC-UX-ISO-9241-210
     UI_or_UX_contract_reference:
@@ -197,7 +206,7 @@ ux_ui_contract_driven_tasks_part_1:
       - fontes_UX_registradas
       - baseline_acessibilidade_definido
     expected_proof:
-      - docs/UX_UI_CONTRACT.md
+      - docs/011_UX_Contrato_Interface.md
       - ux_contract_review.md
     real_world_success_condition: "Interface passa a ter regra antes de código."
     rollback_or_blocking_rule: "Sem contrato global, bloquear alteração em tagging.py."
@@ -796,7 +805,7 @@ ux_ui_backlog:
   - task_id: UX_001_CREATE_GLOBAL_CONTRACT
     priority: P0
     output:
-      - docs/UX_UI_CONTRACT.md
+      - docs/011_UX_Contrato_Interface.md
     acceptance:
       - contrato_global_existe
       - fontes_UX_registradas
@@ -869,7 +878,7 @@ ux_ui_backlog:
 ```yaml
 ux_ui_definition_of_done:
   required_documents:
-    - docs/UX_UI_CONTRACT.md
+    - docs/011_UX_Contrato_Interface.md
     - docs/ux/modules/<module_id>_ui.md
   required_code:
     - scoutpraia/ui/contracts.py

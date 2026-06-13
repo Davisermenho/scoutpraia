@@ -1,15 +1,25 @@
 ---
+doc_id: PROG_004
+title: "Progresso de Implementação"
+status: active
+version: "1.0.0"
+authority_level: 4
+category: PROG
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+blocking_policy: "Não declarar trabalho concluído sem cumprir os critérios aqui definidos."
 tipo: progresso_execução
 status_geral: MVP_COMPLETO
 fase_atual: "finalization_v1 ativo — ativação progressiva dos módulos v1 em curso; gerador/auditor full extraction integrados"
 testes_passando: 300
 event_definitions: 35
-última_atualização: 2026-06-12
 próxima_ação: "Validar merge com origin/main; testar gerador/auditor full extraction; gerar JSON da planilha"
 gaps_abertos:
   - "Taxonomia v0.1 ainda em draft — não sustenta KPI final estável (previsto; v1 endereça)"
   - "RAG/Chroma/embeddings seguem bloqueados até gate de Fase 2"
-  - "evidence_matrix.md e taxonomy_dictionary.md a reconciliar com events_v1.py (pós-MVP)"
+  - "008_AUDIT_Matriz_Evidencias.md e 006_TAX_Dicionario_Taxonomia.md a reconciliar com events_v1.py (pós-MVP)"
   - "SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json/jsonl ainda precisa ser gerado localmente a partir das abas da planilha"
   - "Proteção/locked copy da planilha dependem de ação no Drive/Sheets"
 mvp_completo: true
@@ -17,12 +27,20 @@ mvp_completo: true
 
 # ScoutPraia — Progresso de Implementação e Evidência
 
+## Resumo Executivo
+
+Registro do estado atual de implementação do ScoutPraia. MVP completo com G5 aprovado; finalization_v1 ativo e ativação progressiva de módulos v1 em curso.
+
+## Objetivo
+
+Rastrear o progresso real de implementação com evidência reproduzível por fase, servindo como fonte de verdade sobre o que está funcionando, o que está pendente e qual é a próxima ação.
+
 Este arquivo registra o estado atual de implementação. Ele deve ser atualizado a cada ciclo.
 
 **Regra:** uma etapa só pode ser marcada como `FUNCIONANDO` quando houver evidência
 reproduzível por comando, teste ou arquivo verificável.
 
-**Histórico de ciclos anteriores:** ver `docs/IMPLEMENTATION_LOG.md` quando existir.
+**Histórico de ciclos anteriores:** ver `docs/015_PROG_Log_Implementacao.md` quando existir.
 
 ---
 
@@ -188,8 +206,8 @@ docs/SCOUT_DESIGN_TEMPLATE_FULL_EXTRACTION.json ou .jsonl
 Objetivo: extrair todas as abas relevantes da planilha em chunks auditáveis e reconciliar:
 
 ```text
-docs/taxonomy_dictionary.md
-docs/evidence_matrix.md
+docs/006_TAX_Dicionario_Taxonomia.md
+docs/008_AUDIT_Matriz_Evidencias.md
 ```
 
 com os contratos atuais:
@@ -213,7 +231,7 @@ baseline:
     pytest: "196 passed"
 ```
 
-Observação: este baseline registra o estado verde anterior ao ajuste do registry G1. Os ciclos abaixo preservam esse baseline e mantêm `offensive_creation_v1` e `defensive_v1` apenas como contratos bloqueados; a estrutura interna do registry deve seguir a prioridade `SCOUT_DESIGN_TEMPLATE` > `Contrato_Operacional.md` > repositório.
+Observação: este baseline registra o estado verde anterior ao ajuste do registry G1. Os ciclos abaixo preservam esse baseline e mantêm `offensive_creation_v1` e `defensive_v1` apenas como contratos bloqueados; a estrutura interna do registry deve seguir a prioridade `SCOUT_DESIGN_TEMPLATE` > `005_CONT_Operacional_Eventos_v1.md` > repositório.
 
 ---
 
@@ -244,11 +262,11 @@ Observação: este baseline registra o estado verde anterior ao ajuste do regist
 
 - `match_roster` tem um único `player_id` — verificado por script.
 - `## 13.1 KPIs coletivos` aparece uma única vez — verificado por script.
-- Arquivo: `docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md`
+- Arquivo: `docs/002_SPEC_MVP_Tecnico.md`
 
 ### Fase 2 — Estrutura base do projeto `[CONCLUÍDA]`
 
-- Árvore de diretórios conforme `IMPLEMENTATION_STEPS_AI.md §2.1`
+- Árvore de diretórios conforme `003_PLAN_Passos_Implementacao_IA.md §2.1`
 - `requirements.txt` com versões fixas provadas no ambiente local
 - `python3 -c "import scoutpraia"` passa
 
@@ -283,7 +301,7 @@ Limite: ainda faltam testes individuais para todos os modelos.
   - vídeo real: `jogo_x6ppOlG0XlQ_2h19m44s_2h52m31s_720p_h264.mp4`
   - 3 tipos de relatório gerados pela UI: coletivo, individual (Fernanda Campbell), adversária (Campinas 360)
   - screenshots registrados em `docs/prints.png`
-  - protocolo Blocos A–E preenchido em `docs/validation_protocol.md`
+  - protocolo Blocos A–E preenchido em `docs/007_PROT_Protocolo_Validacao.md`
 - O que foi testado:
   - `scripts/verify_current_state.sh` verde antes do ensaio
   - `python3 -m pytest -q` com venv ativo
@@ -316,7 +334,7 @@ decision=APROVADO
   - `scoutpraia/contracts/events_v1.py`: `FINALIZATION_V1.import_rule_v1` → `IMPORT_RULE_V1_ACTIVE`; todos os 5 primary_events → `EVENT_STATUS_ACTIVE` + `IMPORT_RULE_V1_ACTIVE`
   - `scoutpraia/services/taxonomy_service.py`: adicionados 4 eventos ausentes — `simple_shot`, `inflight_shot`, `goalkeeper_shot`, `six_metre_throw` (total: 35 definições)
   - `tests/test_events_v1_contract_registry.py`: assertion de import_rule atualizada para `IMPORT_RULE_V1_ACTIVE` em primary_events de `finalization_v1`
-  - `docs/Contrato_Operacional.md`: seção 2-bis e gate_de_leitura atualizados
+  - `docs/005_CONT_Operacional_Eventos_v1.md`: seção 2-bis e gate_de_leitura atualizados
 - Resultado esperado:
   - botões "Finalização v1.0" aparecem na UI de marcação (simple_shot, spin_shot, inflight_shot, goalkeeper_shot, six_metre_throw)
   - pontos derivados automaticamente pelo contrato (não manual)

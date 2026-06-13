@@ -1,4 +1,16 @@
-# Working with evals
+---
+doc_id: DEPR_S03_OpenAI_Evals
+title: "Working with OpenAI Evals (DEPRECADO)"
+status: deprecated
+category: REF
+authority_level: 1
+owner: OpenAI (external)
+last_updated: "2026-06-13"
+deprecation_reason: "OpenAI está desativando a plataforma Evals. Shutdown: novembro 2026. ScoutPraia não usa OpenAI Evals — usa Claude SDK. Este documento não deve ser usado para orientar implementação."
+skip_for_agents: true
+---
+
+# Working with evals (DEPRECADO — NÃO USAR PARA IMPLEMENTAÇÃO)
 
 Evaluations (often called **evals**) test model outputs to ensure they meet style and content criteria that you specify. Writing evals to understand how your LLM applications are performing against your expectations, especially when upgrading or trying new models, is an essential component to building reliable applications.
 

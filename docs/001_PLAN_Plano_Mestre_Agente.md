@@ -1,14 +1,18 @@
 ---
-doc_id: SCOUTPRAIA_AGENT_MASTER_PLAN
-status: canonical_execution_master
+doc_id: PLAN_001
+title: "Plano Mestre Determinístico do Agente"
+status: canonical
 version: "2.0.0"
 authority_level: 5
-authority_scale: "1=informativo, 5=fonte obrigatória de execução para agentes"
+category: PLAN
+owner: Davi Sermenho
 created_at: "2026-06-12"
-repository: "Davisermenho/scoutpraia"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+blocking_policy: "Nenhuma execução sem leitura prévia deste documento."
+authority_scale: "1=informativo, 5=fonte obrigatória de execução para agentes"
 parent_document: "https://docs.google.com/document/d/1bw-53YWvvTslmZA0XmZ-ySMGBc8BbudcNJ9WokPdcLY/edit?tab=t.0"
 ux_ui_contract_document: "https://docs.google.com/document/d/1UQfD5H0g7PuA7nh_u_tv4yGzCoKpPtgLdX3pFYOkJus/edit?usp=drivesdk"
-blocking_policy: "Nenhuma execução sem fonte, contrato, teste, evidência e ausência de conflito crítico."
 ---
 
 # ScoutPraia — Plano Mestre Determinístico do Agente
@@ -31,6 +35,11 @@ master_plan_contract:
   may_use_old_plan_over_this_plan: false
   status_if_conflict: blocked
 ```
+
+## Objetivo
+
+Ser a fonte principal de execução determinística do ScoutPraia para agentes de IA, definindo ordem de execução, bloqueios, dependências, artefatos esperados, testes obrigatórios e critérios de aceite.
+
 ## 0. Gate obrigatório de execução por task
 
 Este gate torna o Plano Mestre executável no padrão contract-driven. Nenhuma task pode entrar no plano, ser implementada, revisada, marcada como concluída ou usada como base para outra task se não cumprir todos os campos obrigatórios definidos abaixo.
@@ -227,8 +236,8 @@ contract_driven_tasks:
       validates: schema_adherence_and_required_fields
     internal_contract_reference:
       - scoutpraia/contracts/events_v1.py
-      - docs/Contrato_Operacional.md
-      - docs/Agent_View_Scout_Design.md
+      - docs/005_CONT_Operacional_Eventos_v1.md
+      - docs/012_ARCH_Agent_View_Design.md
     commands_to_run:
       - PYTHONPATH=. python3 scripts/audit_docs_contract_alignment.py
       - python3 -m pytest tests/test_events_v1_contract_registry.py -q
@@ -245,7 +254,7 @@ contract_driven_tasks:
   - task_id: P0_003_CREATE_GLOBAL_UX_UI_CONTRACT
     chunk_id: CHUNK_MASTER_04_UI_UX_EXECUTION
     objective: "Criar contrato global de interface antes de alterar tagging.py."
-    executable_action: "Criar docs/UX_UI_CONTRACT.md a partir do Contrato UX UI."
+    executable_action: "Criar docs/011_UX_Contrato_Interface.md a partir do Contrato UX UI."
     technical_justification: "Design centrado no humano exige considerar usuários, tarefas e ambiente durante o ciclo de vida do sistema."
     verifiable_strong_source:
       canonical_source_id: SRC-UX-ISO-9241-210
@@ -259,7 +268,7 @@ contract_driven_tasks:
       - fontes_UX_registradas
       - gate_UX_UI_definido
     expected_proof:
-      - docs/UX_UI_CONTRACT.md
+      - docs/011_UX_Contrato_Interface.md
       - ux_contract_review.md
     real_world_success_condition: "Operador entende a tela e consegue iniciar marcação sem depender do desenvolvedor."
     rollback_or_blocking_rule: "Sem contrato global, nenhuma UI nova pode ser implementada."
@@ -373,8 +382,8 @@ contract_driven_tasks:
       canonical_source_id: SRC-OPENAI-STRUCTURED-OUTPUTS
       validates: required_schema_and_schema_adherence
     internal_contract_reference:
-      - docs/Contrato_Operacional.md
-      - docs/Agent_View_Scout_Design.md
+      - docs/005_CONT_Operacional_Eventos_v1.md
+      - docs/012_ARCH_Agent_View_Design.md
       - scoutpraia/contracts/events_v1.py
     commands_to_run:
       - PYTHONPATH=. python3 scripts/audit_docs_contract_alignment.py
@@ -759,7 +768,7 @@ execution_backlog:
     depends_on:
       - P0_001_CREATE_MASTER_EXECUTION_ORDER
     files_to_create:
-      - docs/UX_UI_CONTRACT.md
+      - docs/011_UX_Contrato_Interface.md
     source_document:
       - ScoutPraia — Contrato UX UI e Backlog de Interface
     tests_to_add:
@@ -842,8 +851,8 @@ execution_backlog:
     depends_on:
       - P0_002_CREATE_EFFECTIVE_MODULE_STATUS
     files_to_modify:
-      - docs/Contrato_Operacional.md
-      - docs/Agent_View_Scout_Design.md
+      - docs/005_CONT_Operacional_Eventos_v1.md
+      - docs/012_ARCH_Agent_View_Design.md
       - scoutpraia/contracts/events_v1.py
       - tests/test_events_v1_contract_registry.py
     acceptance_criteria:
@@ -868,8 +877,8 @@ phase_overrides:
       - module_effective_status
       - docs/ux/modules/<module_id>_ui.md
       - scoutpraia/contracts/events_v1.py
-      - docs/Contrato_Operacional.md
-      - docs/Agent_View_Scout_Design.md
+      - docs/005_CONT_Operacional_Eventos_v1.md
+      - docs/012_ARCH_Agent_View_Design.md
     pass_condition:
       - effective_status_not_blocked
       - ui_contract_exists_for_visible_module
@@ -897,7 +906,7 @@ phase_overrides:
   FASE_8_UI_MARKING_INTERFACE:
     phase_goal: "Implementar interface de marcação contract-driven, sem lista manual de eventos bloqueados."
     required_artifacts:
-      - docs/UX_UI_CONTRACT.md
+      - docs/011_UX_Contrato_Interface.md
       - docs/ux/modules/<module_id>_ui.md
       - scoutpraia/ui/contracts.py
       - scoutpraia/ui/quick_buttons.py

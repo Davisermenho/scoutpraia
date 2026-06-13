@@ -1,13 +1,27 @@
 ---
-doc_id: SCOUT_DESIGN_TEMPLATE_AGENT_VIEW
+doc_id: ARCH_012
+title: "Agent View — Design do Scout (SCOUT_DESIGN_TEMPLATE)"
+status: active
+category: ARCH
+authority_level: 3
+owner: Davi Sermenho
 source_spreadsheet: SCOUT_DESIGN_TEMPLATE
 source_spreadsheet_id: 1865ZgoC1t8H-acfeSxKirkgE5Ip8goE5ptFmRfi_QMs
-status: agent_view_inicial
-purpose: visão textual e legível por agentes da arquitetura definida na planilha
-last_generated_from_drive: 2026-06-12
+created_at: "2026-06-12"
+last_updated: "2026-06-13"
+last_generated_from_drive: "2026-06-12"
+repository: "Davisermenho/scoutpraia"
 ---
 
 # SCOUT_DESIGN_TEMPLATE — visão textual para agentes
+
+## Resumo Executivo
+
+Visão textual da arquitetura definida na planilha `SCOUT_DESIGN_TEMPLATE`, gerada para consumo por agentes de IA. Cobre vocabulário operacional v0.1, contratos v1, gates ativos e política de importação/UI.
+
+## Objetivo
+
+Tornar as decisões críticas da planilha `SCOUT_DESIGN_TEMPLATE` acessíveis a agentes sem depender do arquivo binário `.xlsx`, fornecendo referência textual verificável em conjunto com os contratos executáveis do repositório.
 
 Este documento transforma as decisões críticas da planilha `SCOUT_DESIGN_TEMPLATE` em uma visão textual legível por agentes.
 
@@ -18,7 +32,7 @@ Ele existe porque a planilha é uma matriz humana de arquitetura. Agentes não d
 - `SCOUT_DESIGN_TEMPLATE.xlsx` é contrato humano de arquitetura e governança.
 - Este documento é a visão textual derivada da planilha para agentes.
 - `events_v1.py` e `points_policy_v1.py` são fontes executáveis para comportamento do sistema.
-- `Contrato_Operacional.md` registra histórico, evidências e decisões.
+- `005_CONT_Operacional_Eventos_v1.md` registra histórico, evidências e decisões.
 - `pytest`, `verify_current_state.sh` e scripts de auditoria são evidência executável.
 - Nenhum módulo com `import_rule_v1=nao_importar_v1` pode ser liberado em UI/importação sem teste, evidência local, contrato atualizado e liberação explícita.
 
@@ -53,9 +67,9 @@ Quando houver conflito:
 
 1. Contrato executável e testes vencem para comportamento do app.
 2. Este Agent View vence para leitura textual da planilha por agentes.
-3. `Contrato_Operacional.md` vence para histórico e evidência de decisão.
+3. `005_CONT_Operacional_Eventos_v1.md` vence para histórico e evidência de decisão.
 4. `SCOUT_DESIGN_TEMPLATE.xlsx` vence para edição humana da matriz, mas precisa ser refletido aqui para agentes.
-5. Docs antigos como `taxonomy_dictionary.md` e `evidence_matrix.md` não devem reativar códigos legados quando divergirem dos contratos v1.
+5. Docs antigos como `006_TAX_Dicionario_Taxonomia.md` e `008_AUDIT_Matriz_Evidencias.md` não devem reativar códigos legados quando divergirem dos contratos v1.
 
 ## Módulos
 

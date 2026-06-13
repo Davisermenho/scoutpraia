@@ -1,3 +1,14 @@
+---
+doc_id: REF_S00_SOURCES_README
+title: "Índice de Fontes — ScoutPraia"
+status: active
+category: REF
+authority_level: 2
+owner: Davi Sermenho
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+---
+
 # Fontes do ScoutPraia
 
 Este diretório registra as fontes usadas para construir e revisar a taxonomia, os KPIs e os relatórios do ScoutPraia.
@@ -19,7 +30,7 @@ Regra de uso:
 | `SRC-RAG-LEWIS` | IA/RAG | Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks | ausente (Fase 2) | uso de fontes externas para reduzir dependência da memória interna da IA |
 | `SRC-RAG-STRUCTURED` | IA/RAG | Reducing hallucination in structured outputs via Retrieval-Augmented Generation | `2024.naacl-industry.19.pdf` | auditoria de saídas estruturadas, como taxonomias, campos e relatórios |
 | `SRC-OPENAI-EVALS` | avaliação de IA | OpenAI Evals / Working with evals | `Working-with-evals.md` | referência conceitual para ciclo de teste, medição de erro e iteração de prompts; plataforma oficial em deprecação |
-| `SRC-SYNTHESIS-BH` | curadoria secundária (síntese interna) | Scout de Handebol de Areia: Fontes Fortes | `Scout de Handebol de Areia_ Fontes Fortes.md` | mapa de pesquisa para `SRC-NOTATIONAL-BH` e `SRC-OBS-MEASUREMENT`; thresholds para `validation_protocol.md`; não citar como fonte primária |
+| `SRC-SYNTHESIS-BH` | curadoria secundária (síntese interna) | Scout de Handebol de Areia: Fontes Fortes | `Scout de Handebol de Areia_ Fontes Fortes.md` | mapa de pesquisa para `SRC-NOTATIONAL-BH` e `SRC-OBS-MEASUREMENT`; thresholds para `007_PROT_Protocolo_Validacao.md`; não citar como fonte primária |
 
 ## Artefatos derivados (não são fontes primárias)
 

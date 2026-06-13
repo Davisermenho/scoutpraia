@@ -1,3 +1,15 @@
+---
+doc_id: REF_S02_FONTES_FORTES
+title: "Fontes Fortes — Scout de Handebol de Areia"
+status: active
+category: REF
+authority_level: 2
+owner: Davi Sermenho
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+note: "Curadoria secundária — não citar como fonte primária."
+---
+
 # **Arquitetura, Validação Científica e Implementação Tecnológica de um Instrumento Observacional para Análise de Desempenho no Handebol de Areia**
 
 ## **Introdução e Fundamentação Epistemológica da Análise de Desempenho**

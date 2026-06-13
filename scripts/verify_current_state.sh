@@ -30,9 +30,9 @@ printf 'legacy_video_dir_absent=Videos-Jogos\n'
 printf 'forbidden_tracked_files=none\n'
 
 printf '\n== Required MVP doc checks ==\n'
-mvp_doc=docs/MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+mvp_doc=docs/002_SPEC_MVP_Tecnico.md
 test -f "$mvp_doc"
-test ! -e MVP_TECNICO_ANALISE_VIDEOS_HANDEBOL_PRAIA.md
+test ! -e 002_SPEC_MVP_Tecnico.md
 player_id_count=$(sed -n '/### `match_roster`/,/### `sets`/p' "$mvp_doc" | grep -c -- '- `player_id`')
 kpi_title_count=$(grep -c '^## 13\.1 KPIs coletivos$' "$mvp_doc")
 printf 'match_roster_player_id_count=%s\n' "$player_id_count"

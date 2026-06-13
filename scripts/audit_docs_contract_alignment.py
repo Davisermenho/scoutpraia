@@ -81,20 +81,20 @@ ACTIVE_STATUS_MARKERS = (
 )
 
 DOC_PATHS_TO_SCAN = (
-    "docs/taxonomy_dictionary.md",
-    "docs/evidence_matrix.md",
-    "docs/IMPLEMENTATION_PLAN_EVENTOS_V1.md",
-    "docs/Contrato_Operacional.md",
-    "docs/ARCHITECTURE_README.md",
+    "docs/006_TAX_Dicionario_Taxonomia.md",
+    "docs/008_AUDIT_Matriz_Evidencias.md",
+    "docs/014_PLAN_Eventos_v1.md",
+    "docs/005_CONT_Operacional_Eventos_v1.md",
+    "docs/013_ARCH_Readme.md",
 )
 
 REQUIRED_DOC_PATTERNS = {
-    "docs/ARCHITECTURE_README.md": [
+    "docs/013_ARCH_Readme.md": [
         r"SCOUT_DESIGN_TEMPLATE.*contrato de arquitetura",
         r"events_v1\.py.*registry executável|events_v1\.py.*registry executavel",
         r"não é banco oficial de lances|nao e banco oficial de lances",
     ],
-    "docs/IMPLEMENTATION_PROGRESS.md": [
+    "docs/004_PROG_Progresso_Implementacao.md": [
         r"points_policy_v1",
         r"não alteram seed, UI ou importação|nao alteram seed, UI ou importacao",
     ],
@@ -280,10 +280,10 @@ def audit_completion_claims(repo_root: Path, report: AuditReport) -> None:
     )
 
     for relative_path in (
-        "docs/IMPLEMENTATION_PROGRESS.md",
-        "docs/validation_protocol.md",
-        "docs/AUDIT_EVIDENCE_VALIDATION.md",
-        "docs/rag_workflow.md",
+        "docs/004_PROG_Progresso_Implementacao.md",
+        "docs/007_PROT_Protocolo_Validacao.md",
+        "docs/010_AUDIT_Validacao_G5.md",
+        "docs/009_RAG_Workflow_Fontes.md",
     ):
         path = repo_root / relative_path
         if not path.exists():

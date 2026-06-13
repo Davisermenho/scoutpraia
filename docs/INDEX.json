@@ -1,0 +1,302 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-06-13",
+  "repository": "Davisermenho/scoutpraia",
+  "authority_hierarchy": [
+    "PLAN_001",
+    "CONT_005",
+    "UX_011",
+    "SPEC_002",
+    "AGENTS_md"
+  ],
+  "conflict_resolution": "O documento com maior authority_level vence. Entre iguais: o mais recente (last_updated) vence.",
+  "reading_order": {
+    "mandatory_before_any_task": [
+      "QUICK_REF_000",
+      "AGENTS_md"
+    ],
+    "mandatory_before_implementation": [
+      "PLAN_001",
+      "SPEC_002",
+      "CONT_005",
+      "PROG_004"
+    ],
+    "reference_on_demand": [
+      "PLAN_003",
+      "TAX_006",
+      "PROT_007",
+      "AUDIT_008",
+      "UX_011",
+      "ARCH_012",
+      "UX_018"
+    ],
+    "historical_do_not_use_for_execution": [
+      "AUDIT_010",
+      "PLAN_014",
+      "PROG_015"
+    ],
+    "skip_for_agents": [
+      "evidence_g5_folder",
+      "sources/_deprecated",
+      "DEPR_S03"
+    ]
+  },
+  "documents": [
+    {
+      "doc_id": "DOCS_README",
+      "file": "docs/README.md",
+      "title": "Índice Humano + Agente da Documentação",
+      "status": "active",
+      "authority_level": 2,
+      "category": "REF",
+      "tokens_estimated": 600,
+      "note": "Índice de navegação — não é documento de autoridade"
+    },
+    {
+      "doc_id": "QUICK_REF_000",
+      "file": "docs/000_QUICK_REFERENCE.md",
+      "title": "Referência Rápida — ScoutPraia",
+      "status": "canonical",
+      "authority_level": 5,
+      "category": "PLAN",
+      "tokens_estimated": 800
+    },
+    {
+      "doc_id": "PLAN_001",
+      "file": "docs/001_PLAN_Plano_Mestre_Agente.md",
+      "title": "Plano Mestre Determinístico do Agente",
+      "status": "canonical",
+      "authority_level": 5,
+      "category": "PLAN",
+      "tokens_estimated": 10090
+    },
+    {
+      "doc_id": "SPEC_002",
+      "file": "docs/002_SPEC_MVP_Tecnico.md",
+      "title": "Especificação Técnica do MVP ScoutPraia",
+      "status": "canonical",
+      "authority_level": 5,
+      "category": "SPEC",
+      "tokens_estimated": 5297
+    },
+    {
+      "doc_id": "PLAN_003",
+      "file": "docs/003_PLAN_Passos_Implementacao_IA.md",
+      "title": "Passos de Implementação para IA",
+      "status": "active",
+      "authority_level": 4,
+      "category": "PLAN",
+      "tokens_estimated": 5970
+    },
+    {
+      "doc_id": "PROG_004",
+      "file": "docs/004_PROG_Progresso_Implementacao.md",
+      "title": "Progresso de Implementação",
+      "status": "active",
+      "authority_level": 4,
+      "category": "PROG",
+      "tokens_estimated": 3145
+    },
+    {
+      "doc_id": "CONT_005",
+      "file": "docs/005_CONT_Operacional_Eventos_v1.md",
+      "title": "Contrato Operacional — Eventos v1",
+      "status": "canonical",
+      "authority_level": 5,
+      "category": "CONT",
+      "tokens_estimated": 21041
+    },
+    {
+      "doc_id": "TAX_006",
+      "file": "docs/006_TAX_Dicionario_Taxonomia.md",
+      "title": "Dicionário de Taxonomia v0.1",
+      "status": "draft",
+      "authority_level": 3,
+      "category": "TAX",
+      "tokens_estimated": 2758
+    },
+    {
+      "doc_id": "PROT_007",
+      "file": "docs/007_PROT_Protocolo_Validacao.md",
+      "title": "Protocolo de Validação G5",
+      "status": "active",
+      "authority_level": 4,
+      "category": "PROT",
+      "tokens_estimated": 5637
+    },
+    {
+      "doc_id": "AUDIT_008",
+      "file": "docs/008_AUDIT_Matriz_Evidencias.md",
+      "title": "Matriz de Evidências",
+      "status": "active",
+      "authority_level": 3,
+      "category": "AUDIT",
+      "tokens_estimated": 1796
+    },
+    {
+      "doc_id": "RAG_009",
+      "file": "docs/009_RAG_Workflow_Fontes.md",
+      "title": "Workflow de Fontes RAG",
+      "status": "active",
+      "authority_level": 3,
+      "category": "RAG",
+      "tokens_estimated": 901,
+      "note": "Bloqueado até Fase 2 — RAG não ativo no MVP"
+    },
+    {
+      "doc_id": "AUDIT_010",
+      "file": "docs/010_AUDIT_Validacao_G5.md",
+      "title": "Auditoria de Evidências e Validação G5",
+      "status": "historical",
+      "authority_level": 3,
+      "category": "AUDIT",
+      "tokens_estimated": 2915,
+      "note": "G5 FECHADO em 2026-06-12. Documento histórico — não usar para execução."
+    },
+    {
+      "doc_id": "UX_011",
+      "file": "docs/011_UX_Contrato_Interface.md",
+      "title": "Contrato UX/UI — Interface de Marcação",
+      "status": "canonical",
+      "authority_level": 5,
+      "category": "UX",
+      "tokens_estimated": 7074
+    },
+    {
+      "doc_id": "ARCH_012",
+      "file": "docs/012_ARCH_Agent_View_Design.md",
+      "title": "Agent View do Design do Scout",
+      "status": "active",
+      "authority_level": 3,
+      "category": "ARCH",
+      "tokens_estimated": 7739
+    },
+    {
+      "doc_id": "ARCH_013",
+      "file": "docs/013_ARCH_Readme.md",
+      "title": "Architecture README",
+      "status": "active",
+      "authority_level": 2,
+      "category": "ARCH",
+      "tokens_estimated": 1018
+    },
+    {
+      "doc_id": "PLAN_014",
+      "file": "docs/014_PLAN_Eventos_v1.md",
+      "title": "Plano de Implementação Eventos v1",
+      "status": "historical",
+      "authority_level": 2,
+      "category": "PLAN",
+      "tokens_estimated": 3252,
+      "note": "Supersedido por PLAN_001 — não usar para execução"
+    },
+    {
+      "doc_id": "PROG_015",
+      "file": "docs/015_PROG_Log_Implementacao.md",
+      "title": "Log de Implementação",
+      "status": "historical",
+      "authority_level": 2,
+      "category": "PROG",
+      "tokens_estimated": 1708
+    },
+    {
+      "doc_id": "RAG_016",
+      "file": "docs/016_RAG_Plano_Organizacao_Fontes.md",
+      "title": "Plano de Organização de Fontes RAG",
+      "status": "active",
+      "authority_level": 2,
+      "category": "RAG",
+      "tokens_estimated": 9480
+    },
+    {
+      "doc_id": "AUDIT_017",
+      "file": "docs/017_AUDIT_Fluxo_MVP_Agente.md",
+      "title": "Auditoria do Fluxo MVP do Agente",
+      "status": "active",
+      "authority_level": 3,
+      "category": "AUDIT",
+      "tokens_estimated": 1386
+    },
+    {
+      "doc_id": "UX_018",
+      "file": "docs/018_UX_Guia_Preenchimento.md",
+      "title": "Guia de Preenchimento da Marcação",
+      "status": "active",
+      "authority_level": 3,
+      "category": "UX",
+      "tokens_estimated": 3916
+    },
+    {
+      "doc_id": "FLOW_019",
+      "file": "docs/019_FLOW_Manual_IA_Atacante_Defensor.md",
+      "title": "Manual Determinístico — Fluxo IA Atacante × Defensor",
+      "status": "active",
+      "authority_level": 3,
+      "category": "FLOW",
+      "tokens_estimated": 6168
+    },
+    {
+      "doc_id": "REF_S00",
+      "file": "docs/sources/README.md",
+      "title": "Índice de Fontes — ScoutPraia",
+      "status": "active",
+      "authority_level": 2,
+      "category": "REF",
+      "tokens_estimated": 500
+    },
+    {
+      "doc_id": "REF_S01",
+      "file": "docs/sources/REF_S01_Regras_Oficiais_IHF_2026.md",
+      "title": "Regras Oficiais IHF Beach Handball 2026 (derivado textual)",
+      "status": "active",
+      "authority_level": 2,
+      "category": "REF",
+      "tokens_estimated": 27520
+    },
+    {
+      "doc_id": "REF_S02",
+      "file": "docs/sources/REF_S02_Fontes_Fortes_Handebol.md",
+      "title": "Fontes Fortes — Scout de Handebol de Areia",
+      "status": "active",
+      "authority_level": 2,
+      "category": "REF",
+      "tokens_estimated": 500
+    },
+    {
+      "doc_id": "DEPR_S03",
+      "file": "docs/sources/_deprecated/DEPR_S03_OpenAI_Evals.md",
+      "title": "Working with OpenAI Evals (DEPRECADO)",
+      "status": "deprecated",
+      "authority_level": 1,
+      "category": "REF",
+      "tokens_estimated": 15160,
+      "skip_for_agents": true,
+      "deprecation_reason": "OpenAI Evals platform shutdown: novembro 2026. ScoutPraia usa Claude SDK."
+    }
+  ],
+  "module_status": {
+    "attack_no_shot_v1": {
+      "import_rule": "importar_v1",
+      "status": "contrato_validado",
+      "active": true
+    },
+    "finalization_v1": {
+      "import_rule": "importar_v1",
+      "status": "contrato_validado",
+      "active": true,
+      "activation_date": "2026-06-12"
+    },
+    "offensive_creation_v1": {
+      "import_rule": "nao_importar_v1",
+      "status": "contrato_validado",
+      "active": false
+    },
+    "defensive_v1": {
+      "import_rule": "nao_importar_v1",
+      "status": "contrato_validado",
+      "active": false
+    }
+  },
+  "broken_references": [],
+  "conformity_last_checked": "2026-06-13"
+}

@@ -1,13 +1,30 @@
 ---
+doc_id: RAG_009
+title: "Workflow de Fontes RAG"
+status: active
+version: "1.0.0"
+authority_level: 3
+category: RAG
+owner: Davi Sermenho
+created_at: "2026-06-01"
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
 tipo: fluxo_rag
 fase_atual: 1
 RAG_liberado: false
 critério_fase_2: "MVP funcional completo + G5 aprovado + fontes locais indexadas"
-última_atualização: 2026-06-10
 nota: "RAG (Fase 2) MUST NOT ser implementado antes do MVP funcional com G5 aprovado"
 ---
 
 # Fluxo de Fontes, IA e RAG
+
+## Resumo Executivo
+
+Define o fluxo de fontes e RAG do ScoutPraia em duas fases: Fase 1 (manual, sem RAG, atual) e Fase 2 (RAG bloqueado até MVP funcional com G5 aprovado). RAG atualmente não liberado.
+
+## Objetivo
+
+Estabelecer quando e como o RAG pode ser ativado no ScoutPraia, garantindo que a camada de IA só seja habilitada após a base operacional estar validada humanamente.
 
 ## RESTRIÇÃO CRÍTICA
 
@@ -32,9 +49,9 @@ O RAG não é necessário para a marcação inicial do MVP. No ScoutPraia, ele d
 Usar enquanto há poucas fontes.
 
 1. registrar fontes em `docs/sources/README.md`
-2. transformar fonte em decisão na `docs/evidence_matrix.md`
-3. criar ou ajustar definição em `docs/taxonomy_dictionary.md`
-4. validar definição em vídeo com `docs/validation_protocol.md`
+2. transformar fonte em decisão na `docs/008_AUDIT_Matriz_Evidencias.md`
+3. criar ou ajustar definição em `docs/006_TAX_Dicionario_Taxonomia.md`
+4. validar definição em vídeo com `docs/007_PROT_Protocolo_Validacao.md`
 5. aprovar apenas campos úteis, observáveis e consistentes
 
 ## Fase 2 — RAG local
@@ -56,7 +73,7 @@ Quando desbloqueada, componentes sugeridos:
 - indexador local (a definir)
 - busca por trecho relevante com citação obrigatória
 - prompt de auditoria com exigência de fontes, conflitos e inferências
-- registro da decisão final na `docs/evidence_matrix.md`
+- registro da decisão final na `docs/008_AUDIT_Matriz_Evidencias.md`
 
 ## Usos corretos da IA/RAG
 

@@ -1,3 +1,16 @@
+---
+doc_id: REF_S01_IHF_2026
+title: "Regras Oficiais IHF Beach Handball 2026 (derivado textual)"
+status: active
+category: REF
+authority_level: 2
+owner: IHF (external) / ScoutPraia (derivado)
+last_updated: "2026-06-13"
+repository: Davisermenho/scoutpraia
+skip_for_agents: false
+note: "Derivado textual do PDF oficial IHF. Não substituir a fonte normativa original."
+---
+
     I. Playing Rules	3
 Rule 1 – Playing Court	4
 Rule 2 – Start of the Game, Playing Time, Final Signal, Time-Out
