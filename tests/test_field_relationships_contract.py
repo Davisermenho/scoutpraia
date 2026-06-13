@@ -158,3 +158,4 @@ def test_required_structural_actions_are_not_declared_as_operational_imports() -
             "transition_v1",
             "global",
         }
+        
