@@ -3,38 +3,20 @@ title: Contrato Operacional — Eventos v1
 project: ScoutPraia
 version: eventos_v1.0
 owner: Davi Sermenho
-last_updated: 2026-06-10
+last_updated: 2026-06-12
 status: todos_contratos_validados
 semantic_source: Contrato_Operacional.md
 implementation_source: SCOUT_DESIGN_TEMPLATE
 repository: Davisermenho/scoutpraia
 ---
 
-```yaml
-gate_de_leitura:
-  quando_ler: "SOMENTE após G5 aprovado em docs/validation_protocol.md"
-  estado_atual: "ABERTO — G5 aprovado; finalization_v1 ativo"
-  prioridade_para_agente: |
-    Ler seção 2-bis para entender import_rule_v1 atual de cada módulo.
-    finalization_v1 está ativo. Os demais módulos seguem nao_importar_v1.
-  fonte_legível_para_agente: "Este arquivo (Contrato_Operacional.md)"
-  fonte_para_humano: "SCOUT_DESIGN_TEMPLATE.xlsx"
-  nota_xlsx: |
-    O XLSX é a fonte de design para humanos e não pode ser lido por agentes.
-    Este arquivo .md é a fonte 1 efetiva para agentes.
-```
-
 # Contrato Operacional — Eventos v1
-
 
 ## 1. Objetivo
 
-
 Este documento define as regras semânticas, taxonômicas e operacionais para os módulos v1 do ScoutPraia. Ele deve ser usado como referência controlada por humanos e agentes de IA.
 
-
 Regra principal:
-
 
 ```yaml
 global_rule:
@@ -45,9 +27,7 @@ global_rule:
   blocking_rule: "Divergência entre fontes bloqueia implementação até correção."
 ```
 
-
 ## 2. Fontes de verdade
-
 
 ```yaml
 sources:
@@ -58,17 +38,14 @@ sources:
   blocking_rule: "Divergência entre fontes bloqueia implementação até correção."
 ```
 
-
 ## 2-bis. Estado consolidado
-
 
 Referência rápida para agentes. Para regras detalhadas, consultar as seções 6 a 9.
 
-
 ```yaml
 consolidated_state:
-  last_reviewed_at: "2026-06-12"
-  git_head: "pendente"
+  last_reviewed_at: "2026-06-10"
+  git_head: "7352846"
   modules:
     attack_no_shot_v1:
       status: "contrato_validado"
@@ -77,10 +54,9 @@ consolidated_state:
       evidence_status: "passed"
     finalization_v1:
       status: "contrato_validado"
-      import_rule_v1: "importar_v1"
+      import_rule_v1: "nao_importar_v1"
       evidence: ["EV-006"]
       evidence_status: "passed"
-      ativado_em: "2026-06-12"
     offensive_creation_v1:
       status: "contrato_validado"
       import_rule_v1: "nao_importar_v1"
@@ -93,9 +69,7 @@ consolidated_state:
       evidence_status: "passed"
 ```
 
-
 ## 3. Status dos módulos
-
 
 ```yaml
 module_status:
@@ -114,7 +88,6 @@ module_status:
       - "bad_substitution_attack"
       - "turnover_unclassified"
 
-
   finalization_v1:
     name: "Finalização v1.0"
     status: "contrato_validado"
@@ -131,7 +104,6 @@ module_status:
       - "specialist_finish_role"
     blocking_rule: "Mesmo validado por contrato, não importar no app antes de implementação controlada e testes de integração."
 
-
   offensive_creation_v1:
     name: "Criação ofensiva v1.0"
     status: "contrato_validado"
@@ -146,7 +118,6 @@ module_status:
       - "advantage_pass_to_free_player"
       - "collective_action_creates_shot"
     blocking_rule: "Mesmo validado por contrato, não importar no app antes de implementação controlada e testes de integração."
-
 
   defensive_v1:
     name: "Defensivo v1.0"
@@ -163,9 +134,7 @@ module_status:
     blocking_rule: "Mesmo validado por contrato, não importar no app antes de implementação controlada e testes de integração."
 ```
 
-
 ## 4. Governança global
-
 
 ```yaml
 global_constraints:
@@ -187,9 +156,7 @@ global_constraints:
     - "require_contract_scope_explicit"
 ```
 
-
 ## 5. Taxonomias globais
-
 
 ```yaml
 taxonomies:
@@ -198,24 +165,19 @@ taxonomies:
     context_only: ["fast_break_attack", "specialist_on_court", "empty_goal_attack", "high_press"]
     note: "Especialista é papel dinâmico, não sistema ou posição."
 
-
   court_zones:
     lanes: ["lane_1_outer_left", "lane_2_inner_left", "lane_3_central_axis", "lane_4_inner_right", "lane_5_outer_right"]
     depth: ["depth_0_backcourt", "depth_1_far", "depth_2_mid", "depth_3_near_area"]
     note: "Zona da quadra descreve localização espacial, não função tática."
 
-
   goal_zones:
     note: "Aplicável apenas à Finalização quando a trajetória ao gol for visível ou inferível com segurança."
-
 
   possession_results:
     global: ["goal", "save", "shot_wide", "shot_blocked", "lost_possession_no_shot", "rebound_live", "execution_invalid_6m"]
 ```
 
-
 ## 6. Módulo attack_no_shot_v1
-
 
 ```yaml
 module_attack_no_shot:
@@ -246,9 +208,7 @@ module_attack_no_shot:
     - "turnover_cause_detail"
 ```
 
-
 ## 7. Módulo finalization_v1
-
 
 ```yaml
 module_finalization:
@@ -294,9 +254,7 @@ module_finalization:
     - "Não permitir goalkeeper_shot + shot_blocked na v1.0."
 ```
 
-
 ## 8. Módulo offensive_creation_v1
-
 
 ```yaml
 module_offensive_creation:
@@ -364,9 +322,7 @@ module_offensive_creation:
     - "Não criar botões novos a partir de creation_type."
 ```
 
-
 ## 9. Módulo defensive_v1
-
 
 ```yaml
 module_defensive:
@@ -429,9 +385,7 @@ module_defensive:
     - "Não usar goal_zone, scorer_role ou shot_origin_depth em Defensivo."
 ```
 
-
 ## 10. Evidências de aceitação
-
 
 ```yaml
 acceptance_tests:
@@ -445,7 +399,6 @@ acceptance_tests:
     git_head: "5cf588c"
     module: "attack_no_shot_v1"
 
-
   EV-002:
     command: "python3 -m pytest -q"
     expected_result: "all tests passed"
@@ -455,7 +408,6 @@ acceptance_tests:
     executed_at: "2026-06-10"
     git_head: "5cf588c"
     module: "global"
-
 
   EV-003:
     command: "scripts/verify_current_state.sh"
@@ -467,7 +419,6 @@ acceptance_tests:
     git_head: "7352846"
     module: "global"
 
-
   EV-004:
     command: "python3 -m pytest tests/test_attack_no_shot_import_scope.py -q"
     expected_result: "all tests passed"
@@ -477,7 +428,6 @@ acceptance_tests:
     executed_at: "2026-06-10"
     git_head: "5cf588c"
     module: "attack_no_shot_v1"
-
 
   EV-005:
     command: "python3 -m pytest tests/test_eventos_sheet_scope.py -q"
@@ -489,7 +439,6 @@ acceptance_tests:
     git_head: "5cf588c"
     module: "sheet_scope"
 
-
   EV-006:
     command: "python3 -m pytest tests/test_finalization_contract.py"
     expected_result: "29 passed"
@@ -500,7 +449,6 @@ acceptance_tests:
     commit: "614626e907d2d25bbbd46d473d241055aa33eacf"
     module: "finalization_v1"
 
-
   EV-007:
     command: "python3 -m pytest tests/test_offensive_creation_contract.py"
     expected_result: "20 passed"
@@ -510,7 +458,6 @@ acceptance_tests:
     executed_at: "2026-06-10"
     commit: "11da639bbdb5b90973972059424690cc28d66145"
     module: "offensive_creation_v1"
-
 
   EV-008:
     command: "python3 -m pytest tests/test_defensive_contract.py -q"
@@ -523,9 +470,7 @@ acceptance_tests:
     module: "defensive_v1"
 ```
 
-
 ## 11. Regras de liberação
-
 
 ```yaml
 release_rules:
@@ -543,15 +488,11 @@ release_rules:
     - "Confirmar fluxo de app com attack_no_shot_v1 ativo antes de ativar módulos dependentes."
 ```
 
-
 ## 12. Histórico de alterações
-
 
 As entradas abaixo são registros históricos. O estado atual e autoritativo está nas seções 3, 6, 10 e 11.
 
-
 ### G0 — Alinhamento Ataque sem finalização v1.0 (2026-06-10)
-
 
 ```yaml
 g0_attack_no_shot_alignment:
@@ -565,9 +506,7 @@ g0_attack_no_shot_alignment:
   evidence_completed: ["EV-001", "EV-002", "EV-003", "EV-004", "EV-005"]
 ```
 
-
 ### G0 — Evidência aprovada (Ataque sem finalização v1.0)
-
 
 ```yaml
 g0_attack_no_shot_acceptance:
@@ -602,9 +541,7 @@ g0_attack_no_shot_acceptance:
   seed_note: "Taxonomia operacional padrão permanece ScoutPraia v0.1 draft com 31 eventos; G0 valida contrato/código, não troca automática do seed."
 ```
 
-
 ### G1-FIX — Correção do contrato operacional (2026-06-10)
-
 
 ```yaml
 g1_fix_summary:
@@ -623,7 +560,6 @@ g1_fix_summary:
     - "last_reviewed_at e git_head adicionados às seções de módulos 6 a 9."
     - "Seções 12-13 convertidas para Histórico de alterações com marcação explícita."
 ```
-
 
 
 
@@ -2007,4 +1943,80 @@ event_rules_normalization_update:
     - "As novas abas são fonte auxiliar de auditoria e ainda não substituem 100% das regras originais."
   next_recommended_step: "Expandir a normalização até cobrir 100% das regras críticas ou criar script de auditoria planilha x repositório usando essas abas."
 ```
+
+## 41. Governança de leitura da planilha — frontmatter comum e SHEET_CONTRACTS
+```yaml
+spreadsheet_frontmatter_and_contracts_update:
+  date: "2026-06-12"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "frontmatter_comum_e_sheet_contracts_criados"
+  decision: "Manter a estrutura A1:C6 como frontmatter comum, linha 7 como cabeçalho real da aba e linha 8 como início dos dados. Não deslocar cabeçalhos para linha 15 sem nova decisão explícita."
+  common_frontmatter:
+    range: "A1:C6"
+    rows:
+      - "frontmatter_key | frontmatter_value | agent_instruction"
+      - "artifact_id | SCOUT_DESIGN_TEMPLATE | identificar_artefato"
+      - "schema_version | frontmatter_v1 | usar_esta_versao_de_metadados"
+      - "sheet_name | CURRENT_TAB | usar_nome_da_aba_lida_no_contexto"
+      - "canonical_registry_sheet | SOURCE_REGISTER | consultar_fontes_e_permissoes"
+      - "data_region | header_row=7; data_start_row=8 | linha_7_eh_cabecalho_e_linha_8_inicia_dados"
+  created_sheet:
+    SHEET_CONTRACTS:
+      purpose: "Centralizar o contrato específico de cada aba, incluindo função, chave primária, chaves estrangeiras, dependências, política de UI, política SQLite, validação e uso pelo agente."
+      header_row: 7
+      data_start_row: 8
+      key_columns:
+        - "sheet_name"
+        - "sheet_role"
+        - "primary_key"
+        - "foreign_keys"
+        - "depends_on"
+        - "referenced_by"
+        - "ui_generation_policy"
+        - "sqlite_generation_policy"
+        - "validation_policy"
+        - "agent_usage"
+        - "notes"
+  agent_rules:
+    - "Ler A1:C6 antes de interpretar qualquer aba."
+    - "Usar linha 7 como cabeçalho real da tabela."
+    - "Usar linha 8 em diante como dados."
+    - "Consultar SHEET_CONTRACTS antes de gerar UI, SQLModel/sqlite3, validações ou testes."
+    - "Consultar SOURCE_REGISTER antes de usar fonte, evidência, regra ou permissão."
+    - "Consultar MODULE_INDEX antes de filtrar ou implementar module_id."
+    - "Consultar SHEET_MAP antes de navegar entre abas."
+    - "Tratar TESTES_* como especificações BDD/TDD e não como few-shot prompts."
+    - "Gerar selectbox/enum quando foreign_keys ou allowed_values apontarem para domínio/tabela; não gerar text_input livre."
+    - "Usar CROSS_MODULE_BOUNDARIES para state machine, session_state, sequência temporal e bloqueios entre módulos."
+  contracts_initial_scope:
+    central_sheets:
+      - "SOURCE_REGISTER"
+      - "MODULE_INDEX"
+      - "SHEET_MAP"
+      - "EVENTOS"
+      - "FIELD_DICTIONARY_GLOBAL"
+      - "RESULT_DOMAIN_GLOBAL"
+      - "CROSS_MODULE_BOUNDARIES"
+      - "EVENT_BLOCKING_RULES"
+    pilot_module_sheets:
+      - "CAMPOS_AUXILIARES_GOLEIRA"
+      - "RESULTADOS_GOLEIRA"
+      - "TESTES_GOLEIRA"
+      - "CAMPOS_AUXILIARES_FINALIZACAO"
+      - "CAMPOS_AUXILIARES_TRANSICAO"
+      - "TESTES_FINALIZACAO"
+      - "TESTES_TRANSICAO"
+  updated_sheet:
+    INSTRUCOES:
+      status: "atualizada"
+      added_section: "Governança atual da planilha"
+      content_summary: "Documenta frontmatter comum, SHEET_CONTRACTS, SOURCE_REGISTER, MODULE_INDEX, SHEET_MAP, TESTES como BDD/TDD, campos fechados, state machine e preservação da linha 7 como cabeçalho."
+  current_effect:
+    - "Nenhum módulo foi liberado para UI ou importação."
+    - "Nenhum evento foi movido ou removido."
+    - "A mudança adiciona governança de leitura, contratos específicos por aba e relacionamentos explícitos para reduzir inferência do agente."
+    - "A planilha passa a orientar o futuro compilador de contratos por module_id, evitando envio de todas as abas ao LLM."
+  next_recommended_step: "Expandir SHEET_CONTRACTS para todas as abas restantes e depois criar o script extrator/compilador de contratos por module_id."
+```
+
 
