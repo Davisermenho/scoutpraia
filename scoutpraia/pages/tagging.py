@@ -6,6 +6,7 @@ import streamlit as st
 from sqlmodel import Session, select
 
 from scoutpraia.contracts.events_v1 import FINALIZATION_V1, NO_SHOT_ATTACK_V1
+from scoutpraia.ui.contracts import get_active_quick_event_codes
 from scoutpraia.core.database import create_db_and_tables, engine
 from scoutpraia.models.event import Event
 from scoutpraia.models.match import Match, Possession, SetSegment
@@ -49,22 +50,7 @@ from scoutpraia.utils.timecode import format_seconds_for_input, timecode_to_seco
 from scoutpraia.utils.zones import ZONES
 
 
-QUICK_EVENT_TYPES = [
-    "shot_attempt",
-    "goal_scored",
-    "two_point_goal",
-    "specialist_attempt",
-    "specialist_goal",
-    "technical_error",
-    "turnover",
-    "assist",
-    "defensive_stop",
-    "steal",
-    "block",
-    "save",
-    "goal_conceded",
-    "shootout_goal",
-]
+QUICK_EVENT_TYPES = get_active_quick_event_codes()
 TIME_INPUT_HELP = "Aceita segundos, MM:SS ou HH:MM:SS. Exemplos: 145, 02:25, 01:02:25, 02:25.4."
 FINALIZATION_EVENT_TYPES = tuple(
     event_contract.event_code for event_contract in FINALIZATION_V1.primary_events
@@ -194,7 +180,7 @@ def render() -> None:
 
 
 def _init_state() -> None:
-    st.session_state.setdefault("tagging_event_type", "shot_attempt")
+    st.session_state.setdefault("tagging_event_type", QUICK_EVENT_TYPES[0])
     st.session_state.setdefault("tagging_timestamp_second", 0.0)
     st.session_state.setdefault(
         "tagging_timestamp_input",

@@ -374,6 +374,8 @@ contract_driven_tasks:
     done_definition: "Walkthrough executado, evidências salvas e falhas críticas tratadas."
 
   - task_id: P1_001_RECONCILE_FINALIZATION_V1_STATUS
+    status: completed
+    completed_at: "2026-06-13"
     chunk_id: CHUNK_MASTER_01_REPO_RECONCILIATION
     objective: "Resolver conflito semântico de finalization_v1 antes de qualquer exposição na UI."
     executable_action: "Gerar relatório de conflito e aplicar decisão única nos documentos e contratos."
@@ -624,17 +626,13 @@ module_effective_status:
 
   finalization_v1:
     executable_status: "active_in_events_v1_and_tests"
-    docs_status: "conflicting"
-    agent_view_status: "nao_importar_v1_or_conflicting"
-    ui_status: "blocked"
-    effective_status: "blocked_pending_reconciliation"
-    reason: "Código/testes indicam ativação, mas documentos ainda preservam bloqueio."
-    required_resolution:
-      - gerar_docs_conflict_report_md
-      - escolher_decisao_unica
-      - atualizar_Contrato_Operacional
-      - atualizar_Agent_View
-      - manter_UI_bloqueada_ate_reconciliacao
+    docs_status: "importar_v1"
+    agent_view_status: "importar_v1"
+    ui_status: "allowed_after_ui_contract_and_registry"
+    effective_status: "active"
+    activated_at: "2026-06-12"
+    resolved_at: "2026-06-13"
+    resolution: "Conflito documental resolvido — 005_CONT seções 2-bis, 3, 7 e 000_QUICK_REF atualizados."
 
   offensive_creation_v1:
     executable_status: "not_confirmed_for_ui"

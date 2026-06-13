@@ -63,7 +63,8 @@ consolidated_state:
       evidence_status: "passed"
     finalization_v1:
       status: "contrato_validado"
-      import_rule_v1: "nao_importar_v1"
+      import_rule_v1: "importar_v1"
+      activated_at: "2026-06-12"
       evidence: ["EV-006"]
       evidence_status: "passed"
     offensive_creation_v1:
@@ -100,7 +101,8 @@ module_status:
   finalization_v1:
     name: "Finalização v1.0"
     status: "contrato_validado"
-    import_rule_v1: "nao_importar_v1"
+    import_rule_v1: "importar_v1"
+    activated_at: "2026-06-12"
     evidence: ["EV-006"]
     evidence_status: "passed"
     validated_core_events:
@@ -224,9 +226,10 @@ module_finalization:
   name: "Finalização v1.0"
   definition: "Ação com arremesso intencional ao gol."
   status: "contrato_validado"
-  import_rule_v1: "nao_importar_v1"
-  last_reviewed_at: "2026-06-10"
-  git_head: "7352846"
+  import_rule_v1: "importar_v1"
+  activated_at: "2026-06-12"
+  last_reviewed_at: "2026-06-13"
+  git_head: "b0009a0"
   evidence: "EV-006"
   source_tabs:
     events: "EVENTOS"
@@ -487,7 +490,7 @@ release_rules:
   git_head: "7352846"
   app_import_ready:
     attack_no_shot_v1: "importar_v1"
-    finalization_v1: "aguarda_ativacao_app"
+    finalization_v1: "importar_v1"
     offensive_creation_v1: "aguarda_ativacao_app"
     defensive_v1: "aguarda_ativacao_app"
   blockers_before_full_app_activation:
@@ -1684,7 +1687,7 @@ spreadsheet_validation_matrix_update:
         - "notes"
       initial_scope:
         - "attack_no_shot_v1 -> EV-001 a EV-005, importar_v1"
-        - "finalization_v1 -> contrato validado bloqueado"
+        - "finalization_v1 -> EV-006, importar_v1, ativado 2026-06-12"
         - "offensive_creation_v1 -> contrato validado bloqueado"
         - "defensive_v1 -> contrato validado bloqueado"
         - "shootout_v1 -> EV-009, nao_importar_v1"
@@ -2024,7 +2027,143 @@ spreadsheet_frontmatter_and_contracts_update:
     - "Nenhum evento foi movido ou removido."
     - "A mudança adiciona governança de leitura, contratos específicos por aba e relacionamentos explícitos para reduzir inferência do agente."
     - "A planilha passa a orientar o futuro compilador de contratos por module_id, evitando envio de todas as abas ao LLM."
-  next_recommended_step: "Expandir SHEET_CONTRACTS para todas as abas restantes e depois criar o script extrator/compilador de contratos por module_id."
+  next_recommended_step: "Validar FIELD_RELATIONSHIPS com teste executável e depois criar o script extrator/compilador de contratos por module_id."
 ```
 
 
+## 42. Mapeamento explícito de relacionamentos e domínios fechados — FIELD_RELATIONSHIPS
+```yaml
+field_relationships_update:
+  date: "2026-06-12"
+  target: "SCOUT_DESIGN_TEMPLATE"
+  status: "field_relationships_validada_por_teste_contrato"
+  decision: "Criar uma camada específica para relacionamentos em nível de campo. SHEET_CONTRACTS permanece como contrato por aba; FIELD_RELATIONSHIPS passa a ser o registro canônico de chaves estrangeiras, domínios fechados, componente de UI, política SQLite e bloqueio de texto livre."
+  created_sheet:
+    FIELD_RELATIONSHIPS:
+      purpose: "Impedir que o agente adivinhe domínio, tipo de interface ou modelagem de banco."
+      header_row: 7
+      data_start_row: 8
+      key_columns:
+        - "relationship_id"
+        - "sheet_name"
+        - "field_code"
+        - "field_type"
+        - "references_sheet"
+        - "reference_kind"
+        - "references_key"
+        - "relationship_type"
+        - "ui_component"
+        - "sqlite_model"
+        - "sqlite_column_type"
+        - "allowed_values_source"
+        - "free_text_allowed"
+        - "required_when"
+        - "blocking_rule"
+        - "validation_source"
+        - "agent_action"
+        - "module_id"
+        - "notes"
+  core_rule:
+    free_text_allowed_false: "Quando free_text_allowed=false, o agente deve gerar selectbox, radio, multiselect ou componente equivalente fechado; é proibido gerar st.text_input."
+    references_sheet: "Quando references_sheet aponta para uma aba, o agente deve usar essa aba como domínio ou tabela de referência."
+    sqlite_policy: "Campos com enum_ref/entity_ref/event_ref devem virar FK, enum ou coluna tipada; JSON livre não pode ser fonte primária de análise."
+  initial_scope:
+    goalkeeper_v1:
+      mapped_fields:
+        - "goalkeeper_id -> ATHLETES.athlete_id"
+        - "linked_finalization_id -> EVENT_LOG.event_id filtrado por finalization_v1"
+        - "linked_finalization_event_code -> EVENTOS.event_code filtrado por finalization_v1"
+        - "result_goalkeeper -> RESULTADOS_GOLEIRA.result_code"
+        - "save_zone -> ZONAS_GOL.zone_id"
+        - "shot_goal_zone -> ZONAS_GOL.zone_id"
+        - "specialist_id -> ATHLETES.athlete_id"
+        - "exchange_result -> RESULTADOS_GOLEIRA.result_code"
+    finalization_v1:
+      mapped_fields:
+        - "goal_zone -> ZONAS_GOL.zone_id"
+        - "court_location -> ZONAS_QUADRA.zone_id"
+        - "scorer_role -> SCORER_ROLES.role_code"
+        - "position_code -> POSIÇÕES.position_code"
+        - "system_code -> SISTEMAS.system_code"
+    transition_v1:
+      mapped_fields:
+        - "trigger_event_id -> EVENT_LOG.event_id"
+        - "terminal_event_id -> EVENT_LOG.event_id"
+        - "transition_start_zone -> ZONAS_QUADRA.zone_id"
+        - "transition_target_zone -> ZONAS_QUADRA.zone_id"
+        - "transition_system -> SISTEMAS.system_code"
+    global:
+      mapped_fields:
+        - "EVENTOS.module_id -> MODULE_INDEX.module_id"
+        - "EVENTOS.required_result_field -> FIELD_DICTIONARY_GLOBAL.field_code"
+        - "SOURCE_REGISTER.module_id -> MODULE_INDEX.module_id"
+        - "SOURCE_REGISTER.related_sheets -> SHEET_MAP.sheet_name"
+    video_future_readiness:
+      mapped_fields:
+        - "EVENT_LOG.timestamp_ms"
+        - "EVENT_LOG.frame_index"
+        - "EVENT_LOG.action_visibility"
+  updated_sheets:
+    SHEET_CONTRACTS: "Adicionada linha de contrato para FIELD_RELATIONSHIPS."
+    SHEET_MAP: "Adicionada FIELD_RELATIONSHIPS como governance_contract."
+    VALIDATION_MATRIX: "Adicionado VAL-016 para futura validação executável da matriz de relacionamentos."
+    INSTRUCOES: "Adicionada seção sobre relacionamentos explícitos por campo."
+  current_effect:
+    - "Nenhum módulo foi liberado para UI ou importação."
+    - "Nenhum evento foi movido ou removido."
+    - "A planilha agora declara relacionamentos por campo suficientes para impedir text_input em domínios fechados."
+    - "O futuro compilador de contratos poderá gerar SQLModel/sqlite3 e Streamlit com base em relacionamentos explícitos, não inferidos."
+  next_recommended_step: "Criar extrator/snapshot automático de FIELD_RELATIONSHIPS a partir da planilha para eliminar manutenção manual entre Google Sheets e teste."
+```
+
+
+## 43. Evidência EV-016 — FIELD_RELATIONSHIPS validado por teste de contrato
+```yaml
+ev_016_field_relationships:
+  date: "2026-06-13"
+  scope: "Mapeamento explícito de relacionamentos e domínios fechados"
+  status: "passed"
+  classification: "contrato_validado_por_teste_local_sem_regressao_conhecida"
+  git_branch: "main"
+  git_head_reported_by_verify: "a13ce5d"
+  validated_artifacts:
+    spreadsheet:
+      - "SCOUT_DESIGN_TEMPLATE!FIELD_RELATIONSHIPS"
+      - "SCOUT_DESIGN_TEMPLATE!SHEET_CONTRACTS"
+      - "SCOUT_DESIGN_TEMPLATE!VALIDATION_MATRIX"
+    repository:
+      - "tests/test_field_relationships_contract.py"
+  local_validation:
+    field_relationships_contract:
+      command: "python3 -m pytest tests/test_field_relationships_contract.py"
+      result: "9 passed in 0.03s"
+    full_pytest:
+      command: "python3 -m pytest -q"
+      result: "320 passed in 19.81s"
+    verify_current_state:
+      command: "scripts/verify_current_state.sh"
+      result: "verde; 320 passed in 13.40s; event_definitions=35; expected_event_definitions=35; taxonomy_status=draft"
+    git_diff_check:
+      command: "git diff --check"
+      result: "sem saída"
+    git_status_short:
+      command: "git status --short"
+      result: "limpo"
+  validated_contract_rules:
+    - "relationship_id único e obrigatório"
+    - "reference_kind explícito e restrito a sheet, runtime_table, inline_enum, future_contract ou computed"
+    - "references_sheet só precisa existir em SHEET_MAP quando reference_kind=sheet"
+    - "ATHLETES e EVENT_LOG tratados como runtime_table"
+    - "VIDEO_ASSET tratado como future_contract"
+    - "INLINE tratado como inline_enum"
+    - "free_text_allowed=false obriga componente fechado e impede text_input"
+    - "event_ref aponta para EVENT_LOG com selectbox_filtered e INTEGER FK"
+    - "campos de vídeo permanecem preparação futura, sem liberação operacional"
+  current_effect:
+    - "Contrato FIELD_RELATIONSHIPS validado por teste executável local."
+    - "Nenhuma UI foi liberada."
+    - "Nenhuma importação foi liberada."
+    - "Nenhum SQLite/SQLModel foi gerado automaticamente por esta etapa."
+    - "O teste atual ainda usa snapshot Python; não lê a planilha online em tempo real."
+  next_recommended_step: "Criar extrator/snapshot automático de FIELD_RELATIONSHIPS a partir da planilha para evitar divergência manual entre Google Sheets e teste."
+```

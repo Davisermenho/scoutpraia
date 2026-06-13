@@ -12,8 +12,8 @@ repository: Davisermenho/scoutpraia
 blocking_policy: "Não declarar trabalho concluído sem cumprir os critérios aqui definidos."
 tipo: progresso_execução
 status_geral: MVP_COMPLETO
-fase_atual: "finalization_v1 ativo — ativação progressiva dos módulos v1 em curso; gerador/auditor full extraction integrados"
-testes_passando: 300
+fase_atual: "finalization_v1 ativo — QUICK_EVENT_TYPES derivado do registry (P0_005/P0_006 completos); UI registry sem eventos bloqueados"
+testes_passando: 352
 event_definitions: 35
 próxima_ação: "Validar merge com origin/main; testar gerador/auditor full extraction; gerar JSON da planilha"
 gaps_abertos:
@@ -342,4 +342,31 @@ decision=APROVADO
 - Verificação:
   ```bash
   source .venv/bin/activate && python3 -m pytest -q
+  ```
+
+---
+
+## Ciclo — P0_005 + P0_006: UI Registry + QUICK_EVENT_TYPES derivado do contrato
+
+- Data: `2026-06-13`
+- Contexto: P1_001 (conflito finalization_v1) resolvido. P0_005 e P0_006 implementados.
+- O que foi alterado:
+  - `scoutpraia/ui/__init__.py`: criado (pacote ui)
+  - `scoutpraia/ui/contracts.py`: criado — `get_active_quick_event_codes()`, `FORBIDDEN_EVENT_CODES`, `is_blocked_event()` derivados de `events_v1.py`
+  - `scoutpraia/pages/tagging.py`: `QUICK_EVENT_TYPES` agora é `get_active_quick_event_codes()` (remove hardcoded legacy/proibidos); default do session_state usa `QUICK_EVENT_TYPES[0]` em vez de `"shot_attempt"`
+  - `tests/test_ui_contract_registry.py`: criado — 22 testes provam que specialist_goal/specialist_attempt/shootout_goal estão fora do registry e que finalization+attack_no_shot estão presentes
+  - `tests/test_tagging_no_blocked_quick_buttons.py`: criado — 10 testes provam que QUICK_EVENT_TYPES não expõe eventos proibidos
+  - `tests/test_streamlit_pages.py`: dois testes atualizados para simular corretamente a troca de tipo de evento antes de preencher campos dependentes
+  - `docs/005_CONT_Operacional_Eventos_v1.md`: seções 2-bis, 3, 7 e 11 — finalization_v1 corrigido para `importar_v1`
+  - `docs/000_QUICK_REFERENCE.md`: tabela e seção 3 atualizados (finalization_v1 ativo)
+  - `docs/001_PLAN_Plano_Mestre_Agente.md`: module_effective_status.finalization_v1 → `effective_status: "active"`, P1_001 → `status: completed`
+  - memória `project_contract_g1fix.md`: atualizada para refletir dois módulos ativos
+- Resultado:
+  - `QUICK_EVENT_TYPES` não contém mais: `specialist_attempt`, `specialist_goal`, `shootout_goal`, `shot_attempt`, `goal_scored`, `two_point_goal`, etc.
+  - UI expõe apenas eventos de módulos com `IMPORT_RULE_V1_ACTIVE`
+  - 352 testes passando (32 novos testes adicionados)
+- Verificação:
+  ```bash
+  source .venv/bin/activate && python3 -m pytest -q
+  bash scripts/verify_current_state.sh
   ```

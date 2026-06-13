@@ -252,11 +252,12 @@ def test_tagging_page_create_update_and_delete_selected_event(monkeypatch, tmp_p
     at = AppTest.from_string(tagging_page_app_script(tmp_path / "pages.db", tmp_path / "reports"))
     at.run()
 
-    assert any(button.label == "Tentativa de finalização" for button in at.button)
+    assert any(button.label == "Arremesso simples" for button in at.button)
 
     selectbox_by_label(at, "Set").set_value(f"Set 1 (id {fixture['set_id']})")
     text_input_by_label(at, "Timestamp do vídeo").set_value("00:12.5")
     selectbox_by_label(at, "Evento").set_value("goal_scored")
+    at.run()  # rerenders form for the selected event type
     radio_by_label(at, "Lado").set_value("team")
     selectbox_by_label(at, "Atleta").set_value("Maria (#9)")
     selectbox_by_label(at, "Atleta secundária").set_value("Ana (#7)")
@@ -578,6 +579,7 @@ def test_tagging_page_applies_event_form_defaults_and_quick_timestamp_controls(
     at.run()
 
     selectbox_by_label(at, "Evento").set_value("goal_scored")
+    at.run()  # rerenders form for the selected event type
     radio_by_label(at, "Lado").set_value("team")
     selectbox_by_label(at, "Atleta").set_value("Maria (#9)")
     selectbox_by_label(at, "Atleta secundária").set_value("Ana (#7)")

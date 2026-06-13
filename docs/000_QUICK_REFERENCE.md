@@ -46,8 +46,8 @@ Fonte: `docs/SCOUT_DESIGN_TEMPLATE.xlsx` aba `MODULE_INDEX` + `docs/005_CONT_Ope
 
 | Módulo | import_rule_v1 | module_contract_status | ui_status |
 |--------|---------------|------------------------|-----------|
-| `attack_no_shot_v1` | `importar_v1` ✓ ÚNICO ATIVO | contrato_validado | liberada_conforme_app |
-| `finalization_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
+| `attack_no_shot_v1` | `importar_v1` ✓ | contrato_validado | liberada_conforme_app |
+| `finalization_v1` | `importar_v1` ✓ | contrato_validado | liberada_conforme_app |
 | `offensive_creation_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
 | `defensive_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
 | `shootout_v1` | `nao_importar_v1` ✗ | arquitetura_em_definicao | nao_liberada |
@@ -61,7 +61,7 @@ Fonte: `docs/SCOUT_DESIGN_TEMPLATE.xlsx` aba `MODULE_INDEX` + `docs/005_CONT_Ope
 ```
 MVP: COMPLETO — G5 FECHADO em 2026-06-12
 Testes: 320 passed
-Fase atual: ativação progressiva dos módulos v1 (único ativo: attack_no_shot_v1)
+Fase atual: ativação progressiva dos módulos v1 (ativos: attack_no_shot_v1, finalization_v1)
 Artefato primário: docs/SCOUT_DESIGN_TEMPLATE.xlsx (62 abas — MODULE_INDEX + SHEET_MAP são entradas obrigatórias)
 ```
 
@@ -70,7 +70,7 @@ Artefato primário: docs/SCOUT_DESIGN_TEMPLATE.xlsx (62 abas — MODULE_INDEX + 
 ## 4. Gates Ativos
 
 - `verify_current_state.sh` deve passar verde antes de qualquer declaração de sucesso
-- `python3 -m pytest -q` deve mostrar 311+ passed
+- `python3 -m pytest -q` deve mostrar 320+ passed
 - `PYTHONPATH=. python3 scripts/audit_docs_contract_alignment.py` deve passar sem errors
 
 ---
