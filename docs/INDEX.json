@@ -274,27 +274,81 @@
       "deprecation_reason": "OpenAI Evals platform shutdown: novembro 2026. ScoutPraia usa Claude SDK."
     }
   ],
+  "scout_design_template": {
+    "file": "docs/SCOUT_DESIGN_TEMPLATE.xlsx",
+    "artifact_id": "SCOUT_DESIGN_TEMPLATE",
+    "schema_version": "frontmatter_v1",
+    "authority_level": 5,
+    "total_sheets": 62,
+    "canonical_registry_sheet": "SOURCE_REGISTER",
+    "data_region": "header_row=7; data_start_row=8",
+    "key_sheets_for_agents": [
+      "INSTRUÇÕES",
+      "MODULE_INDEX",
+      "SHEET_MAP",
+      "EVENTOS",
+      "FIELD_RELATIONSHIPS",
+      "CROSS_MODULE_BOUNDARIES",
+      "AI_USE_POLICY"
+    ],
+    "notes": "Fonte primária dos contratos de módulo, campos auxiliares, domínios e testes. Abas MODULE_INDEX e SHEET_MAP são pontos de entrada obrigatórios antes de navegar qualquer outra aba."
+  },
   "module_status": {
     "attack_no_shot_v1": {
       "import_rule": "importar_v1",
-      "status": "contrato_validado",
-      "active": true
+      "module_contract_status": "contrato_validado",
+      "ui_status": "liberada_conforme_app",
+      "active": true,
+      "primary_events": ["technical_error_unforced", "technical_error_forced", "offensive_foul", "goal_area_invasion_attack", "passive_play_turnover", "bad_substitution_attack", "turnover_unclassified"],
+      "test_files": ["tests/test_attack_no_shot_contract.py", "tests/test_attack_no_shot_import_scope.py", "tests/test_no_shot_attack_contract_service.py"]
     },
     "finalization_v1": {
-      "import_rule": "importar_v1",
-      "status": "contrato_validado",
-      "active": true,
-      "activation_date": "2026-06-12"
+      "import_rule": "nao_importar_v1",
+      "module_contract_status": "contrato_validado",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["simple_shot", "spin_shot", "inflight_shot", "goalkeeper_shot", "six_metre_throw"],
+      "test_files": ["tests/test_finalization_contract.py", "tests/test_finalization_contract_service.py"]
     },
     "offensive_creation_v1": {
       "import_rule": "nao_importar_v1",
-      "status": "contrato_validado",
-      "active": false
+      "module_contract_status": "contrato_validado",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["assist_to_finalization"],
+      "test_files": ["tests/test_offensive_creation_contract.py"]
     },
     "defensive_v1": {
       "import_rule": "nao_importar_v1",
-      "status": "contrato_validado",
-      "active": false
+      "module_contract_status": "contrato_validado",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["line_block_shot"],
+      "test_files": ["tests/test_defensive_contract.py"]
+    },
+    "shootout_v1": {
+      "import_rule": "nao_importar_v1",
+      "module_contract_status": "arquitetura_em_definicao_validada_por_teste_conceitual",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["shootout_attempt"],
+      "test_files": ["tests/test_shootout_contract.py"]
+    },
+    "goalkeeper_v1": {
+      "import_rule": "nao_importar_v1",
+      "module_contract_status": "arquitetura_em_definicao_validada_por_teste_conceitual",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["goalkeeper_save", "goalkeeper_goal_allowed", "goalkeeper_specialist_exchange"],
+      "test_files": ["tests/test_goalkeeper_contract.py"]
+    },
+    "transition_v1": {
+      "import_rule": "nao_importar_v1",
+      "module_contract_status": "arquitetura_em_definicao_validada_por_teste_conceitual",
+      "ui_status": "nao_liberada",
+      "active": false,
+      "primary_events": ["transition_sequence"],
+      "test_files": ["tests/test_transition_contract.py"]
     }
   },
   "broken_references": [],

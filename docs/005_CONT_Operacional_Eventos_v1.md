@@ -63,8 +63,7 @@ consolidated_state:
       evidence_status: "passed"
     finalization_v1:
       status: "contrato_validado"
-      import_rule_v1: "importar_v1"
-      activation_date: "2026-06-12"
+      import_rule_v1: "nao_importar_v1"
       evidence: ["EV-006"]
       evidence_status: "passed"
     offensive_creation_v1:
@@ -101,8 +100,7 @@ module_status:
   finalization_v1:
     name: "Finalização v1.0"
     status: "contrato_validado"
-    import_rule_v1: "importar_v1"
-    activation_date: "2026-06-12"
+    import_rule_v1: "nao_importar_v1"
     evidence: ["EV-006"]
     evidence_status: "passed"
     validated_core_events:
@@ -113,7 +111,6 @@ module_status:
       - "six_metre_throw"
     auxiliary_only:
       - "specialist_finish_role"
-    activation_note: "Ativado em 2026-06-12 (git head cc05ef9). Botões de Finalização v1.0 ativos na UI de marcação. Ver 004_PROG_Progresso_Implementacao.md ciclo de ativação."
 
   offensive_creation_v1:
     name: "Criação ofensiva v1.0"
@@ -227,8 +224,7 @@ module_finalization:
   name: "Finalização v1.0"
   definition: "Ação com arremesso intencional ao gol."
   status: "contrato_validado"
-  import_rule_v1: "importar_v1"
-  activation_date: "2026-06-12"
+  import_rule_v1: "nao_importar_v1"
   last_reviewed_at: "2026-06-10"
   git_head: "7352846"
   evidence: "EV-006"

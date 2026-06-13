@@ -76,6 +76,51 @@ Quando documentos conflitam, o de maior `authority_level` vence.
 
 ---
 
+## Artefato Central — SCOUT_DESIGN_TEMPLATE.xlsx
+
+**Arquivo:** `docs/SCOUT_DESIGN_TEMPLATE.xlsx`
+**Autoridade:** 5 (nível máximo — fonte primária de todos os contratos de módulo)
+
+Este arquivo Excel é o **artefato de design mestre** do ScoutPraia. Contém 62 abas organizadas em camadas:
+
+### Abas obrigatórias para agentes (entrar aqui primeiro)
+
+| Aba | Tipo | Descrição |
+|-----|------|-----------|
+| `INSTRUÇÕES` | documentation | Frontmatter e metadados do artefato |
+| `MODULE_INDEX` | architecture_index | Status de todos os 7 módulos v1: import_rule, ui_status, test_files |
+| `SHEET_MAP` | architecture_index | Mapa das 62 abas — scope, módulo, tipo, dependências |
+| `EVENTOS` | master_registry | Registro mestre de todos os eventos (não concentra todos os detalhes por módulo) |
+
+### Abas de contratos globais
+
+| Aba | Tipo |
+|-----|------|
+| `FIELD_RELATIONSHIPS` | governance_contract — relações entre campos e sheets |
+| `CROSS_MODULE_BOUNDARIES` | cross_module_contract |
+| `AI_USE_POLICY` | ai_governance |
+| `FIELD_DICTIONARY_GLOBAL` | dicionário global de campos |
+| `DECISION_PRECEDENCE` | precedência de decisão em conflitos |
+
+### Estrutura por módulo v1
+
+Cada módulo tem 3–4 abas próprias:
+`CAMPOS_AUXILIARES_<MODULO>` + `RESULTADOS_<MODULO>` + `TESTES_<MODULO>` + `VERSIONAMENTO_<MODULO>`
+
+| Módulo | import_rule_v1 | Abas próprias |
+|--------|---------------|---------------|
+| `attack_no_shot_v1` | `importar_v1` ✓ | CAMPOS_AUXILIARES_ATAQUE_SEM_FINALIZACAO + 4 |
+| `finalization_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_FINALIZACAO + 4 |
+| `offensive_creation_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_CRIACAO_OFENSIVA + 3 |
+| `defensive_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_DEFENSIVO + 3 |
+| `shootout_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_SHOOTOUT + 3 |
+| `goalkeeper_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_GOLEIRA + 3 |
+| `transition_v1` | `nao_importar_v1` | CAMPOS_AUXILIARES_TRANSICAO + 2 |
+
+**Convenção de leitura:** `header_row=7; data_start_row=8` em todas as abas. Linhas 1–6 são frontmatter.
+
+---
+
 ## Fontes externas (`sources/`)
 | doc_id | Arquivo | Propósito |
 |--------|---------|-----------|

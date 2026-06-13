@@ -42,12 +42,17 @@ AGENTS.md                          (authority 5)
 
 ## 2. Status dos Módulos v1
 
-| Módulo | import_rule_v1 | Status |
-|--------|---------------|--------|
-| `attack_no_shot_v1` | `importar_v1` ✓ ATIVO | contrato_validado |
-| `finalization_v1` | `importar_v1` ✓ ATIVO | contrato_validado — ativado 2026-06-12 |
-| `offensive_creation_v1` | `nao_importar_v1` ✗ BLOQUEADO | contrato_validado |
-| `defensive_v1` | `nao_importar_v1` ✗ BLOQUEADO | contrato_validado |
+Fonte: `docs/SCOUT_DESIGN_TEMPLATE.xlsx` aba `MODULE_INDEX` + `docs/005_CONT_Operacional_Eventos_v1.md`
+
+| Módulo | import_rule_v1 | module_contract_status | ui_status |
+|--------|---------------|------------------------|-----------|
+| `attack_no_shot_v1` | `importar_v1` ✓ ÚNICO ATIVO | contrato_validado | liberada_conforme_app |
+| `finalization_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
+| `offensive_creation_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
+| `defensive_v1` | `nao_importar_v1` ✗ | contrato_validado | nao_liberada |
+| `shootout_v1` | `nao_importar_v1` ✗ | arquitetura_em_definicao | nao_liberada |
+| `goalkeeper_v1` | `nao_importar_v1` ✗ | arquitetura_em_definicao | nao_liberada |
+| `transition_v1` | `nao_importar_v1` ✗ | arquitetura_em_definicao | nao_liberada |
 
 ---
 
@@ -55,9 +60,9 @@ AGENTS.md                          (authority 5)
 
 ```
 MVP: COMPLETO — G5 FECHADO em 2026-06-12
-Testes: 311 passed
-Fase atual: ativação progressiva dos módulos v1
-Próxima ação: offensive_creation_v1 (aguarda decisão de Davi)
+Testes: 320 passed
+Fase atual: ativação progressiva dos módulos v1 (único ativo: attack_no_shot_v1)
+Artefato primário: docs/SCOUT_DESIGN_TEMPLATE.xlsx (62 abas — MODULE_INDEX + SHEET_MAP são entradas obrigatórias)
 ```
 
 ---
