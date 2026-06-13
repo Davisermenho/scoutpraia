@@ -2,7 +2,7 @@
 doc_id: RAG_016
 title: "Plano de Organização de Fontes RAG"
 status: active
-version: "2.0.0"
+version: "3.0.0"
 authority_level: 2
 category: RAG
 owner: Davi Sermenho
@@ -11,6 +11,7 @@ last_updated: "2026-06-13"
 repository: Davisermenho/scoutpraia
 tipo: plano_organização_fontes
 data_elaboração: 2026-06-08
+plan_version_ref: "beach_handball_ai_rag_action_plan_v1.6"
 status_ações:
   A1_deletar_morto: CONCLUÍDO
   A2_registrar_regras_md: CONCLUÍDO
@@ -21,13 +22,13 @@ status_ações:
   A7_coluna_fonte_dicionário: CONCLUÍDO
 gaps_residuais:
   G1: RESOLVIDO
-  G2: DIFERIDO_FASE_2
-  G3: DIFERIDO_FASE_2
+  G2: FASE_2_ATIVA
+  G3: FASE_2_ATIVA
   G4: RESOLVIDO
-  G5: ABERTO
+  G5: RESOLVIDO_2026-06-12
   G6: MONITORADO
   G7: RESOLVIDO
-nota: "Plano executado; único gap ativo é G5 (validação humana)"
+nota: "Fase 2 desbloqueada em 2026-06-12 (G5 aprovado). Plano v1.6 incorporado na seção 8."
 ---
 
 # Plano de Organização de Fontes — ScoutPraia
@@ -668,4 +669,263 @@ Verificado por leitura direta. Todos os headers abaixo já existem ou devem ser 
 | `docs/003_PLAN_Passos_Implementacao_IA.md` | `# ScoutPraia — Plano de Implementação para IA` |
 | `docs/010_AUDIT_Validacao_G5.md` | `# Auditoria de Evidências e Validação — ScoutPraia` |
 | `docs/017_AUDIT_Fluxo_MVP_Agente.md` | `# Auditoria do Fluxo de Implementação do MVP — ScoutPraia` |
-| `docs/sources/Scout de Handebol de Areia_ Fontes Fortes.md` | manter H1 original — não alterar |
+| `docs/sources/REF_S02_Fontes_Fortes_Handebol.md` | manter H1 original — não alterar |
+
+---
+
+## 8. Plano v1.6 — Registro de Fontes Fortes e MVP Textual RAG
+
+> **Base:** `beach_handball_ai_rag_action_plan_v1.6` (aprovado_com_correcoes_aplicadas)
+> **Incorporado em:** 2026-06-13
+
+### 8.1 Estrutura de pastas `beach_handball_ai/fontes/`
+
+```text
+beach_handball_ai/
+  fontes/
+    00_registro/
+      fontes_oficiais.md          ← registro canônico para agentes
+      fontes_oficiais.csv         ← exportação derivada para scripts
+
+    01_ihf_regras/
+      regras_ihf_beach_handball_2026.pdf
+      apendice_sinais_arbitros.pdf
+      esclarecimentos_regras.pdf
+      area_substituicao.pdf
+      uniformes_atletas.pdf
+      qualidade_areia_iluminacao.pdf
+      atualizacoes_ihf_2026.md
+
+    02_ehf_tecnico/
+      refereeing_beach_handball.pdf
+      shootout_psychological_pressure.pdf
+      ultimate_school_handball_2025.pdf
+      mini_beach_handball_info_sheet.pdf
+
+    03_cbhb_brasil/
+      regulamento_cbhb_2026.pdf
+      regras_cbhb_handebol_praia.pdf
+      regulamento_circuito_brasileiro.pdf
+
+    04_fontes_proprias_cepraea/
+      glossario_tecnico_cepraea.md
+      playbook_cepraea.md
+      scout_schema.md
+      criterios_taticos_cepraea.md
+
+    05_processado/
+      documentos_markdown/
+      chunks_jsonl/
+      manifest_checksums.json
+
+    06_metodologia_rag_agentes/
+      01_rag_recuperacao/
+      02_reflection_self_refine/
+      03_multiagente_debate/
+      04_structured_output_schema/
+      05_agent_benchmarks/
+      06_frameworks_notebooks/
+      07_videos_secundarios/
+      manifest_metodologia.json
+
+    07_video_visao_computacional/
+      01_pose_estimation/
+      02_multi_object_tracking/
+      03_action_spotting/
+      04_video_representation_learning/
+      05_multimodal_sports_reasoning/
+      manifest_video_cv.json
+
+    08_ciencia_desempenho_beach_handball/
+      01_analise_notacional/
+      02_arremessos_finalizacao/
+      03_tomada_decisao_contexto/
+      04_estatisticas_jogo/
+      05_carga_fisiologia_biomecanica/
+      manifest_ciencia_bh.json
+```
+
+### 8.2 Registro canônico `fontes_oficiais.md`
+
+O arquivo canônico de registro para leitura por agentes é `fontes/00_registro/fontes_oficiais.md`. O CSV é exportação derivada para scripts de ingestão — nunca fonte principal de compreensão do agente.
+
+**Frontmatter obrigatório:**
+```yaml
+title: Registro de Fontes Oficiais
+document_id: fontes_oficiais
+version: v1.0
+status: em_validacao
+canonical_format: markdown
+derived_exports: fontes_oficiais.csv
+source_policy: Markdown é a fonte canônica; CSV é exportação técnica.
+```
+
+Cada fonte usa seção `### SOURCE_ID — Título` com tabela curta obrigatória:
+
+| Campo | Valor |
+|-------|-------|
+| source_id | SOURCE_ID |
+| nível | A/B/C/D/Rejeitada |
+| coleção | nome_da_colecao |
+| status | status_da_fonte |
+| uso permitido | … |
+| uso proibido | … |
+
+Campos completos por fonte: `source_id`, `titulo`, `organizacao`, `tipo`, `data`, `versao`, `link`, `link_canonico`, `aliases`, `uso_permitido`, `uso_proibido`, `tema`, `subtema`, `nivel_de_confiabilidade`, `colecao_vetorial`, `arquivo_local`, `status`, `checksum_sha256`, `data_coleta`, `criterio_de_validacao`, `observacao`.
+
+Fontes rejeitadas permanecem apenas para auditoria (`status: rejeitada`, `colecao_vetorial: fora_do_rag`).
+
+### 8.3 Catálogo de fontes — status atual
+
+| source_id | grupo | nível | coleção vetorial | status |
+|-----------|-------|-------|-----------------|--------|
+| IHF_RULES_BH_2026 | regra oficial | A | bh_regras | validado |
+| IHF_UPDATE_BH_2026_04 | atualização oficial | A | bh_regras | validado |
+| CBHB_REGULAMENTO_2026 | regulamento nacional | A | bh_regras | pendente_validacao |
+| EHF_REFEREEING_BH | arbitragem técnica | B | bh_tecnico | pendente_validacao |
+| EHF_SHOOTOUT_PRESSURE | técnica/psicologia | B | bh_tecnico | pendente_validacao |
+| CEPRAEA_GLOSSARIO_TECNICO | fonte interna | C | bh_glossario | pendente_redacao |
+| CEPRAEA_PLAYBOOK | fonte interna | C | bh_playbook_cepraea | pendente_redacao |
+| CEPRAEA_SCOUT_SCHEMA | fonte interna | C | bh_scout | pendente_redacao |
+| MET_JSON_SCHEMA_RUNTIME_VALIDATION_2025 | metodologia_structured_output | C | ai_metodologia_structured_output | pendente_validacao |
+| MET_CHOPCHOP_SEMANTIC_CONSTRAINED_DECODING_2025 | metodologia_structured_output | C | ai_metodologia_structured_output | pendente_validacao |
+| MET_CONTROLLABLE_GENERATION_LCR_2025 | metodologia_structured_output | B | ai_metodologia_structured_output | pendente_revisao_manual |
+| MET_SELF_REFINE_2023 | metodologia_reflexao | B | ai_metodologia_reflexao | pendente_revisao_manual |
+| MET_LONG_DOC_QA_COST_2026 | metodologia_rag | C | ai_metodologia_rag | pendente_validacao |
+| MET_AGENT_WORKFLOW_DEPENDENCIES_2025 | metodologia_avaliacao_agentes | C | ai_metodologia_avaliacao_agentes | pendente_validacao |
+| MET_TOOL_DECATHLON_2026 | metodologia_avaliacao_agentes | C | ai_metodologia_avaliacao_agentes | pendente_validacao_licenca |
+| MET_DYFLOW_2025 | metodologia_agentes | C | ai_metodologia_avaliacao_agentes | pendente_validacao |
+| MET_TYPE_CONSTRAINED_CODE_GEN_2025 | metodologia_structured_output | B | ai_metodologia_structured_output | pendente_revisao_manual |
+| MET_LANGGRAPH_REFLECTION_NOTEBOOK | frameworks_notebooks | C | ai_frameworks_notebooks | pendente_fixar_commit |
+| MET_AUTOGEN_GROUPCHAT_VIS_0_2 | frameworks_notebooks | C | ai_frameworks_notebooks | pendente_validacao_versao |
+| MET_AG2_GROUPCHAT_VIS | frameworks_notebooks | C | ai_frameworks_notebooks | pendente_fixar_commit |
+| MET_YOUTUBE_AGENT_REFLECTION_DYHWQM | videos_secundarios | D | fora_do_rag_principal | pendente_transcricao |
+| MET_REFLEXION_2023 | metodologia_reflexao | C | ai_metodologia_reflexao | pendente_validacao |
+| MET_MULTIAGENT_DEBATE_2023 | metodologia_multiagente | C | ai_metodologia_multiagente | pendente_validacao |
+| MET_MLE_DOJO_2025 | metodologia_avaliacao_agentes | C | ai_metodologia_avaliacao_agentes | pendente_validacao_licenca |
+| MET_QLASS_2025 | metodologia_agentes | B | ai_metodologia_avaliacao_agentes | pendente_revisao_manual |
+| CV_UNITRACK_MOT_2026 | visao_computacional_tracking | C | ai_video_tracking | pendente_validacao |
+| CV_COMBAT_SPORTS_POSE_2025 | visao_computacional_pose | C | ai_video_pose_estimation | pendente_validacao |
+| CV_GST_3D_HUMAN_BODY_2025 | visao_computacional_3d_body | C | ai_video_pose_estimation | pendente_validacao |
+| AI_SPORTR_MULTIMODAL_SPORTS_2026 | sports_multimodal_reasoning | C | ai_sports_multimodal_reasoning | pendente_validacao |
+| DATA_SOCCERNET_BALL_ACTION_SPOTTING | action_spotting | C | ai_video_action_spotting | pendente_validacao_licenca |
+| SCI_BH_WOMENS_GAME_STATS_KINESIOLOGY_2022 | beach_handball_estatisticas_jogo | B | bh_ciencia_estatisticas_jogo | pendente_revisao_manual_tabelas |
+| SCI_BH_THROWING_PERFORMANCE_APUNTS_2020 | beach_handball_arremessos | B | bh_ciencia_arremessos | pendente_revisao_manual_tabelas |
+| SCI_BH_NOTATIONAL_ANALYSIS_HUMMOV_2022 | beach_handball_analise_notacional | B | bh_ciencia_analise_notacional | pendente_revisao_manual_tabelas |
+| SCI_BH_CONTEXTUAL_FACTORS_FRONTIERS_2019 | beach_handball_tomada_decisao | B | bh_ciencia_tomada_decisao | pendente_revisao_manual_tabelas |
+| SCI_PMC5721173_PENDING | ciencia_esporte_pendente | Rejeitada | fora_do_rag | pendente_validacao_bibliografica |
+| SCI_MOTRIZ_WR8RTPX_PENDING | ciencia_esporte_pendente | Rejeitada | fora_do_rag | pendente_validacao_bibliografica |
+| SCI_PUBMED_34705619_PENDING | ciencia_esporte_pendente | Rejeitada | fora_do_rag | pendente_validacao_bibliografica |
+| CV_MDPI_SENSORS_22083011_PENDING | visao_computacional_sensores_pendente | Rejeitada | fora_do_rag | pendente_validacao_bibliografica |
+| CV_CVPR2023_COMPUTER_PENDING | visao_computacional_pendente | Rejeitada | fora_do_rag | pendente_validacao_bibliografica |
+| CV_HRNET_HUMAN_POSE_2019 | visao_computacional_pose | B | ai_video_pose_estimation | pendente_revisao_manual_pdf |
+| CV_VIDEOMAE_NEURIPS_2022 | video_representation_learning | B | ai_video_representation_learning | pendente_revisao_manual_pdf |
+| MET_NAACL_INDUSTRY_2024_019 | metodologia_rag | C | ai_metodologia_rag | pendente_validacao_local |
+| IHF_RULES_BH_LOCAL_PDF | regra oficial local | A | bh_regras | pendente_validacao_checksum |
+| SCI_BH_NOTATIONAL_ANALYSIS_IANNACCONE_2022 | beach_handball_analise_notacional | B | bh_ciencia_analise_notacional | pendente_revisao_manual_tabelas |
+| SCI_OBSERVATIONAL_MEASUREMENT_PRIMER_2017 | metodologia_observacional | C | ai_metodologia_rag | pendente_validacao_local |
+| LOCAL_SOURCES_README | fonte_interna_corpus | C | ai_metodologia_rag | pendente_validacao_local |
+| IHF_RULES_BH_DERIVED_REGRAS_MD | regra_derivada_local | C | bh_regras | pendente_rastrear_fonte_original |
+| LOCAL_SCOUT_BH_FONTES_FORTES | fonte_interna_scout | C | bh_scout | pendente_validacao_local |
+| SCI_VALIDATION_OBSERVATIONAL_INSTRUMENT_HANDBALL_2023 | metodologia_observacional | C | ai_metodologia_rag | pendente_validacao_local |
+| SCI_BH_WOMENS_STATS_KAZAN_2022 | beach_handball_estatisticas_jogo | B | bh_ciencia_estatisticas_jogo | pendente_revisao_manual_tabelas |
+| MET_OPENAI_WORKING_WITH_EVALS_LOCAL | metodologia_avaliacao_agentes | C | ai_metodologia_avaliacao_agentes | pendente_validacao_local |
+
+### 8.4 Fontes locais em `docs/sources/`
+
+| source_id | arquivo_local | nível | coleção | status |
+|-----------|--------------|-------|---------|--------|
+| MET_NAACL_INDUSTRY_2024_019 | `docs/sources/2024.naacl-industry.19.pdf` | C | ai_metodologia_rag | pendente_validacao_local |
+| IHF_RULES_BH_LOCAL_PDF | `docs/sources/ihf_rules_beach_handball.pdf` | A | bh_regras | pendente_validacao_checksum |
+| SCI_BH_NOTATIONAL_ANALYSIS_IANNACCONE_2022 | `docs/sources/notational_analysis_bh_iannaccone_2022.pdf` | B | bh_ciencia_analise_notacional | pendente_revisao_manual_tabelas |
+| SCI_OBSERVATIONAL_MEASUREMENT_PRIMER_2017 | `docs/sources/primer_observational_measurement_2017.html` | C | ai_metodologia_rag | pendente_validacao_local |
+| LOCAL_SOURCES_README | `docs/sources/README.md` | C | ai_metodologia_rag | pendente_validacao_local |
+| IHF_RULES_BH_DERIVED_REGRAS_MD | `docs/sources/REF_S01_Regras_Oficiais_IHF_2026.md` | C | bh_regras | pendente_rastrear_fonte_original |
+| LOCAL_SCOUT_BH_FONTES_FORTES | `docs/sources/REF_S02_Fontes_Fortes_Handebol.md` | C | bh_scout | pendente_validacao_local |
+| SCI_VALIDATION_OBSERVATIONAL_INSTRUMENT_HANDBALL_2023 | `docs/sources/validation_observational_instrument_handball_2023.html` | C | ai_metodologia_rag | pendente_validacao_local |
+| SCI_BH_WOMENS_STATS_KAZAN_2022 | `docs/sources/womens_bh_statistics_kazan_2022.pdf` | B | bh_ciencia_estatisticas_jogo | pendente_revisao_manual_tabelas |
+| MET_OPENAI_WORKING_WITH_EVALS_LOCAL | `docs/sources/_deprecated/DEPR_S03_OpenAI_Evals.md` | C | ai_metodologia_avaliacao_agentes | deprecado — plataforma em shutdown nov/2026 |
+
+**Regras de uso das fontes locais:**
+- `IHF_RULES_BH_LOCAL_PDF` só permanece como nível A se o checksum confirmar cópia íntegra da regra vigente
+- `IHF_RULES_BH_DERIVED_REGRAS_MD` é derivado local; não substitui o PDF oficial sem rastreabilidade
+- PDFs científicos entram no RAG somente após revisão manual de tabelas, amostra, método e limitações
+- Arquivos `.html` entram somente após extração limpa de título, autoria, ano e conteúdo principal
+- `MET_OPENAI_WORKING_WITH_EVALS_LOCAL` está depreciado; a plataforma Evals encerra em nov/2026
+
+### 8.5 Chunking
+
+- **Tamanho:** 500–900 tokens; sobreposição de 80–120 tokens
+- Regra oficial não pode ser quebrada no meio; título e explicação ficam no mesmo chunk
+- Fontes de domínios diferentes não ficam no mesmo chunk (regra + ciência, IA + esporte)
+
+**Tipos de chunk:** `chunk_normativo` | `chunk_tecnico` | `chunk_cepraea` | `chunk_cientifico_bh` | `chunk_metodologico_ai` | `chunk_video_cv`
+
+**Metadados obrigatórios por chunk:**
+```json
+{
+  "chunk_id": "",
+  "source_id": "",
+  "titulo": "",
+  "organizacao": "",
+  "tema": "",
+  "subtema": "",
+  "nivel_confiabilidade": "",
+  "colecao_vetorial": "",
+  "versao": "",
+  "data": "",
+  "arquivo_local": "",
+  "uso_permitido": "",
+  "uso_proibido": "",
+  "status": ""
+}
+```
+
+### 8.6 Critérios de avaliação (3 abas de perguntas)
+
+**Aba perguntas_mvp_textual (30 perguntas — normativas IHF, arbitragem, EHF, CEPRAEA e recusa):**
+- 30/30 respostas citam `source_id` ou recusam corretamente
+- Zero resposta sem fonte; zero regra inventada; zero mistura IHF × CEPRAEA
+- Pelo menos 5 perguntas sem base documental recusadas corretamente
+
+**Aba perguntas_metodologia_agente (10 perguntas):**
+- 10/10 citam `source_id` correto ou recusam
+- Zero uso de fonte metodológica para regra esportiva
+
+**Aba perguntas_video_ciencia_bh (12 perguntas):**
+- 12/12 citam `source_id` correto ou recusam
+- Zero uso de visão computacional para regra esportiva
+
+**Relatório de avaliação:** `avaliacoes/eval_mvp_textual_001.md`
+
+### 8.7 Ordem operacional da Fase 2
+
+1. Registrar fontes oficiais IHF, CBHb, EHF e CEPRAEA em `fontes_oficiais.md`
+2. Registrar fontes metodológicas de IA
+3. Registrar fontes de visão computacional e ciência do Beach Handball
+4. Validar links canônicos e aliases
+5. Salvar cada fonte como arquivo local
+6. Gerar checksum SHA-256
+7. Preencher `fontes_oficiais.md` como registro canônico; gerar `fontes_oficiais.csv` como exportação derivada
+8. Converter PDFs e páginas para Markdown limpo
+9. Revisar manualmente tabelas científicas
+10. Fixar commit hash de notebooks GitHub
+11. Transcrever e revisar vídeos antes de qualquer ingestão
+12. Criar chunks com metadados completos
+13. Inserir chunks nas coleções vetoriais corretas
+14. Rodar teste de recuperação sem LLM
+15. Rodar avaliação do agente com as 3 abas de perguntas (52 total)
+16. Corrigir fontes, chunks, metadados ou prompt quando houver falha
+17. Liberar o MVP textual apenas após aprovação em `avaliacoes/eval_mvp_textual_001.md`
+
+### 8.8 Definição de pronto — MVP textual RAG
+
+- Registro canônico `fontes_oficiais.md` contém todas as fontes aceitas
+- Fontes rejeitadas não entram no RAG
+- Todos os chunks têm metadados completos
+- Coleções vetoriais separadas por domínio
+- Teste de recuperação aprova fontes corretas no top 3
+- Perguntas sem base documental são recusadas
+- Respostas técnicas citam `source_id`, título e organização
+- Agente diferencia regra oficial, ciência, fonte metodológica, visão computacional e convenção CEPRAEA
+- Relatório `avaliacoes/eval_mvp_textual_001.md` aprovado
