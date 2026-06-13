@@ -84,12 +84,16 @@ MUST NOT: versionar vídeos, banco local, clipes, relatórios gerados, .env, .ve
 MUST NOT: avançar fase se o gate de aceite da fase anterior falhar
 MUST NOT: declarar MVP completo sem evidência reproduzível
 MUST NOT: iniciar RAG antes do MVP completo
+MUST NOT: enviar as 52 abas CSV da planilha em um único prompt — usar extrator de contrato por módulo (ver 012_ARCH_Agent_View_Design.md)
+MUST NOT: armazenar campos auxiliares como JSON blob ou texto livre — usar colunas tipadas (INTEGER FK, TEXT ENUM) conforme FIELD_RELATIONSHIPS
 
 MUST: implementar monólito local em Python
 MUST: rodar scripts/verify_current_state.sh após cada mudança relevante
 MUST: atualizar docs/004_PROG_Progresso_Implementacao.md a cada ciclo
 MUST: corrigir causa raiz, não apenas silenciar erro
 MUST: manter MVP simples, local e utilizável por uma pessoa
+MUST: usar st.session_state para estado de posse de bola — Streamlit é stateless entre reruns
+MUST: executar o ciclo Reflexion antes de pedir validação humana (ver seção 8.3)
 ```
 
 ### 0.2 Fontes validadoras
@@ -570,6 +574,14 @@ Implementar tela crítica:
 - filtros para localizar evento por set, lado, tipo e busca textual.
 - navegação rápida entre eventos filtrados.
 
+Regra de estado (session_state obrigatório):
+
+- Streamlit é stateless — cada interação recarrega o script do zero.
+- Estado de posse de bola deve ser mantido em `st.session_state.current_possession`.
+- Validar posse antes de registrar qualquer finalização: se `current_possession != "Ataque"`, exibir `st.error` e bloquear o evento.
+- O `sequence_id` de cada evento deve usar `st.session_state` como contador, garantindo ordenação temporal consistente com o timestamp do vídeo.
+- Campos de seleção de domínio fechado (zona, resultado, tipo de defesa) devem ser `st.selectbox`, nunca `st.text_input` — conforme mapeamento de FK em FIELD_RELATIONSHIPS.
+
 Limitação reconhecida:
 
 - Streamlit não garante controle fino do tempo real do player HTML nativo. Para MVP, aceitar timestamp manual e botões rápidos. Hotkeys podem ficar para evolução se exigirem componente customizado.
@@ -579,6 +591,7 @@ Gate:
 - usuário consegue marcar pelo menos 20 eventos sem recarregar o app manualmente.
 - eventos salvos aparecem no histórico.
 - edição e exclusão de evento funcionam sobre qualquer item selecionado.
+- posse de bola bloqueante: finalização sem posse "Ataque" retorna erro visível, não salva evento.
 - edição e exclusão de `set` e `posse` funcionam.
 - filtros e navegação do editor permitem localizar o evento correto sem excluir registros intermediários.
 
@@ -649,6 +662,25 @@ Gate:
 
 - `pytest` passa.
 - fixture sintética gera KPIs previsíveis.
+
+### 8.3 Ciclo de autocorreção — Reflexion Loop
+
+Para cada módulo implementado, o agente deve seguir este ciclo antes de pedir validação humana:
+
+1. Escrever código Streamlit/SQLite para o módulo.
+2. Executar os testes BDD do módulo: `pytest tests/test_<modulo>_contract.py -v`.
+3. Se algum teste falhar:
+   - Ler o `stderr` completo da saída do pytest.
+   - Identificar qual regra da planilha ou contrato foi violada.
+   - Reescrever apenas o trecho responsável pela falha.
+   - Repetir a partir do passo 2.
+4. Só pedir validação humana após pytest passar com 0 falhas.
+
+Regra:
+
+- Nenhum módulo é entregue com teste falhando.
+- O stdout completo do `pytest` deve ser incluído como evidência de aceite no `004_PROG_Progresso_Implementacao.md`.
+- O ciclo não substitui a validação humana — ele garante que o agente não entregue código quebrado para revisão.
 
 ---
 
